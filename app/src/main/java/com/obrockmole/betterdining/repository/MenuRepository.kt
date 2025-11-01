@@ -1,7 +1,9 @@
 package com.obrockmole.betterdining.repository
 
 import com.obrockmole.betterdining.models.GraphQLRequest
+import com.obrockmole.betterdining.models.ItemDetailsResponse
 import com.obrockmole.betterdining.models.MenuResponse
+import com.obrockmole.betterdining.models.ItemVariables
 import com.obrockmole.betterdining.models.Variables
 import com.obrockmole.betterdining.network.RetrofitInstance
 
@@ -54,6 +56,48 @@ class MenuRepository {
         }
     """.trimIndent()
 
+    private val itemQuery = """
+        query (${'$'}id: Guid!) {
+          itemByItemId(itemId: ${'$'}id) {
+            name
+            itemId
+            ingredients
+            isNutritionReady
+            nutritionFacts {
+              name
+              value
+              label
+              dailyValueLabel
+            }
+            traits {
+              name
+              type
+              svgIcon
+              svgIconWithoutBackground
+            }
+            appearances {
+              mealName
+              locationName
+              stationName
+              date
+            }
+            components {
+              name
+              itemId
+              isFlaggedForCurrentUser
+              isHiddenForCurrentUser
+              isNutritionReady
+              traits {
+                name
+                type
+                svgIcon
+                svgIconWithoutBackground
+              }
+            }
+          }
+        }
+    """.trimIndent()
+
     suspend fun getDiningCourtMenu(name: String, date: String): Result<MenuResponse> {
         return try {
             val response = RetrofitInstance.api.getMenu(
@@ -67,6 +111,24 @@ class MenuRepository {
                 Result.success(response.body()!!)
             } else {
                 Result.failure(Exception("Error fetching menu"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getItemDetails(itemId: String): Result<ItemDetailsResponse> {
+        return try {
+            val response = RetrofitInstance.api.getItemDetails(
+                GraphQLRequest(
+                    variables = ItemVariables(id = itemId),
+                    query = itemQuery
+                )
+            )
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error fetching item details"))
             }
         } catch (e: Exception) {
             Result.failure(e)

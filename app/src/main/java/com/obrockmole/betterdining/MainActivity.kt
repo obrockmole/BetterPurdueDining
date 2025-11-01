@@ -23,8 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.obrockmole.betterdining.ui.screens.AboutScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
+import com.obrockmole.betterdining.ui.screens.ItemDetailScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,39 +46,57 @@ class MainActivity : ComponentActivity() {
 @PreviewScreenSizes
 @Composable
 fun BetterPurdueDiningApp() {
+    val navController = rememberNavController()
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            AppDestinations.entries.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = it.label
+    NavHost(navController = navController, startDestination = "main") {
+        composable("main") {
+            NavigationSuiteScaffold(
+                navigationSuiteItems = {
+                    AppDestinations.entries.forEach {
+                        item(
+                            icon = {
+                                Icon(
+                                    it.icon,
+                                    contentDescription = it.label
+                                )
+                            },
+                            label = { Text(it.label) },
+                            selected = it == currentDestination,
+                            onClick = { currentDestination = it }
                         )
-                    },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
-                )
+                    }
+                }
+            ) {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    when (currentDestination) {
+                        AppDestinations.HOME -> {
+                            HomeScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                onNavigateToItem = { itemId ->
+                                    navController.navigate("item/$itemId")
+                                }
+                            )
+                        }
+                        AppDestinations.ABOUT -> {
+                            AboutScreen(modifier = Modifier.padding(innerPadding))
+                        }
+                        else -> {
+                            Greeting(
+                                name = "Android",
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
+                }
             }
         }
-    ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            when (currentDestination) {
-                AppDestinations.HOME -> {
-                    HomeScreen(modifier = Modifier.padding(innerPadding))
-                }
-                AppDestinations.ABOUT -> {
-                    AboutScreen(modifier = Modifier.padding(innerPadding))
-                }
-                else -> {
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+        composable("item/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")
+            if (itemId != null) {
+                ItemDetailScreen(
+                    itemId = itemId
+                )
             }
         }
     }
@@ -101,6 +123,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     BetterPurdueDiningTheme {
-        Greeting("Android")
+        Greeting("Fucker")
     }
 }

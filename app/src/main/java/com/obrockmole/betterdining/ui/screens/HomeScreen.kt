@@ -1,5 +1,6 @@
 package com.obrockmole.betterdining.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,11 +29,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.models.Meal
 import com.obrockmole.betterdining.models.Station
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
@@ -35,7 +43,10 @@ import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
 val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Windsor")
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onNavigateToItem: (String) -> Unit
+) {
     var selectedDiningCourt by rememberSaveable { mutableStateOf<String?>(null) }
 
     if (selectedDiningCourt != null) {
@@ -45,7 +56,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         DiningCourtDetail(
             diningCourtName = selectedDiningCourt!!,
             viewModel = menuViewModel,
-            onBack = { selectedDiningCourt = null }
+            onBack = { selectedDiningCourt = null },
+            onNavigateToItem = onNavigateToItem
         )
     } else {
         DiningCourtList(
@@ -92,54 +104,115 @@ fun DiningCourtListItem(
 }
 
 @Composable
-fun DiningCourtDetail(diningCourtName: String, viewModel: MenuViewModel, onBack: () -> Unit) {
+fun DiningCourtDetail(
+    diningCourtName: String,
+    viewModel: MenuViewModel,
+    onBack: () -> Unit,
+    onNavigateToItem: (String) -> Unit
+) {
+    BackHandler {
+        onBack()
+    }
+
     LaunchedEffect(diningCourtName) {
         viewModel.getMenu(diningCourtName)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        when (val uiState = viewModel.menuUiState) {
-            is MenuUiState.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    var selectedMealIndex by rememberSaveable { mutableStateOf(0) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            when (val uiState = viewModel.menuUiState) {
+                is MenuUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+
+                is MenuUiState.Error -> {
+                    AlertDialog(
+                        onDismissRequest = onBack,
+                        title = { Text(text = "Oopsie Poopsie") },
+                        text = { Text(text = "Purdue did a fucky wucky.") },
+                        confirmButton = {
+                            TextButton(onClick = onBack) {
+                                Text("God Damnit.")
+                            }
+                        }
+                    )
+                }
+
+                is MenuUiState.Success -> {
+                    val meals = uiState.meals
+                    if (meals.isNotEmpty()) {
+                        Column {
+                            TabRow(selectedTabIndex = selectedMealIndex) {
+                                meals.forEachIndexed { index, meal ->
+                                    Tab(
+                                        selected = selectedMealIndex == index,
+                                        onClick = { selectedMealIndex = index },
+                                        text = { Text(meal.name) }
+                                    )
+                                }
+                            }
+                            if (meals[selectedMealIndex].stations.isEmpty()) {
+                                Text(
+                                    "No meals available at this time.",
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(16.dp)
+                                )
+                            } else {
+                                MealDetail(
+                                    meal = meals[selectedMealIndex],
+                                    onNavigateToItem = onNavigateToItem
+                                )
+                            }
+                        }
+                    } else {
+                        Text("No meals available.", modifier = Modifier.align(Alignment.CenterHorizontally))
+                    }
+                }
             }
-            is MenuUiState.Error -> {
-                Text("Error loading menu", modifier = Modifier.align(Alignment.Center))
-            }
-            is MenuUiState.Success -> {
-                MealDetail(meal = uiState.meal)
-            }
-        }
-        Button(
-            onClick = onBack,
-            modifier = Modifier.align(Alignment.BottomStart)
-        ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
     }
 }
 
 @Composable
-fun MealDetail(meal: Meal, modifier: Modifier = Modifier) {
+fun MealDetail(
+    meal: Meal,
+    modifier: Modifier = Modifier,
+    onNavigateToItem: (String) -> Unit
+) {
     LazyColumn(modifier = modifier) {
         item {
-            Text(text = meal.name, style = androidx.compose.material3.MaterialTheme.typography.headlineMedium)
+            Text(text = meal.name, style = MaterialTheme.typography.headlineMedium)
         }
         items(meal.stations) { station ->
-            StationDetail(station = station)
+            StationDetail(station = station, onNavigateToItem = onNavigateToItem)
         }
     }
 }
 
 @Composable
-fun StationDetail(station: Station, modifier: Modifier = Modifier) {
+fun StationDetail(
+    station: Station,
+    modifier: Modifier = Modifier,
+    onNavigateToItem: (String) -> Unit
+) {
     Column(modifier = modifier.padding(vertical = 8.dp)) {
-        Text(text = station.name, style = androidx.compose.material3.MaterialTheme.typography.titleLarge)
+        Text(text = station.name, style = MaterialTheme.typography.titleLarge)
         station.items.forEach { itemWrapper ->
-            Text(text = itemWrapper.item.name, modifier = Modifier.padding(start = 16.dp))
+            TextButton(onClick = { onNavigateToItem(itemWrapper.item.itemId) }) {
+                Text(text = itemWrapper.item.name, modifier = Modifier.padding(start = 16.dp))
+            }
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    BetterPurdueDiningTheme {
+        HomeScreen(onNavigateToItem = {})
+    }
+}
+

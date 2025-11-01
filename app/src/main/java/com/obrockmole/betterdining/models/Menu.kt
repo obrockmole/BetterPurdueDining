@@ -1,8 +1,8 @@
 package com.obrockmole.betterdining.models
 
 data class GraphQLRequest(
-    val operationName: String,
-    val variables: Variables,
+    val operationName: String? = null,
+    val variables: Any,
     val query: String
 )
 
@@ -61,14 +61,6 @@ data class Item(
     val components: List<Component>? = null
 )
 
-data class Trait(
-    val name: String,
-    val svgIcon: String?,
-    val svgIconWithoutBackground: String?
-)
-
-data class Component(
-    val name: String,
-    val itemId: String,
-    val traits: List<Trait>
+data class ItemVariables(
+    val id: String
 )
