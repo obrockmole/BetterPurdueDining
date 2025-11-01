@@ -27,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.obrockmole.betterdining.ui.screens.AboutScreen
+import com.obrockmole.betterdining.ui.screens.FavoritesScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
 import com.obrockmole.betterdining.ui.screens.ItemDetailScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
@@ -78,14 +79,16 @@ fun BetterPurdueDiningApp() {
                                 }
                             )
                         }
+                        AppDestinations.FAVORITES -> {
+                            FavoritesScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                onNavigateToItem = { itemId ->
+                                    navController.navigate("item/$itemId")
+                                }
+                            )
+                        }
                         AppDestinations.ABOUT -> {
                             AboutScreen(modifier = Modifier.padding(innerPadding))
-                        }
-                        else -> {
-                            Greeting(
-                                name = "Android",
-                                modifier = Modifier.padding(innerPadding)
-                            )
                         }
                     }
                 }

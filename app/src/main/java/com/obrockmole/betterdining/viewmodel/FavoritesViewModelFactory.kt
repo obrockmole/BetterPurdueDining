@@ -2,18 +2,15 @@ package com.obrockmole.betterdining.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.obrockmole.betterdining.repository.MenuRepository
-
 import com.obrockmole.betterdining.repository.FavoritesRepository
 
-class ItemViewModelFactory(
-    private val menuRepository: MenuRepository,
+class FavoritesViewModelFactory(
     private val favoritesRepository: FavoritesRepository
-    ) : ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ItemViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(FavoritesViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return ItemViewModel(menuRepository, favoritesRepository) as T
+            return FavoritesViewModel(favoritesRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -24,13 +24,25 @@ import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
 import com.obrockmole.betterdining.viewmodel.ItemViewModelFactory
 
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.database.FavoriteItem
+import com.obrockmole.betterdining.repository.FavoritesRepository
+
 @Composable
 fun ItemDetailScreen(
     itemId: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val itemViewModel: ItemViewModel = viewModel(
-        factory = ItemViewModelFactory(MenuRepository())
+        factory = ItemViewModelFactory(
+            MenuRepository(),
+            FavoritesRepository(AppDatabase.getDatabase(context).favoriteItemDao())
+        )
     )
 
     LaunchedEffect(itemId) {
@@ -51,14 +63,18 @@ fun ItemDetailScreen(
                     Text(text = item.name, style = MaterialTheme.typography.headlineMedium)
                     Text(text = "Ingredients: ${item.ingredients ?: "Not available"}")
                 }
-            }
-        }
 
-        FloatingActionButton(
-            onClick = { /* TODO: Handle favorite action */ },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-        ) {
-            Icon(Icons.Default.FavoriteBorder, contentDescription = "Back")
+                val isFavorite = itemViewModel.isFavorite
+                FloatingActionButton(
+                    onClick = { itemViewModel.toggleFavorite(item) },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+                ) {
+                    Icon(
+                        if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                    )
+                }
+            }
         }
     }
 }
