@@ -15,4 +15,3 @@ data class Component(
     val isHiddenForCurrentUser: Boolean? = null,
     val isNutritionReady: Boolean? = null
 )
-

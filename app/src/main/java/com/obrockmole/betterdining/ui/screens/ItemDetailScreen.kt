@@ -5,9 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -17,20 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
 import com.obrockmole.betterdining.viewmodel.ItemViewModelFactory
-
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import com.obrockmole.betterdining.database.AppDatabase
-import com.obrockmole.betterdining.database.FavoriteItem
-import com.obrockmole.betterdining.repository.FavoritesRepository
 
 @Composable
 fun ItemDetailScreen(
@@ -78,4 +72,3 @@ fun ItemDetailScreen(
         }
     }
 }
-

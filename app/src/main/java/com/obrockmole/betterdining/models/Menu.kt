@@ -36,8 +36,8 @@ data class Meal(
     val name: String,
     val notes: String?,
     val status: String,
-    val startTime: String,
-    val endTime: String,
+    val startTime: String?,
+    val endTime: String?,
     val stations: List<Station>
 )
 

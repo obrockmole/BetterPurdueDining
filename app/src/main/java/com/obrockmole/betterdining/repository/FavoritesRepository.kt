@@ -19,4 +19,3 @@ class FavoritesRepository(private val favoriteItemDao: FavoriteItemDao) {
         return favoriteItemDao.getById(itemId) != null
     }
 }
-

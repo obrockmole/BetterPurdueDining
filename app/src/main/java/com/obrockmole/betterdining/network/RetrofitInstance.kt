@@ -14,4 +14,3 @@ object RetrofitInstance {
             .create(DiningApi::class.java)
     }
 }
-
