@@ -144,7 +144,7 @@ fun DiningCourtDetail(
                     val meals = uiState.meals
                     if (meals.isNotEmpty()) {
                         Column {
-                            TabRow(selectedTabIndex = selectedMealIndex) {
+                            TabRow(selectedTabIndex = selectedMealIndex, modifier = Modifier.fillMaxWidth().padding(top = 32.dp)) {
                                 meals.forEachIndexed { index, meal ->
                                     Tab(
                                         selected = selectedMealIndex == index,
