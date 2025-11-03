@@ -2,16 +2,21 @@ package com.obrockmole.betterdining.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -19,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,18 +38,30 @@ import com.obrockmole.betterdining.models.Meal
 import com.obrockmole.betterdining.models.Station
 import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Windsor")
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit
+    onNavigateToItem: (String) -> Unit,
+    viewModel: HomeViewModel
 ) {
+    val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
+    val selectedMealNameFromFav by viewModel.selectedMealName.collectAsState()
+    val selectedDateFromFav by viewModel.selectedDate.collectAsState()
+
     var selectedDiningCourt by rememberSaveable { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(selectedDiningCourtFromFav) {
+        selectedDiningCourt = selectedDiningCourtFromFav
+    }
 
     if (selectedDiningCourt != null) {
         val menuViewModel: MenuViewModel = viewModel(
@@ -52,9 +70,15 @@ fun HomeScreen(
         DiningCourtDetail(
             diningCourtName = selectedDiningCourt!!,
             viewModel = menuViewModel,
-            onBack = { selectedDiningCourt = null },
-            onNavigateToItem = onNavigateToItem
+            onBack = {
+                selectedDiningCourt = null
+                viewModel.clearNavigation()
+            },
+            onNavigateToItem = onNavigateToItem,
+            initialMealName = selectedMealNameFromFav,
+            initialDate = selectedDateFromFav
         )
+
     } else {
         DiningCourtList(
             diningCourts = diningCourtOptions,
@@ -92,10 +116,17 @@ fun DiningCourtListItem(
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .clickable(onClick = onClicked)
     ) {
-        Text(
-            text = diningCourtName,
-            modifier = Modifier.padding(16.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = diningCourtName,
+                modifier = Modifier.padding(16.dp)
+            )
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "See menu.")
+        }
     }
 }
 
@@ -104,14 +135,19 @@ fun DiningCourtDetail(
     diningCourtName: String,
     viewModel: MenuViewModel,
     onBack: () -> Unit,
-    onNavigateToItem: (String) -> Unit
+    onNavigateToItem: (String) -> Unit,
+    initialMealName: String?,
+    initialDate: String?
 ) {
     BackHandler {
         onBack()
     }
 
-    LaunchedEffect(diningCourtName) {
-        viewModel.getMenu(diningCourtName)
+    LaunchedEffect(diningCourtName, initialDate) {
+        val date = initialDate?.let {
+            java.time.LocalDate.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString()
+        }
+        viewModel.getMenu(diningCourtName, date)
     }
 
     var selectedMealIndex by rememberSaveable { mutableStateOf(0) }
@@ -140,6 +176,35 @@ fun DiningCourtDetail(
 
                 is MenuUiState.Success -> {
                     val meals = uiState.meals
+
+                    LaunchedEffect(meals, initialMealName) {
+                        if (initialMealName != null) {
+                            val index = meals.indexOfFirst { it.name == initialMealName }
+                            if (index != -1) {
+                                selectedMealIndex = index
+                            }
+                        } else {
+                            val currentHour = LocalDateTime.now().toLocalTime().hour
+                            meals.forEachIndexed { index, meal ->
+                                if (!meal.stations.isEmpty()) {
+                                    val startTime = LocalDateTime.parse(
+                                        meal.startTime,
+                                        DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                    ).toLocalTime().hour
+                                    val endTime = LocalDateTime.parse(
+                                        meal.endTime,
+                                        DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                    ).toLocalTime().hour
+
+                                    if (currentHour in startTime until endTime) {
+                                        selectedMealIndex = index
+                                        return@forEachIndexed
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (meals.isNotEmpty()) {
                         Column {
                             TabRow(selectedTabIndex = selectedMealIndex, modifier = Modifier.fillMaxWidth().padding(top = 48.dp)) {
@@ -210,6 +275,6 @@ fun StationDetail(
 @Composable
 fun HomeScreenPreview() {
     BetterPurdueDiningTheme {
-        HomeScreen(onNavigateToItem = {})
+        HomeScreen(onNavigateToItem = {}, viewModel = HomeViewModel())
     }
 }

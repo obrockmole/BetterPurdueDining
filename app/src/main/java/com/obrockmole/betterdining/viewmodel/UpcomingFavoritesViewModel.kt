@@ -34,4 +34,3 @@ class UpcomingFavoritesViewModelFactory(private val repository: UpcomingFavorite
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-

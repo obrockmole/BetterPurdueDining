@@ -4,13 +4,12 @@ fun buildMultiItemQuery(itemIds: List<String>): String {
     val aliases = itemIds.mapIndexed { i, itemId ->
         """
           item$i: itemByItemId(itemId: "$itemId") {
-            itemId
             name
+            itemId
             appearances {
-              date
               locationName
-              stationName
               mealName
+              date
             }
           }"""
     }

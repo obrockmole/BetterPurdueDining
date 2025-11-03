@@ -21,11 +21,11 @@ class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
     var menuUiState: MenuUiState by mutableStateOf(MenuUiState.Loading)
         private set
 
-    fun getMenu(diningCourtName: String) {
+    fun getMenu(diningCourtName: String, date: String? = null) {
         viewModelScope.launch {
             menuUiState = MenuUiState.Loading
-            val date = LocalDate.now().toString()
-            val result = menuRepository.getDiningCourtMenu(diningCourtName, date)
+            val menuDate = date ?: LocalDate.now().toString()
+            val result = menuRepository.getDiningCourtMenu(diningCourtName, menuDate)
             menuUiState = result.fold(
                 onSuccess = {
                     if (it.data.diningCourtByName.dailyMenu.meals.isNotEmpty()) {
@@ -48,4 +48,3 @@ class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
         }
     }
 }
-

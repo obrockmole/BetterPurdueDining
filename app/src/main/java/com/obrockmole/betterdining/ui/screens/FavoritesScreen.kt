@@ -1,13 +1,20 @@
 package com.obrockmole.betterdining.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -27,11 +34,13 @@ import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModel
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModelFactory
+import com.obrockmole.betterdining.viewmodel.HomeViewModel
 
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit
+    onNavigateToItem: (String) -> Unit,
+    homeViewModel: HomeViewModel
 ) {
     var tabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Upcoming", "All Favorites")
@@ -46,7 +55,7 @@ fun FavoritesScreen(
             }
         }
         when (tabIndex) {
-            0 -> UpcomingFavoritesScreen()
+            0 -> UpcomingFavoritesScreen(homeViewModel = homeViewModel)
             1 -> AllFavoritesList(onNavigateToItem = onNavigateToItem)
         }
     }
@@ -84,7 +93,14 @@ fun AllFavoritesList(
                             onClick = { onNavigateToItem(favoriteItem.itemId) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(text = favoriteItem.name, modifier = Modifier.padding(16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = favoriteItem.name, modifier = Modifier.padding(16.dp))
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Go to item.")
+                            }
                         }
                     }
                 }

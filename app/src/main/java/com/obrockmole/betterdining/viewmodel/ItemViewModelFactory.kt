@@ -18,4 +18,3 @@ class ItemViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
