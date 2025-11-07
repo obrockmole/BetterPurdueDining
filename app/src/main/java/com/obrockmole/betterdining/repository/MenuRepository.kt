@@ -2,8 +2,8 @@ package com.obrockmole.betterdining.repository
 
 import com.obrockmole.betterdining.models.GraphQLRequest
 import com.obrockmole.betterdining.models.ItemDetailsResponse
-import com.obrockmole.betterdining.models.MenuResponse
 import com.obrockmole.betterdining.models.ItemVariables
+import com.obrockmole.betterdining.models.MenuResponse
 import com.obrockmole.betterdining.models.Variables
 import com.obrockmole.betterdining.network.RetrofitInstance
 

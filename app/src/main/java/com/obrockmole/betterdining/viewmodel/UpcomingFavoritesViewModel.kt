@@ -2,11 +2,11 @@ package com.obrockmole.betterdining.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.models.UpcomingFavorite
 import com.obrockmole.betterdining.repository.UpcomingFavoritesRepository
-import kotlinx.coroutines.flow.StateFlow
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class UpcomingFavoritesViewModel(private val repository: UpcomingFavoritesRepository) : ViewModel() {

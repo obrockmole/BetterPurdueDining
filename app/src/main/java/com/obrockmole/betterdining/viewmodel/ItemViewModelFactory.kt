@@ -2,9 +2,8 @@ package com.obrockmole.betterdining.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.obrockmole.betterdining.repository.MenuRepository
-
 import com.obrockmole.betterdining.repository.FavoritesRepository
+import com.obrockmole.betterdining.repository.MenuRepository
 
 class ItemViewModelFactory(
     private val menuRepository: MenuRepository,

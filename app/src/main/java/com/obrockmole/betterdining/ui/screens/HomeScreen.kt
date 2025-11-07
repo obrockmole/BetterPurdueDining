@@ -12,16 +12,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -137,6 +142,7 @@ fun DiningCourtListItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiningCourtDetail(
     diningCourtName: String,
@@ -159,86 +165,111 @@ fun DiningCourtDetail(
 
     var selectedMealIndex by rememberSaveable { mutableStateOf(0) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            when (val uiState = viewModel.menuUiState) {
-                is MenuUiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(diningCourtName) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
-
-                is MenuUiState.Error -> {
-                    AlertDialog(
-                        onDismissRequest = onBack,
-                        title = { Text(text = "Oopsie Poopsie") },
-                        text = { Text(text = "Purdue did a fucky wucky.") },
-                        confirmButton = {
-                            TextButton(onClick = onBack) {
-                                Text("God Damnit.")
-                            }
+            )
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                when (val uiState = viewModel.menuUiState) {
+                    is MenuUiState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
-                    )
-                }
+                    }
 
-                is MenuUiState.Success -> {
-                    val meals = uiState.meals
-
-                    LaunchedEffect(meals, initialMealName) {
-                        if (initialMealName != null) {
-                            val index = meals.indexOfFirst { it.name == initialMealName }
-                            if (index != -1) {
-                                selectedMealIndex = index
+                    is MenuUiState.Error -> {
+                        AlertDialog(
+                            onDismissRequest = onBack,
+                            title = { Text(text = "Oopsie Poopsie") },
+                            text = { Text(text = "Purdue did a fucky wucky.") },
+                            confirmButton = {
+                                TextButton(onClick = onBack) {
+                                    Text("God Damnit.")
+                                }
                             }
-                        } else {
-                            val currentHour = LocalDateTime.now().toLocalTime().hour
-                            meals.forEachIndexed { index, meal ->
-                                if (!meal.stations.isEmpty()) {
-                                    val startTime = LocalDateTime.parse(
-                                        meal.startTime,
-                                        DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                    ).toLocalTime().hour
-                                    val endTime = LocalDateTime.parse(
-                                        meal.endTime,
-                                        DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                    ).toLocalTime().hour
+                        )
+                    }
 
-                                    if (currentHour in startTime until endTime) {
-                                        selectedMealIndex = index
-                                        return@forEachIndexed
+                    is MenuUiState.Success -> {
+                        val meals = uiState.meals
+
+                        LaunchedEffect(meals, initialMealName) {
+                            if (initialMealName != null) {
+                                val index = meals.indexOfFirst { it.name == initialMealName }
+                                if (index != -1) {
+                                    selectedMealIndex = index
+                                }
+                            } else {
+                                val currentHour = LocalDateTime.now().toLocalTime().hour
+                                meals.forEachIndexed { index, meal ->
+                                    if (!meal.stations.isEmpty()) {
+                                        val startTime = LocalDateTime.parse(
+                                            meal.startTime,
+                                            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                        ).toLocalTime().hour
+                                        val endTime = LocalDateTime.parse(
+                                            meal.endTime,
+                                            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                        ).toLocalTime().hour
+
+                                        if (currentHour in startTime until endTime) {
+                                            selectedMealIndex = index
+                                            return@forEachIndexed
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if (meals.isNotEmpty()) {
-                        Column {
-                            TabRow(selectedTabIndex = selectedMealIndex, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                                meals.forEachIndexed { index, meal ->
-                                    Tab(
-                                        selected = selectedMealIndex == index,
-                                        onClick = { selectedMealIndex = index },
-                                        text = { Text(meal.name) }
+                        if (meals.isNotEmpty()) {
+                            Column {
+                                TabRow(
+                                    selectedTabIndex = selectedMealIndex,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    meals.forEachIndexed { index, meal ->
+                                        Tab(
+                                            selected = selectedMealIndex == index,
+                                            onClick = { selectedMealIndex = index },
+                                            text = { Text(meal.name) }
+                                        )
+                                    }
+                                }
+                                if (meals[selectedMealIndex].stations.isEmpty()) {
+                                    Text(
+                                        "No meals available.",
+                                        modifier = Modifier
+                                            .align(Alignment.CenterHorizontally)
+                                            .padding(16.dp)
+                                    )
+                                } else {
+                                    MealDetail(
+                                        meal = meals[selectedMealIndex],
+                                        onNavigateToItem = onNavigateToItem
                                     )
                                 }
                             }
-                            if (meals[selectedMealIndex].stations.isEmpty()) {
-                                Text(
-                                    "No meals available.",
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(16.dp)
-                                )
-                            } else {
-                                MealDetail(
-                                    meal = meals[selectedMealIndex],
-                                    onNavigateToItem = onNavigateToItem
-                                )
-                            }
+                        } else {
+                            Text(
+                                "No meals available.",
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
                         }
-                    } else {
-                        Text("No meals available.", modifier = Modifier.align(Alignment.CenterHorizontally))
                     }
                 }
             }
@@ -249,10 +280,9 @@ fun DiningCourtDetail(
 @Composable
 fun MealDetail(
     meal: Meal,
-    modifier: Modifier = Modifier,
     onNavigateToItem: (String, String) -> Unit
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             Text(text = meal.name, style = MaterialTheme.typography.headlineMedium)
         }
