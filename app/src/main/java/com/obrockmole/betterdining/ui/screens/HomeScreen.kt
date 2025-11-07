@@ -62,7 +62,7 @@ fun HomeScreen(
     LaunchedEffect(selectedDiningCourtFromFav) {
         selectedDiningCourt = selectedDiningCourtFromFav
     }
-
+    
     if (selectedDiningCourt != null) {
         val menuViewModel: MenuViewModel = viewModel(
             factory = MenuViewModelFactory(MenuRepository())
@@ -95,6 +95,13 @@ fun DiningCourtList(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
+        item {
+            Text(
+                text = "Dining Courts",
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
         items(diningCourts) { diningCourt ->
             DiningCourtListItem(
                 diningCourtName = diningCourt,
@@ -207,7 +214,7 @@ fun DiningCourtDetail(
 
                     if (meals.isNotEmpty()) {
                         Column {
-                            TabRow(selectedTabIndex = selectedMealIndex, modifier = Modifier.fillMaxWidth().padding(top = 48.dp)) {
+                            TabRow(selectedTabIndex = selectedMealIndex, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
                                 meals.forEachIndexed { index, meal ->
                                     Tab(
                                         selected = selectedMealIndex == index,

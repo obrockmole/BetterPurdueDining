@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,15 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.obrockmole.betterdining.data.UserPreferencesRepository
+import com.obrockmole.betterdining.ui.screens.DefaultScreenSelectionScreen
 import com.obrockmole.betterdining.ui.screens.FavoritesScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
 import com.obrockmole.betterdining.ui.screens.ItemDetailScreen
+import com.obrockmole.betterdining.ui.screens.LicensesScreen
 import com.obrockmole.betterdining.ui.screens.SettingsScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
@@ -55,7 +57,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@PreviewScreenSizes
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BetterPurdueDiningApp() {
     val navController = rememberNavController()
@@ -106,7 +109,9 @@ fun BetterPurdueDiningApp() {
                     }
                 }
             ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     if (defaultScreen == null) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -132,7 +137,15 @@ fun BetterPurdueDiningApp() {
                                 )
                             }
                             AppDestinations.SETTINGS -> {
-                                SettingsScreen(modifier = Modifier.padding(innerPadding))
+                                SettingsScreen(
+                                    modifier = Modifier.padding(innerPadding),
+                                    onNavigateToDefaultScreen = {
+                                        navController.navigate("settings/defaultScreen")
+                                    },
+                                    onNavigateToLicensesScreen = {
+                                        navController.navigate("settings/licenses")
+                                    }
+                                )
                             }
                         }
                     }
@@ -147,6 +160,16 @@ fun BetterPurdueDiningApp() {
                 )
             }
         }
+        composable("settings/defaultScreen") {
+            DefaultScreenSelectionScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings/licenses") {
+            LicensesScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }
 
@@ -159,18 +182,11 @@ enum class AppDestinations(
     SETTINGS("Settings", Icons.Default.Settings)
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun BetterPurdueDiningPreview() {
     BetterPurdueDiningTheme {
-        Greeting("Fucker")
+        BetterPurdueDiningApp()
     }
 }
