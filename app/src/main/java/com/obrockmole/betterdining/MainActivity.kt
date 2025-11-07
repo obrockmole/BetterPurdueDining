@@ -121,7 +121,8 @@ fun BetterPurdueDiningApp() {
                             AppDestinations.HOME -> {
                                 HomeScreen(
                                     modifier = Modifier.padding(innerPadding),
-                                    onNavigateToItem = { itemId ->
+                                    onNavigateToItem = { itemName, itemId ->
+                                        navController.currentBackStackEntry?.savedStateHandle?.set("itemName", itemName)
                                         navController.navigate("item/$itemId")
                                     },
                                     viewModel = homeViewModel
@@ -130,7 +131,8 @@ fun BetterPurdueDiningApp() {
                             AppDestinations.FAVORITES -> {
                                 FavoritesScreen(
                                     modifier = Modifier.padding(innerPadding),
-                                    onNavigateToItem = { itemId ->
+                                    onNavigateToItem = { itemName, itemId ->
+                                        navController.currentBackStackEntry?.savedStateHandle?.set("itemName", itemName)
                                         navController.navigate("item/$itemId")
                                     },
                                     homeViewModel = homeViewModel
@@ -154,9 +156,12 @@ fun BetterPurdueDiningApp() {
         }
         composable("item/{itemId}") { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")
+            val itemName = navController.previousBackStackEntry?.savedStateHandle?.get<String>("itemName") ?: ""
             if (itemId != null) {
                 ItemDetailScreen(
-                    itemId = itemId
+                    itemName = itemName,
+                    itemId = itemId,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

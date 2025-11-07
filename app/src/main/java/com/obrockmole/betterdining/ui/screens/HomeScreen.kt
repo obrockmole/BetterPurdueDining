@@ -50,7 +50,7 @@ val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Wind
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit,
+    onNavigateToItem: (String, String) -> Unit,
     viewModel: HomeViewModel
 ) {
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
@@ -142,7 +142,7 @@ fun DiningCourtDetail(
     diningCourtName: String,
     viewModel: MenuViewModel,
     onBack: () -> Unit,
-    onNavigateToItem: (String) -> Unit,
+    onNavigateToItem: (String, String) -> Unit,
     initialMealName: String?,
     initialDate: String?
 ) {
@@ -250,7 +250,7 @@ fun DiningCourtDetail(
 fun MealDetail(
     meal: Meal,
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit
+    onNavigateToItem: (String, String) -> Unit
 ) {
     LazyColumn(modifier = modifier) {
         item {
@@ -266,12 +266,12 @@ fun MealDetail(
 fun StationDetail(
     station: Station,
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit
+    onNavigateToItem: (String, String) -> Unit
 ) {
     Column(modifier = modifier.padding(vertical = 8.dp)) {
         Text(text = station.name, style = MaterialTheme.typography.titleLarge)
         station.items.forEach { itemWrapper ->
-            TextButton(onClick = { onNavigateToItem(itemWrapper.item.itemId) }) {
+            TextButton(onClick = { onNavigateToItem(itemWrapper.item.name, itemWrapper.item.itemId) }) {
                 Text(text = itemWrapper.item.name, modifier = Modifier.padding(start = 16.dp))
             }
         }
@@ -282,6 +282,6 @@ fun StationDetail(
 @Composable
 fun HomeScreenPreview() {
     BetterPurdueDiningTheme {
-        HomeScreen(onNavigateToItem = {}, viewModel = HomeViewModel())
+        HomeScreen(onNavigateToItem = { _, _ -> }, viewModel = HomeViewModel())
     }
 }

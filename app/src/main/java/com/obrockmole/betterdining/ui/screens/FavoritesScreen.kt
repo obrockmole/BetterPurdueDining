@@ -40,7 +40,7 @@ import com.obrockmole.betterdining.viewmodel.HomeViewModel
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit,
+    onNavigateToItem: (String, String) -> Unit,
     homeViewModel: HomeViewModel
 ) {
     var tabIndex by remember { mutableStateOf(0) }
@@ -70,7 +70,7 @@ fun FavoritesScreen(
 @Composable
 fun AllFavoritesList(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String) -> Unit
+    onNavigateToItem: (String, String) -> Unit
 ) {
     val context = LocalContext.current
     val favoritesViewModel: FavoritesViewModel = viewModel(
@@ -93,7 +93,7 @@ fun AllFavoritesList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable(onClick = { onNavigateToItem(favoriteItem.itemId) })
+                            .clickable(onClick = { onNavigateToItem(favoriteItem.name, favoriteItem.itemId) })
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -113,7 +113,7 @@ fun AllFavoritesList(
 fun FavoritesScreenPreview() {
     BetterPurdueDiningTheme {
         FavoritesScreen(
-            onNavigateToItem = {},
+            onNavigateToItem = { _, _ -> },
             homeViewModel = HomeViewModel()
         )
     }
