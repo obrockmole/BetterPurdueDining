@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +47,9 @@ fun HomeScreen(
     var selectedDiningCourt by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(selectedDiningCourtFromFav) {
-        selectedDiningCourt = selectedDiningCourtFromFav
+        if (selectedDiningCourtFromFav != null) {
+            selectedDiningCourt = selectedDiningCourtFromFav
+        }
     }
     
     if (selectedDiningCourt != null) {
@@ -82,11 +85,24 @@ fun DiningCourtList(
 ) {
     LazyColumn(modifier = modifier) {
         item {
-            Text(
-                text = "Dining Courts",
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Dining Courts",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    modifier = Modifier.padding(end = 16.dp),
+                    contentDescription = "Search for item."
+                )
+            }
         }
         items(diningCourts) { diningCourt ->
             DiningCourtListItem(
@@ -110,13 +126,14 @@ fun DiningCourtListItem(
             .clickable(onClick = onClicked)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = diningCourtName,
-                modifier = Modifier.padding(16.dp)
+                text = diningCourtName
             )
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "See menu.")
         }

@@ -4,12 +4,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -90,52 +93,84 @@ fun UpcomingFavoritesScreen(
                 }
             }
 
-            Column(modifier = modifier.fillMaxSize()) {
-                if (groupedAppearances.isEmpty()) {
-                    val message = if (showMore) "No upcoming favorites found for the next week." else "Nothing available today."
-                    Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(text = message, modifier = Modifier.padding(16.dp))
-                    }
+            if (groupedAppearances.isEmpty()) {
+                val message =
+                    if (showMore) "No upcoming favorites found for the next week." else "Nothing available today."
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = message, modifier = Modifier.padding(16.dp))
+                }
 
-                } else {
-                    LazyColumn(modifier = Modifier.weight(1f)) {
-                        groupedAppearances.forEach { (date, appearances) ->
-                            item {
-                                val dayLabel = when (date) {
-                                    today -> "Today"
-                                    today.plusDays(1) -> "Tomorrow"
-                                    else -> date.format(DateTimeFormatter.ofPattern("EEEE"))
-                                }
-                                Text(
-                                    text = dayLabel,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                                )
+            } else {
+                Box(modifier = modifier.fillMaxSize()) {
+                    Column(modifier = modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentPadding = if (weekAppearances.isNotEmpty()) {
+                                PaddingValues(bottom = 72.dp)
+                            } else {
+                                PaddingValues(0.dp)
                             }
-                            items(appearances) { (name, appearance) ->
-                                UpcomingFavoriteItem(
-                                    name = name,
-                                    appearance = appearance,
-                                    onClick = {
-                                        homeViewModel.navigateToMenu(
-                                            diningCourt = appearance.locationName,
-                                            mealName = appearance.mealName,
-                                            date = appearance.date
-                                        )
+                        ) {
+                            groupedAppearances.forEach { (date, appearances) ->
+                                item {
+                                    val dayLabel = when (date) {
+                                        today -> "Today"
+                                        today.plusDays(1) -> "Tomorrow"
+                                        else -> date.format(DateTimeFormatter.ofPattern("EEEE"))
                                     }
-                                )
+                                    Text(
+                                        text = dayLabel,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 16.dp
+                                        )
+                                    )
+                                }
+
+                                itemsIndexed(appearances) { index, (name, appearance) ->
+                                    UpcomingFavoriteItem(
+                                        name = name,
+                                        appearance = appearance,
+                                        onClick = {
+                                            homeViewModel.navigateToMenu(
+                                                diningCourt = appearance.locationName,
+                                                mealName = appearance.mealName,
+                                                date = appearance.date
+                                            )
+                                        }
+                                    )
+
+                                    if (index < appearances.lastIndex) {
+                                        HorizontalDivider()
+                                    } else if (date != groupedAppearances.keys.last()) {
+                                        HorizontalDivider(thickness = 6.dp);
+                                    }
+                                }
                             }
                         }
                     }
-                }
 
-                if (weekAppearances.isNotEmpty()) {
-                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.BottomStart) {
-                        Button(
-                            onClick = { showMore = !showMore }
+                    if (weekAppearances.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomStart)
+                                .padding(16.dp),
+                            contentAlignment = Alignment.BottomStart
                         ) {
-                            Text(if (showMore) "Show Less" else "Show More")
+                            Button(
+                                onClick = { showMore = !showMore }
+                            ) {
+                                Text(if (showMore) "Show Less" else "Show More")
+                            }
                         }
                     }
                 }
@@ -146,6 +181,7 @@ fun UpcomingFavoritesScreen(
                 Text(text = "Error: ${it.message}")
             }
         }
+
     )
 }
 
@@ -155,40 +191,30 @@ fun UpcomingFavoriteItem(
     appearance: Appearance,
     onClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
             .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = name, style = MaterialTheme.typography.titleMedium)
-            Text(text = appearance.locationName)
+        Column {
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = name, style = MaterialTheme.typography.titleMedium)
+                Text(text = appearance.locationName)
+            }
+
+            Text(
+                text = "${appearance.mealName} at ${LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        .format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
-        Text(
-            text = "${appearance.mealName} at ${LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            .format(DateTimeFormatter.ofPattern("HH:mm"))}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clickable(onClick = { onNavigateToItem(favoriteItem.itemId) })
-//            .padding(horizontal = 16.dp, vertical = 12.dp),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        Text(text = favoriteItem.name)
-//        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Go to item.")
-//    }
-    HorizontalDivider()
 }
 
 @Preview(showBackground = true)

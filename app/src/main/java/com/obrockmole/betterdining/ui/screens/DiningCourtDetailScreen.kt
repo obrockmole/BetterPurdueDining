@@ -156,7 +156,7 @@ fun DiningCourtDetail(
                                 }
                                 if (meals[selectedMealIndex].stations.isEmpty()) {
                                     Text(
-                                        "No meals available.",
+                                        "No meal is being served.",
                                         modifier = Modifier
                                             .align(Alignment.CenterHorizontally)
                                             .padding(16.dp)
@@ -170,7 +170,7 @@ fun DiningCourtDetail(
                             }
                         } else {
                             Text(
-                                "No meals available.",
+                                "No meal is being served.",
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
                         }
@@ -187,9 +187,6 @@ fun MealDetail(
     onNavigateToItem: (String, String) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item {
-            Text(text = meal.name, style = MaterialTheme.typography.headlineMedium)
-        }
         items(meal.stations) { station ->
             StationDetail(station = station, onNavigateToItem = onNavigateToItem)
         }
