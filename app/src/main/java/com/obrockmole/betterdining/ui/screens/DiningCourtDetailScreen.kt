@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,7 +16,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -33,7 +33,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.models.Meal
 import com.obrockmole.betterdining.models.Station
 import com.obrockmole.betterdining.viewmodel.MenuUiState
@@ -72,7 +74,7 @@ fun DiningCourtDetail(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
                         )
                     }
@@ -139,7 +141,7 @@ fun DiningCourtDetail(
 
                         if (meals.isNotEmpty()) {
                             Column {
-                                TabRow(
+                                SecondaryTabRow(
                                     selectedTabIndex = selectedMealIndex,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
@@ -151,6 +153,7 @@ fun DiningCourtDetail(
                                         )
                                     }
                                 }
+
                                 if (meals[selectedMealIndex].stations.isEmpty()) {
                                     Text(
                                         "No meal is being served.",

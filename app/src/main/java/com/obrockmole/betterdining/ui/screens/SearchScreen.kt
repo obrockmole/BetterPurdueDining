@@ -9,11 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -35,10 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.models.Appearance
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
@@ -110,7 +107,7 @@ fun SearchScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
                         )
                     }
@@ -137,7 +134,7 @@ fun SearchScreen(
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) {
                             Icon(
-                                imageVector = Icons.Default.Clear,
+                                painter = painterResource(R.drawable.close),
                                 contentDescription = "Clear search"
                             )
                         }
@@ -235,13 +232,13 @@ fun ExpandableSearchResultItem(
         ) {
             if (isExpanded) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
+                    painter = painterResource(R.drawable.keyboard_arrow_down),
                     contentDescription = "Collapse",
                     modifier = Modifier.padding(end = 8.dp)
                 )
             } else {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    painter = painterResource(R.drawable.keyboard_arrow_right),
                     contentDescription = "Expand",
                     modifier = Modifier.padding(end = 8.dp)
                 )
