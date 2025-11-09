@@ -12,7 +12,6 @@ data class ItemDetails(
     val name: String,
     val itemId: String,
     val ingredients: String?,
-    val isNutritionReady: Boolean,
     val nutritionFacts: List<NutritionFact>,
     val traits: List<Trait>,
     val appearances: List<Appearance>,

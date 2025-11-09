@@ -45,6 +45,7 @@ fun HomeScreen(
     val selectedDateFromFav by viewModel.selectedDate.collectAsState()
 
     var selectedDiningCourt by rememberSaveable { mutableStateOf<String?>(null) }
+    var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedDiningCourtFromFav) {
         if (selectedDiningCourtFromFav != null) {
@@ -52,7 +53,12 @@ fun HomeScreen(
         }
     }
     
-    if (selectedDiningCourt != null) {
+    if (isSearchActive) {
+        SearchScreen(
+            onBack = { isSearchActive = false },
+            homeViewModel = viewModel
+        )
+    } else if (selectedDiningCourt != null) {
         val menuViewModel: MenuViewModel = viewModel(
             factory = MenuViewModelFactory(MenuRepository())
         )
@@ -72,6 +78,7 @@ fun HomeScreen(
         DiningCourtList(
             diningCourts = diningCourtOptions,
             onDiningCourtClicked = { selectedDiningCourt = it },
+            onSearchClicked = { isSearchActive = true },
             modifier = modifier
         )
     }
@@ -81,6 +88,7 @@ fun HomeScreen(
 fun DiningCourtList(
     diningCourts: List<String>,
     onDiningCourtClicked: (String) -> Unit,
+    onSearchClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
@@ -99,7 +107,9 @@ fun DiningCourtList(
 
                 Icon(
                     imageVector = Icons.Default.Search,
-                    modifier = Modifier.padding(end = 16.dp),
+                    modifier = Modifier
+                        .clickable(onClick = onSearchClicked)
+                        .padding(16.dp),
                     contentDescription = "Search for item."
                 )
             }
