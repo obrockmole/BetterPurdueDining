@@ -64,9 +64,10 @@ fun ItemDetailScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             when (val uiState = itemViewModel.itemUiState) {
                 is ItemUiState.Loading -> {
@@ -87,11 +88,13 @@ fun ItemDetailScreen(
                     val isFavorite = itemViewModel.isFavorite
                     FloatingActionButton(
                         onClick = { itemViewModel.toggleFavorite(item) },
-                        modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp)
                     ) {
                         Icon(
                             painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
-                                      else painterResource(R.drawable.favorite),
+                            else painterResource(R.drawable.favorite),
                             contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
                         )
                     }

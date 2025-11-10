@@ -24,8 +24,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -120,22 +118,30 @@ fun BetterPurdueDiningApp() {
                                 HomeScreen(
                                     modifier = Modifier.padding(innerPadding),
                                     onNavigateToItem = { itemName, itemId ->
-                                        navController.currentBackStackEntry?.savedStateHandle?.set("itemName", itemName)
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "itemName",
+                                            itemName
+                                        )
                                         navController.navigate("item/$itemId")
                                     },
                                     viewModel = homeViewModel
                                 )
                             }
+
                             AppDestinations.FAVORITES -> {
                                 FavoritesScreen(
                                     modifier = Modifier.padding(innerPadding),
                                     onNavigateToItem = { itemName, itemId ->
-                                        navController.currentBackStackEntry?.savedStateHandle?.set("itemName", itemName)
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "itemName",
+                                            itemName
+                                        )
                                         navController.navigate("item/$itemId")
                                     },
                                     homeViewModel = homeViewModel
                                 )
                             }
+
                             AppDestinations.SETTINGS -> {
                                 SettingsScreen(
                                     modifier = Modifier.padding(innerPadding),
@@ -154,7 +160,9 @@ fun BetterPurdueDiningApp() {
         }
         composable("item/{itemId}") { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")
-            val itemName = navController.previousBackStackEntry?.savedStateHandle?.get<String>("itemName") ?: ""
+            val itemName =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>("itemName")
+                    ?: ""
             if (itemId != null) {
                 ItemDetailScreen(
                     itemName = itemName,

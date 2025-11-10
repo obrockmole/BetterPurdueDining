@@ -51,7 +51,7 @@ fun HomeScreen(
             selectedDiningCourt = selectedDiningCourtFromFav
         }
     }
-    
+
     if (isSearchActive) {
         SearchScreen(
             onBack = { isSearchActive = false },

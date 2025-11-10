@@ -149,7 +149,7 @@ fun UpcomingFavoritesScreen(
                                     if (index < appearances.lastIndex) {
                                         HorizontalDivider()
                                     } else if (date != groupedAppearances.keys.last()) {
-                                        HorizontalDivider(thickness = 6.dp);
+                                        HorizontalDivider(thickness = 6.dp)
                                     }
                                 }
                             }
@@ -197,7 +197,8 @@ fun UpcomingFavoriteItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column {
-            Row(modifier = Modifier.fillMaxWidth(),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = name, style = MaterialTheme.typography.titleMedium)
@@ -205,8 +206,10 @@ fun UpcomingFavoriteItem(
             }
 
             Text(
-                text = "${appearance.mealName} at ${LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                        .format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                text = "${appearance.mealName} at ${
+                    LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        .format(DateTimeFormatter.ofPattern("HH:mm"))
+                }",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -218,7 +221,7 @@ fun UpcomingFavoriteItem(
 @Preview(showBackground = true)
 @Composable
 fun UpcomingFavoriteItemPreview() {
-    BetterPurdueDiningTheme() {
+    BetterPurdueDiningTheme {
         UpcomingFavoriteItem(
             name = "Carne Asada",
             appearance = Appearance(

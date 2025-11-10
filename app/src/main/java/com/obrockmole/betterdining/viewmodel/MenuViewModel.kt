@@ -29,12 +29,13 @@ class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
             menuUiState = result.fold(
                 onSuccess = {
                     if (it.data.diningCourtByName.dailyMenu.meals.isNotEmpty()) {
-                        val mealsWithoutByRequest = it.data.diningCourtByName.dailyMenu.meals.map { meal ->
-                            val stationsWithoutByRequest = meal.stations.filter { station ->
-                                station.name != "By Request"
+                        val mealsWithoutByRequest =
+                            it.data.diningCourtByName.dailyMenu.meals.map { meal ->
+                                val stationsWithoutByRequest = meal.stations.filter { station ->
+                                    station.name != "By Request"
+                                }
+                                meal.copy(stations = stationsWithoutByRequest)
                             }
-                            meal.copy(stations = stationsWithoutByRequest)
-                        }
 
                         MenuUiState.Success(mealsWithoutByRequest)
                     } else {

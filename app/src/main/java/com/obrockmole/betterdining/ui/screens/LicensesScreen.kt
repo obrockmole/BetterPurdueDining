@@ -18,12 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
-import com.obrockmole.betterdining.data.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
-import com.obrockmole.betterdining.viewmodel.SettingsViewModel
-import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,9 +28,6 @@ fun LicensesScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(UserPreferencesRepository(context))
-    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),

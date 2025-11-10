@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val userPreferencesRepository: UserPreferencesRepository) : ViewModel() {
+class SettingsViewModel(private val userPreferencesRepository: UserPreferencesRepository) :
+    ViewModel() {
 
     val defaultScreen: StateFlow<String> = userPreferencesRepository.defaultScreen
         .stateIn(
@@ -25,7 +26,8 @@ class SettingsViewModel(private val userPreferencesRepository: UserPreferencesRe
     }
 }
 
-class SettingsViewModelFactory(private val userPreferencesRepository: UserPreferencesRepository) : ViewModelProvider.Factory {
+class SettingsViewModelFactory(private val userPreferencesRepository: UserPreferencesRepository) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

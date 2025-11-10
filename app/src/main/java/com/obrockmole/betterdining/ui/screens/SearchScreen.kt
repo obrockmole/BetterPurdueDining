@@ -64,7 +64,11 @@ fun SearchScreen(
     )
 
     var searchQuery by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf<List<com.obrockmole.betterdining.repository.GroupedSearchResult>>(emptyList()) }
+    var searchResults by remember {
+        mutableStateOf<List<com.obrockmole.betterdining.repository.GroupedSearchResult>>(
+            emptyList()
+        )
+    }
     var isLoading by remember { mutableStateOf(false) }
     var hasSearched by remember { mutableStateOf(false) }
     var expandedItemId by remember { mutableStateOf<String?>(null) }

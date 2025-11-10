@@ -9,16 +9,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-class UpcomingFavoritesViewModel(private val repository: UpcomingFavoritesRepository) : ViewModel() {
-    val upcomingFavorites: StateFlow<Result<List<UpcomingFavorite>>> = repository.getUpcomingFavoritesFlow()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = Result.success(emptyList())
-        )
+class UpcomingFavoritesViewModel(private val repository: UpcomingFavoritesRepository) :
+    ViewModel() {
+    val upcomingFavorites: StateFlow<Result<List<UpcomingFavorite>>> =
+        repository.getUpcomingFavoritesFlow()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = Result.success(emptyList())
+            )
 }
 
-class UpcomingFavoritesViewModelFactory(private val repository: UpcomingFavoritesRepository) : ViewModelProvider.Factory {
+class UpcomingFavoritesViewModelFactory(private val repository: UpcomingFavoritesRepository) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UpcomingFavoritesViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

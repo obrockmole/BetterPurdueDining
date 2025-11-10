@@ -8,7 +8,7 @@ import com.obrockmole.betterdining.repository.MenuRepository
 class ItemViewModelFactory(
     private val menuRepository: MenuRepository,
     private val favoritesRepository: FavoritesRepository
-    ) : ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ItemViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

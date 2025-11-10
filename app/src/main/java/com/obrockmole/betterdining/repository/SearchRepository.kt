@@ -44,17 +44,30 @@ class SearchRepository {
                 val groupedResults = allAppearances.groupBy { it.name }
                     .map { (name, items) ->
                         val mergedAppearances = items
-                            .groupBy { Triple(it.appearance.locationName, it.appearance.mealName, it.appearance.date) }
+                            .groupBy {
+                                Triple(
+                                    it.appearance.locationName,
+                                    it.appearance.mealName,
+                                    it.appearance.date
+                                )
+                            }
                             .map { (_, groupedItems) ->
                                 val first = groupedItems.first()
-                                val combinedStations = groupedItems.map { it.appearance.stationName }.distinct().joinToString(", ")
+                                val combinedStations =
+                                    groupedItems.map { it.appearance.stationName }.distinct()
+                                        .joinToString(", ")
                                 SearchResultItem(
                                     itemId = first.itemId,
                                     name = first.name,
                                     appearance = first.appearance.copy(stationName = combinedStations)
                                 )
                             }
-                            .sortedBy { LocalDate.parse(it.appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME) }
+                            .sortedBy {
+                                LocalDate.parse(
+                                    it.appearance.date,
+                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                )
+                            }
 
                         GroupedSearchResult(
                             itemId = items.first().itemId,

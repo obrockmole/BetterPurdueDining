@@ -16,11 +16,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -83,9 +81,10 @@ fun DiningCourtDetail(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 when (val uiState = viewModel.menuUiState) {
@@ -205,7 +204,12 @@ fun StationDetail(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = { onNavigateToItem(itemWrapper.item.name, itemWrapper.item.itemId) })
+                    .clickable(onClick = {
+                        onNavigateToItem(
+                            itemWrapper.item.name,
+                            itemWrapper.item.itemId
+                        )
+                    })
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
