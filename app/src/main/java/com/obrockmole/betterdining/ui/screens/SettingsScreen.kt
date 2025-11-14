@@ -37,9 +37,9 @@ import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 
 @Composable
 fun SettingsScreen(
+    modifier: Modifier = Modifier,
     onNavigateToDefaultScreen: () -> Unit = {},
-    onNavigateToLicensesScreen: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onNavigateToLicensesScreen: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
@@ -63,6 +63,7 @@ fun SettingsScreen(
                 SettingsGroupDivider()
                 SettingsSectionHeader(title = "Preferences")
             }
+
             item {
                 NavigationalSetting(
                     title = "Default Screen",
@@ -71,6 +72,7 @@ fun SettingsScreen(
                 )
                 SettingsDivider()
             }
+
             item {
                 NavigationalSetting(
                     title = "Theme",
@@ -81,6 +83,7 @@ fun SettingsScreen(
                 )
                 SettingsDivider()
             }
+
             item {
                 NavigationalSetting(
                     title = "Navigation Style",
@@ -95,6 +98,7 @@ fun SettingsScreen(
                 SettingsGroupDivider()
                 SettingsSectionHeader(title = "About")
             }
+
             item {
                 NavigationalSetting(
                     title = "Licenses",
@@ -102,10 +106,12 @@ fun SettingsScreen(
                 )
                 SettingsDivider()
             }
+
             item {
                 InformationSetting(title = "Version", value = "0.6.9")
                 SettingsDivider()
             }
+
             item {
                 ActionSetting(
                     title = "Check For Updates",

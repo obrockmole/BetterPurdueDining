@@ -7,9 +7,13 @@ import com.obrockmole.betterdining.network.ApolloInstance
 class MenuRepository {
     private val apolloClient = ApolloInstance.apolloClient
 
-    suspend fun getDiningCourtMenu(name: String, date: String): GetLocationMenuQuery.DiningCourtByName? {
+    suspend fun getDiningCourtMenu(
+        name: String,
+        date: String
+    ): GetLocationMenuQuery.DiningCourtByName? {
         try {
-            val response = apolloClient.query(GetLocationMenuQuery(name = name, date = date)).execute()
+            val response =
+                apolloClient.query(GetLocationMenuQuery(name = name, date = date)).execute()
 
             if (response.hasErrors()) {
                 throw Exception("GraphQL Error: ${response.errors?.firstOrNull()?.message}")

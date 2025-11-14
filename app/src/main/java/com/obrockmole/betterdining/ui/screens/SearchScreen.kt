@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.models.Appearance
 import com.obrockmole.betterdining.repository.SearchRepository
+import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModel
@@ -315,7 +316,9 @@ fun SearchScreenPreview() {
     BetterPurdueDiningTheme {
         SearchScreen(
             onBack = {},
-            homeViewModel = HomeViewModel()
+            homeViewModel = HomeViewModel(
+                StartLocationsRepository()
+            )
         )
     }
 }

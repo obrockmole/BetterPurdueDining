@@ -1,8 +1,10 @@
 package com.obrockmole.betterdining.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,15 +29,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.betterdining.GetStartLocationsQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.viewmodel.HomeUiState
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Windsor")
-val quickBiteOptions = listOf("1bowl", "Pete's Za", "Sushi Boss")
+val quickBiteOptionsFormal =
+    listOf("1bowl at Meredith Hall", "Pete's Za at Tarkington Hall", "Sushi Boss at Meredith Hall")
 
 @Composable
 fun HomeScreen(
@@ -54,6 +63,9 @@ fun HomeScreen(
         if (selectedDiningCourtFromFav != null) {
             selectedFoodLocation = selectedDiningCourtFromFav
         }
+
+        val date = LocalDate.now()
+        viewModel.getLocations(date.toString())
     }
 
     if (isSearchActive) {
@@ -63,8 +75,10 @@ fun HomeScreen(
         )
     } else if (selectedFoodLocation != null) {
         val menuViewModel: MenuViewModel = viewModel(
+            key = selectedFoodLocation,
             factory = MenuViewModelFactory(MenuRepository())
         )
+        Log.e("HomeScreen", "Selected food location: $selectedFoodLocation")
         FoodLocationDetail(
             name = when (selectedFoodLocation) {
                 "1bowl at Meredith Hall" -> "1bowl"
@@ -85,61 +99,69 @@ fun HomeScreen(
 
     } else {
         LazyColumn(modifier = modifier.fillMaxSize()) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Dining Courts",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
+            when (val uiState = viewModel.homeUiState) {
+                is HomeUiState.Success -> {
+                    val diningCourts =
+                        uiState.data!!.filter { it.name == "Dining Courts" }[0].diningCourts
+                    val quickBites =
+                        uiState.data.filter { it.name == "Quick Bites" }[0].diningCourts
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.search),
-                        modifier = Modifier
-                            .clickable(onClick = { isSearchActive = true })
-                            .padding(16.dp),
-                        contentDescription = "Search for item."
-                    )
-                }
-            }
-            items(diningCourtOptions) { diningCourt ->
-                DiningCourtListItem(
-                    diningCourtName = diningCourt,
-                    onClicked = { selectedFoodLocation = diningCourt }
-                )
-            }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Dining Courts",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
 
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Quick Bites",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-            }
-            items(quickBiteOptions) { quickBite ->
-                QuickBiteListItem(
-                    quickBiteName = quickBite,
-                    onClicked = {
-                        selectedFoodLocation = when (quickBite) {
-                            "1bowl" -> "1bowl at Meredith Hall"
-                            "Pete's Za" -> "Pete's Za at Tarkington Hall"
-                            "Sushi Boss" -> "Sushi Boss at Meredith Hall"
-                            else -> quickBite
+                            Icon(
+                                painter = painterResource(id = R.drawable.search),
+                                modifier = Modifier
+                                    .clickable(onClick = { isSearchActive = true })
+                                    .padding(16.dp),
+                                contentDescription = "Search for item."
+                            )
                         }
                     }
-                )
+                    items(diningCourtOptions) { diningCourt ->
+                        DiningCourtListItem(
+                            diningCourt = diningCourts.first { it.name == diningCourt },
+                            onClicked = {
+                                selectedFoodLocation = diningCourt
+                            }
+                        )
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Quick Bites",
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+                        }
+                    }
+                    items(quickBiteOptionsFormal) { quickBite ->
+                        QuickBiteListItem(
+                            quickBite = quickBites.first { it.name == quickBite },
+                            onClicked = {
+                                selectedFoodLocation = quickBite
+                            }
+                        )
+                    }
+                }
+
+                else -> Log.e("HomeScreen", "HomeScreen: $uiState")
             }
         }
     }
@@ -147,17 +169,38 @@ fun HomeScreen(
 
 @Composable
 fun DiningCourtListItem(
-    diningCourtName: String,
+    diningCourt: GetStartLocationsQuery.DiningCourt,
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val diningCourtIcon = when (diningCourtName.lowercase()) {
+    val diningCourtIcon = when (diningCourt.name.lowercase()) {
         "earhart" -> R.drawable.earhart_icon
         "ford" -> R.drawable.ford_icon
         "hillenbrand" -> R.drawable.hillenbrand_icon
         "wiley" -> R.drawable.wiley_icon
         "windsor" -> R.drawable.windsor_icon
         else -> R.drawable.app_icon
+    }
+
+    val dailyMenu = diningCourt.dailyMenu!!
+    var currentMealIndex = -1
+    val currentHour = LocalDateTime.now().toLocalTime().hour
+    dailyMenu.meals.forEachIndexed { index, meal ->
+        if (meal.status.toString() == "OPEN") {
+            val startTime = LocalDateTime.parse(
+                meal.startTime,
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            ).toLocalTime().hour
+            val endTime = LocalDateTime.parse(
+                meal.endTime,
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            ).toLocalTime().hour
+
+            if (currentHour in startTime until endTime) {
+                currentMealIndex = index
+                return@forEachIndexed
+            }
+        }
     }
 
     Row(
@@ -171,11 +214,30 @@ fun DiningCourtListItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = diningCourtName,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 16.dp)
+            Image(
+                painter = painterResource(id = diningCourtIcon),
+                modifier = Modifier.size(80.dp),
+                contentDescription = "Dining Court Icon"
             )
+
+            Column {
+                Text(
+                    text = diningCourt.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+                Text(
+                    text = if (currentMealIndex >= 0) dailyMenu.meals[currentMealIndex].status.toString() else "Closed",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+                Text(
+                    text = "Time Shit Coming Soon",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         }
 
         Icon(
@@ -189,15 +251,43 @@ fun DiningCourtListItem(
 
 @Composable
 fun QuickBiteListItem(
-    quickBiteName: String,
+    quickBite: GetStartLocationsQuery.DiningCourt,
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val quickBiteIcon = when (quickBiteName.lowercase()) {
+    val name = when (quickBite.name) {
+        "1bowl at Meredith Hall" -> "1bowl"
+        "Pete's Za at Tarkington Hall" -> "Pete's Za"
+        "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+        else -> quickBite.name
+    }
+
+    val quickBiteIcon = when (name.lowercase()) {
         "1bowl" -> R.drawable.onebowl_icon
         "pete's za" -> R.drawable.petes_icon
         "sushi boss" -> R.drawable.sushiboss_icon
         else -> R.drawable.app_icon
+    }
+
+    val dailyMenu = quickBite.dailyMenu!!
+    var currentMealIndex = -1
+    val currentHour = LocalDateTime.now().toLocalTime().hour
+    dailyMenu.meals.forEachIndexed { index, meal ->
+        if (meal.status.toString() == "OPEN") {
+            val startTime = LocalDateTime.parse(
+                meal.startTime,
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            ).toLocalTime().hour
+            val endTime = LocalDateTime.parse(
+                meal.endTime,
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            ).toLocalTime().hour
+
+            if (currentHour in startTime until endTime) {
+                currentMealIndex = index
+                return@forEachIndexed
+            }
+        }
     }
 
     Row(
@@ -211,11 +301,30 @@ fun QuickBiteListItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = quickBiteName,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 16.dp)
+            Image(
+                painter = painterResource(id = quickBiteIcon),
+                modifier = Modifier.size(64.dp),
+                contentDescription = "Quick Bite Icon"
             )
+
+            Column {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+                Text(
+                    text = if (currentMealIndex >= 0) dailyMenu.meals[currentMealIndex].status.toString() else "Closed",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+                Text(
+                    text = "That time shit be comin, jsut wait",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         }
 
         Icon(
@@ -232,7 +341,9 @@ fun HomeScreenPreview() {
     BetterPurdueDiningTheme {
         HomeScreen(
             onNavigateToItem = { _, _ -> },
-            viewModel = HomeViewModel()
+            viewModel = HomeViewModel(
+                StartLocationsRepository()
+            )
         )
     }
 }

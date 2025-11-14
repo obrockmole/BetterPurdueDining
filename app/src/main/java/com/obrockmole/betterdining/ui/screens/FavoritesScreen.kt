@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
+import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModel
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModelFactory
@@ -123,7 +124,9 @@ fun FavoritesScreenPreview() {
     BetterPurdueDiningTheme {
         FavoritesScreen(
             onNavigateToItem = { _, _ -> },
-            homeViewModel = HomeViewModel()
+            homeViewModel = HomeViewModel(
+                StartLocationsRepository()
+            )
         )
     }
 }

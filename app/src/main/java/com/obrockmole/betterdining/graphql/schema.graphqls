@@ -2,32 +2,32 @@
 A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
 """
 type __Schema {
-  description: String
+    description: String
 
-  """
-  A list of all types supported by this server.
-  """
-  types: [__Type!]!
+    """
+    A list of all types supported by this server.
+    """
+    types: [__Type!]!
 
-  """
-  The type that query operations will be rooted at.
-  """
-  queryType: __Type!
+    """
+    The type that query operations will be rooted at.
+    """
+    queryType: __Type!
 
-  """
-  If this server supports mutation, the type that mutation operations will be rooted at.
-  """
-  mutationType: __Type
+    """
+    If this server supports mutation, the type that mutation operations will be rooted at.
+    """
+    mutationType: __Type
 
-  """
-  If this server supports subscription, the type that subscription operations will be rooted at.
-  """
-  subscriptionType: __Type
+    """
+    If this server supports subscription, the type that subscription operations will be rooted at.
+    """
+    subscriptionType: __Type
 
-  """
-  A list of all directives supported by this server.
-  """
-  directives: [__Directive!]!
+    """
+    A list of all directives supported by this server.
+    """
+    directives: [__Directive!]!
 }
 
 scalar String
@@ -38,101 +38,101 @@ The fundamental unit of any GraphQL Schema is the type. There are many kinds of 
 Depending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name and description, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.
 """
 type __Type {
-  kind: __TypeKind!
+    kind: __TypeKind!
 
-  name: String
+    name: String
 
-  description: String
+    description: String
 
-  fields(includeDeprecated: Boolean = false): [__Field!]
+    fields(includeDeprecated: Boolean = false): [__Field!]
 
-  interfaces: [__Type!]
+    interfaces: [__Type!]
 
-  possibleTypes: [__Type!]
+    possibleTypes: [__Type!]
 
-  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+    enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
-  inputFields: [__InputValue!]
+    inputFields: [__InputValue!]
 
-  ofType: __Type
+    ofType: __Type
 }
 
 """
 An enum describing what kind of type a given __Type is.
 """
 enum __TypeKind {
-  """
-  Indicates this type is a scalar.
-  """
-  SCALAR
+    """
+    Indicates this type is a scalar.
+    """
+    SCALAR
 
-  """
-  Indicates this type is an object. `fields` and `possibleTypes` are valid fields.
-  """
-  OBJECT
+    """
+    Indicates this type is an object. `fields` and `possibleTypes` are valid fields.
+    """
+    OBJECT
 
-  """
-  Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
-  """
-  INTERFACE
+    """
+    Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
+    """
+    INTERFACE
 
-  """
-  Indicates this type is a union. `possibleTypes` is a valid field.
-  """
-  UNION
+    """
+    Indicates this type is a union. `possibleTypes` is a valid field.
+    """
+    UNION
 
-  """
-  Indicates this type is an enum. `enumValues` is a valid field.
-  """
-  ENUM
+    """
+    Indicates this type is an enum. `enumValues` is a valid field.
+    """
+    ENUM
 
-  """
-  Indicates this type is an input object. `inputFields` is a valid field.
-  """
-  INPUT_OBJECT
+    """
+    Indicates this type is an input object. `inputFields` is a valid field.
+    """
+    INPUT_OBJECT
 
-  """
-  Indicates this type is a list. `ofType` is a valid field.
-  """
-  LIST
+    """
+    Indicates this type is a list. `ofType` is a valid field.
+    """
+    LIST
 
-  """
-  Indicates this type is a non-null. `ofType` is a valid field.
-  """
-  NON_NULL
+    """
+    Indicates this type is a non-null. `ofType` is a valid field.
+    """
+    NON_NULL
 }
 
 """
 Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.
 """
 type __Field {
-  name: String!
+    name: String!
 
-  description: String
+    description: String
 
-  args: [__InputValue!]!
+    args: [__InputValue!]!
 
-  type: __Type!
+    type: __Type!
 
-  isDeprecated: Boolean!
+    isDeprecated: Boolean!
 
-  deprecationReason: String
+    deprecationReason: String
 }
 
 """
 Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.
 """
 type __InputValue {
-  name: String!
+    name: String!
 
-  description: String
+    description: String
 
-  type: __Type!
+    type: __Type!
 
-  """
-  A GraphQL-formatted string representing the default value for this input value.
-  """
-  defaultValue: String
+    """
+    A GraphQL-formatted string representing the default value for this input value.
+    """
+    defaultValue: String
 }
 
 scalar Boolean
@@ -141,13 +141,13 @@ scalar Boolean
 One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.
 """
 type __EnumValue {
-  name: String!
+    name: String!
 
-  description: String
+    description: String
 
-  isDeprecated: Boolean!
+    isDeprecated: Boolean!
 
-  deprecationReason: String
+    deprecationReason: String
 }
 
 """
@@ -156,206 +156,206 @@ A Directive provides a way to describe alternate runtime execution and type vali
 In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
 """
 type __Directive {
-  name: String!
+    name: String!
 
-  description: String
+    description: String
 
-  locations: [__DirectiveLocation!]!
+    locations: [__DirectiveLocation!]!
 
-  args: [__InputValue!]!
+    args: [__InputValue!]!
 
-  onOperation: Boolean! @deprecated(reason: "Use 'locations'.")
+    onOperation: Boolean! @deprecated(reason: "Use 'locations'.")
 
-  onFragment: Boolean! @deprecated(reason: "Use 'locations'.")
+    onFragment: Boolean! @deprecated(reason: "Use 'locations'.")
 
-  onField: Boolean! @deprecated(reason: "Use 'locations'.")
+    onField: Boolean! @deprecated(reason: "Use 'locations'.")
 }
 
 """
 A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
 """
 enum __DirectiveLocation {
-  """
-  Location adjacent to a query operation.
-  """
-  QUERY
+    """
+    Location adjacent to a query operation.
+    """
+    QUERY
 
-  """
-  Location adjacent to a mutation operation.
-  """
-  MUTATION
+    """
+    Location adjacent to a mutation operation.
+    """
+    MUTATION
 
-  """
-  Location adjacent to a subscription operation.
-  """
-  SUBSCRIPTION
+    """
+    Location adjacent to a subscription operation.
+    """
+    SUBSCRIPTION
 
-  """
-  Location adjacent to a field.
-  """
-  FIELD
+    """
+    Location adjacent to a field.
+    """
+    FIELD
 
-  """
-  Location adjacent to a fragment definition.
-  """
-  FRAGMENT_DEFINITION
+    """
+    Location adjacent to a fragment definition.
+    """
+    FRAGMENT_DEFINITION
 
-  """
-  Location adjacent to a fragment spread.
-  """
-  FRAGMENT_SPREAD
+    """
+    Location adjacent to a fragment spread.
+    """
+    FRAGMENT_SPREAD
 
-  """
-  Location adjacent to an inline fragment.
-  """
-  INLINE_FRAGMENT
+    """
+    Location adjacent to an inline fragment.
+    """
+    INLINE_FRAGMENT
 
-  """
-  Location adjacent to a variable definition.
-  """
-  VARIABLE_DEFINITION
+    """
+    Location adjacent to a variable definition.
+    """
+    VARIABLE_DEFINITION
 
-  """
-  Location adjacent to a schema definition.
-  """
-  SCHEMA
+    """
+    Location adjacent to a schema definition.
+    """
+    SCHEMA
 
-  """
-  Location adjacent to a scalar definition.
-  """
-  SCALAR
+    """
+    Location adjacent to a scalar definition.
+    """
+    SCALAR
 
-  """
-  Location adjacent to an object type definition.
-  """
-  OBJECT
+    """
+    Location adjacent to an object type definition.
+    """
+    OBJECT
 
-  """
-  Location adjacent to a field definition.
-  """
-  FIELD_DEFINITION
+    """
+    Location adjacent to a field definition.
+    """
+    FIELD_DEFINITION
 
-  """
-  Location adjacent to an argument definition.
-  """
-  ARGUMENT_DEFINITION
+    """
+    Location adjacent to an argument definition.
+    """
+    ARGUMENT_DEFINITION
 
-  """
-  Location adjacent to an interface definition.
-  """
-  INTERFACE
+    """
+    Location adjacent to an interface definition.
+    """
+    INTERFACE
 
-  """
-  Location adjacent to a union definition.
-  """
-  UNION
+    """
+    Location adjacent to a union definition.
+    """
+    UNION
 
-  """
-  Location adjacent to an enum definition
-  """
-  ENUM
+    """
+    Location adjacent to an enum definition
+    """
+    ENUM
 
-  """
-  Location adjacent to an enum value definition
-  """
-  ENUM_VALUE
+    """
+    Location adjacent to an enum value definition
+    """
+    ENUM_VALUE
 
-  """
-  Location adjacent to an input object type definition.
-  """
-  INPUT_OBJECT
+    """
+    Location adjacent to an input object type definition.
+    """
+    INPUT_OBJECT
 
-  """
-  Location adjacent to an input object field definition.
-  """
-  INPUT_FIELD_DEFINITION
+    """
+    Location adjacent to an input object field definition.
+    """
+    INPUT_FIELD_DEFINITION
 }
 
 """
 Root for querying data
 """
 type MenusQuery {
-  node("The global id of the object." id: ID!): Node
+    node("The global id of the object." id: ID!): Node
 
-  currentUser: User
+    currentUser: User
 
-  locations: [Location]
+    locations: [Location]
 
-  locationCategories: [LocationCategory!]!
+    locationCategories: [LocationCategory!]!
 
-  diningCourts: [DiningCourt]
+    diningCourts: [DiningCourt]
 
-  diningCourt(id: ID): DiningCourt
+    diningCourt(id: ID): DiningCourt
 
-  """
-  Get the dining court by the Location primary key, e.g. "ERHT"
-  """
-  diningCourtByLocationId(locationId: String): DiningCourt
+    """
+    Get the dining court by the Location primary key, e.g. "ERHT"
+    """
+    diningCourtByLocationId(locationId: String): DiningCourt
 
-  diningCourtByName(name: String!): DiningCourt
+    diningCourtByName(name: String!): DiningCourt
 
-  diningCourtCategories: [DiningCourtCategory!]!
+    diningCourtCategories: [DiningCourtCategory!]!
 
-  itemAppearance(itemMenuId: Guid!): ItemAppearance!
+    itemAppearance(itemMenuId: Guid!): ItemAppearance!
 
-  itemByItemId(itemId: Guid!): Item!
+    itemByItemId(itemId: Guid!): Item!
 
-  itemSearch(name: String!): [Item!]!
+    itemSearch(name: String!): [Item!]!
 
-  dietaryTraits: [Trait!]!
+    dietaryTraits: [Trait!]!
 
-  retailLocations: [RetailLocation]
+    retailLocations: [RetailLocation]
 
-  retailLocation(id: ID): RetailLocation
+    retailLocation(id: ID): RetailLocation
 
-  printLists: [PrintList]
+    printLists: [PrintList]
 
-  """
-  Root for querying data directly from CBORD
-  """
-  cbord: Cbord
+    """
+    Root for querying data directly from CBORD
+    """
+    cbord: Cbord
 }
 
 interface Node {
-  id: ID!
+    id: ID!
 }
 
 scalar ID
 
 type User implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  userId: String!
+    userId: String!
 
-  commonName: String!
+    commonName: String!
 
-  firstName: String!
+    firstName: String!
 
-  lastName: String!
+    lastName: String!
 
-  email: String!
+    email: String!
 
-  puid: String!
+    puid: String!
 
-  favorites: [FavoritedItem!]!
+    favorites: [FavoritedItem!]!
 
-  printLists: [PrintList]
+    printLists: [PrintList]
 }
 
 type FavoritedItem implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  favoriteId: Guid!
+    favoriteId: Guid!
 
-  item: Item!
+    item: Item!
 
-  dateAdded: DateTimeOffset
+    dateAdded: DateTimeOffset
 }
 
 scalar Guid
@@ -364,79 +364,79 @@ scalar Guid
 All of the available information on the item from CBORD.
 """
 type Item implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  The unique identifier of the item, in common with the V2 REST API
-  """
-  itemId: Guid!
+    """
+    The unique identifier of the item, in common with the V2 REST API
+    """
+    itemId: Guid!
 
-  """
-  The name of the item in CBORD.
-  """
-  name: String!
+    """
+    The name of the item in CBORD.
+    """
+    name: String!
 
-  """
-  A list of nutrition facts available for this item.
-  """
-  nutritionFacts: [NutritionFact!]
+    """
+    A list of nutrition facts available for this item.
+    """
+    nutritionFacts: [NutritionFact!]
 
-  """
-  A list of traits associated with this item.
-  """
-  traits: [Trait!]
+    """
+    A list of traits associated with this item.
+    """
+    traits: [Trait!]
 
-  """
-  The ingredients this item is made up of
-  """
-  ingredients: String
+    """
+    The ingredients this item is made up of
+    """
+    ingredients: String
 
-  """
-  The components of this item, if any
-  """
-  components: [Item!]
+    """
+    The components of this item, if any
+    """
+    components: [Item!]
 
-  appearances: [ItemOccurrence!]!
+    appearances: [ItemOccurrence!]!
 
-  isCbordItem: Boolean!
+    isCbordItem: Boolean!
 
-  isBlacklisted: Boolean!
+    isBlacklisted: Boolean!
 
-  isDiscontinued: Boolean!
+    isDiscontinued: Boolean!
 
-  isNutritionReady: Boolean!
+    isNutritionReady: Boolean!
 
-  isFlaggedForCurrentUser: Boolean!
+    isFlaggedForCurrentUser: Boolean!
 
-  isHiddenForCurrentUser: Boolean!
+    isHiddenForCurrentUser: Boolean!
 }
 
 """
 Describes a nutrition fact, such as "Total Fat" or "Calories".
 """
 type NutritionFact {
-  """
-  Name of the nutrition fact, e.g. "Calories"
-  """
-  name: String!
+    """
+    Name of the nutrition fact, e.g. "Calories"
+    """
+    name: String!
 
-  """
-  Numeric value of the nutrition fact
-  """
-  value: Float
+    """
+    Numeric value of the nutrition fact
+    """
+    value: Float
 
-  """
-  Formatted version of the value to be displayed on a label, e.g. "34g".  Can be null.
-  """
-  label: String
+    """
+    Formatted version of the value to be displayed on a label, e.g. "34g".  Can be null.
+    """
+    label: String
 
-  """
-  The daily value, e.g. "17%".  Can be null.
-  """
-  dailyValueLabel: String
+    """
+    The daily value, e.g. "17%".  Can be null.
+    """
+    dailyValueLabel: String
 }
 
 scalar Float
@@ -445,44 +445,44 @@ scalar Float
 Describes a trait associated with a CBORD item, such as "Gluten" or "Vegetarian"
 """
 type Trait implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  Name of the trait.
-  """
-  name: String!
+    """
+    Name of the trait.
+    """
+    name: String!
 
-  type: String!
+    type: String!
 
-  """
-  A URL to a PNG icon indicating the trait
-  """
-  pngIcon: Uri
+    """
+    A URL to a PNG icon indicating the trait
+    """
+    pngIcon: Uri
 
-  """
-  A URL to a SVG icon indicating the trait
-  """
-  svgIcon: Uri
+    """
+    A URL to a SVG icon indicating the trait
+    """
+    svgIcon: Uri
 
-  """
-  A URL to an SVG icon without a background indicating the trait
-  """
-  svgIconWithoutBackground: Uri
+    """
+    A URL to an SVG icon without a background indicating the trait
+    """
+    svgIconWithoutBackground: Uri
 }
 
 scalar Uri
 
 type ItemOccurrence {
-  locationName: String!
+    locationName: String!
 
-  date: DateTimeOffset!
+    date: DateTimeOffset!
 
-  mealName: String!
+    mealName: String!
 
-  stationName: String!
+    stationName: String!
 }
 
 """
@@ -494,257 +494,257 @@ scalar DateTimeOffset
 Represents a print list for line card printing.
 """
 interface PrintList {
-  id: ID!
+    id: ID!
 
-  """
-  Primary key of the print list.
-  """
-  printListId: Guid
+    """
+    Primary key of the print list.
+    """
+    printListId: Guid
 
-  title: String!
+    title: String!
 
-  creationTime: DateTimeOffset!
+    creationTime: DateTimeOffset!
 
-  modifiedTime: DateTimeOffset!
+    modifiedTime: DateTimeOffset!
 }
 
 interface Location {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  category: String!
+    category: String!
 
-  phone: String
+    phone: String
 
-  latitude: Float
+    latitude: Float
 
-  longitude: Float
+    longitude: Float
 
-  address: Address
+    address: Address
 
-  logoUrl: Uri
+    logoUrl: Uri
 
-  darkModeLogoUrl: Uri
+    darkModeLogoUrl: Uri
 
-  bannerUrl: Uri
+    bannerUrl: Uri
 
-  url: Uri
+    url: Uri
 
-  transactMobileOrderId: Int
+    transactMobileOrderId: Int
 }
 
 type Address {
-  street: String!
+    street: String!
 
-  city: String!
+    city: String!
 
-  state: String!
+    state: String!
 
-  zip: String!
+    zip: String!
 
-  country: String!
+    country: String!
 
-  countryCode: String!
+    countryCode: String!
 }
 
 scalar Int
 
 type LocationCategory {
-  name: String!
+    name: String!
 
-  locations: [Location!]!
+    locations: [Location!]!
 }
 
 """
 Represents a residential dining court.
 """
 type DiningCourt implements Node & Location {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  category: String!
+    category: String!
 
-  phone: String
+    phone: String
 
-  latitude: Float
+    latitude: Float
 
-  longitude: Float
+    longitude: Float
 
-  address: Address
+    address: Address
 
-  logoUrl: Uri
+    logoUrl: Uri
 
-  darkModeLogoUrl: Uri
+    darkModeLogoUrl: Uri
 
-  bannerUrl: Uri
+    bannerUrl: Uri
 
-  url: Uri
+    url: Uri
 
-  transactMobileOrderId: Int
+    transactMobileOrderId: Int
 
-  formalName: String
+    formalName: String
 
-  dailyMenu(date: Date!): DailyMenu
+    dailyMenu(date: Date!): DailyMenu
 
-  adminMenu(date: Date!): MenuConfiguration
+    adminMenu(date: Date!): MenuConfiguration
 
-  publishStatus(startDate: Date!, endDate: Date!): [PublishStatus!]!
+    publishStatus(startDate: Date!, endDate: Date!): [PublishStatus!]!
 
-  lineLength: String
+    lineLength: String
 
-  isLineLengthCrowdsourcingEnabled: Boolean!
+    isLineLengthCrowdsourcingEnabled: Boolean!
 
-  normalHours: [DiningCourtNormalHoursPeriod!]!
+    normalHours: [DiningCourtNormalHoursPeriod!]!
 
-  upcomingMeals: [UpcomingMeal!]!
+    upcomingMeals: [UpcomingMeal!]!
 
-  googlePlaceId: String
+    googlePlaceId: String
 }
 
 """
 Gets the items served on a particular day.
 """
 type DailyMenu {
-  meals: [MealMenu!]!
+    meals: [MealMenu!]!
 
-  notes: String!
+    notes: String!
 }
 
 """
 Represents a meal, e.g. "Lunch".
 """
 type MealMenu implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  meal: String! @deprecated(reason: "Use name instead")
+    meal: String! @deprecated(reason: "Use name instead")
 
-  name: String!
+    name: String!
 
-  status: MealStatus!
+    status: MealStatus!
 
-  type: MealType!
+    type: MealType!
 
-  startTime: DateTimeOffset
+    startTime: DateTimeOffset
 
-  endTime: DateTimeOffset
+    endTime: DateTimeOffset
 
-  notes: String
+    notes: String
 
-  stations: [Station!]!
+    stations: [Station!]!
 }
 
 """
 Open/closed state of a meal.
 """
 enum MealStatus {
-  """
-  The meal is open.
-  """
-  OPEN
+    """
+    The meal is open.
+    """
+    OPEN
 
-  """
-  No meal will be served.
-  """
-  CLOSED
+    """
+    No meal will be served.
+    """
+    CLOSED
 
-  """
-  The menu is yet to be determined.
-  """
-  UNAVAILABLE
+    """
+    The menu is yet to be determined.
+    """
+    UNAVAILABLE
 }
 
 """
 Provides a hint to the type of meal being served.
 """
 enum MealType {
-  """
-  Breakfast
-  """
-  BREAKFAST
+    """
+    Breakfast
+    """
+    BREAKFAST
 
-  """
-  Lunch
-  """
-  LUNCH
+    """
+    Lunch
+    """
+    LUNCH
 
-  """
-  Dinner
-  """
-  DINNER
+    """
+    Dinner
+    """
+    DINNER
 
-  """
-  Snack
-  """
-  SNACK
+    """
+    Snack
+    """
+    SNACK
 
-  """
-  Unknown
-  """
-  UNKNOWN
+    """
+    Unknown
+    """
+    UNKNOWN
 }
 
 """
 Represents a station at a dining court.
 """
 type Station implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  items: [ItemAppearance!]!
+    items: [ItemAppearance!]!
 
-  notes: String
+    notes: String
 
-  iconUrl: Uri
+    iconUrl: Uri
 
-  foregroundColor: HexColorCode
+    foregroundColor: HexColorCode
 
-  backgroundColor: HexColorCode
+    backgroundColor: HexColorCode
 }
 
 """
 Represents an occurrence of a served item.
 """
 type ItemAppearance implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  Unique identifier for this occurrence of an item on a menu.
-  """
-  itemMenuId: Guid!
+    """
+    Unique identifier for this occurrence of an item on a menu.
+    """
+    itemMenuId: Guid!
 
-  item: Item!
+    item: Item!
 
-  displayName: String!
+    displayName: String!
 
-  specialName: String
+    specialName: String
 
-  """
-  True if this item has sub-components.  Useful if you don't want to fetch component info yet.
-  """
-  hasComponents: Boolean!
+    """
+    True if this item has sub-components.  Useful if you don't want to fetch component info yet.
+    """
+    hasComponents: Boolean!
 
-  """
-  These are the menued parstock components for one particular date/meal/station.
-  """
-  components: [ItemAppearance!]
+    """
+    These are the menued parstock components for one particular date/meal/station.
+    """
+    components: [ItemAppearance!]
 }
 
 """
@@ -761,54 +761,54 @@ scalar Date
 Provides information for menu administration
 """
 type MenuConfiguration {
-  id: Guid!
+    id: Guid!
 
-  notes: String
+    notes: String
 
-  meals: [MealConfiguration!]!
+    meals: [MealConfiguration!]!
 }
 
 """
 Provides information for meal administration
 """
 type MealConfiguration {
-  id: Guid!
+    id: Guid!
 
-  name: String!
+    name: String!
 
-  state: MealState!
+    state: MealState!
 
-  startTime: TimeOnly
+    startTime: TimeOnly
 
-  endTime: TimeOnly
+    endTime: TimeOnly
 
-  normalStartTime: TimeOnly
+    normalStartTime: TimeOnly
 
-  normalEndTime: TimeOnly
+    normalEndTime: TimeOnly
 
-  notes: String
+    notes: String
 
-  stations: [StationConfiguration!]!
+    stations: [StationConfiguration!]!
 }
 
 """
 Meal state configurable by menu admins (closed/open/hidden)
 """
 enum MealState {
-  """
-  Open for dining
-  """
-  OPEN
+    """
+    Open for dining
+    """
+    OPEN
 
-  """
-  Closed, no meal will be served, but meal is visible on menu
-  """
-  CLOSED
+    """
+    Closed, no meal will be served, but meal is visible on menu
+    """
+    CLOSED
 
-  """
-  Not visible on public menu
-  """
-  HIDDEN
+    """
+    Not visible on public menu
+    """
+    HIDDEN
 }
 
 """
@@ -820,71 +820,71 @@ scalar TimeOnly
 Provides information for station administration
 """
 type StationConfiguration {
-  id: Guid!
+    id: Guid!
 
-  stationId: Guid!
+    stationId: Guid!
 
-  normalName: String!
+    normalName: String!
 
-  specialName: String
+    specialName: String
 
-  notes: String
+    notes: String
 
-  items: [ItemAdministration!]!
+    items: [ItemAdministration!]!
 }
 
 """
 Provides information for administering an occurrence of an item on a menu
 """
 type ItemAdministration {
-  itemMenuId: Guid!
+    itemMenuId: Guid!
 
-  specialName: String
+    specialName: String
 
-  item: Item
+    item: Item
 
-  isDisplayed: Boolean!
+    isDisplayed: Boolean!
 
-  isPublished: Boolean!
+    isPublished: Boolean!
 
-  components: [ComponentAdministration!]
+    components: [ComponentAdministration!]
 }
 
 type ComponentAdministration {
-  itemId: Guid!
+    itemId: Guid!
 
-  specialName: String
+    specialName: String
 
-  item: Item
+    item: Item
 
-  isDisplayed: Boolean!
+    isDisplayed: Boolean!
 
-  isPublished: Boolean!
+    isPublished: Boolean!
 }
 
 type PublishStatus {
-  date: Date!
+    date: Date!
 
-  isOpen: Boolean!
+    isOpen: Boolean!
 
-  isPublished: Boolean!
+    isPublished: Boolean!
 
-  isAbnormal: Boolean!
+    isAbnormal: Boolean!
 
-  needsAttention: Boolean!
+    needsAttention: Boolean!
 }
 
 type DiningCourtNormalHoursPeriod {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  effectiveDate: DateTime!
+    effectiveDate: DateTime!
 
-  days: [DiningCourtNormalHoursDay!]!
+    days: [DiningCourtNormalHoursDay!]!
 }
 
 """
@@ -893,181 +893,181 @@ The `DateTime` scalar type represents a date and time. `DateTime` expects timest
 scalar DateTime
 
 type DiningCourtNormalHoursDay {
-  dayOfWeek: String!
+    dayOfWeek: String!
 
-  meals: [DiningCourtNormalHoursMeal!]!
+    meals: [DiningCourtNormalHoursMeal!]!
 }
 
 type DiningCourtNormalHoursMeal {
-  name: String!
+    name: String!
 
-  startTime: TimeOnly!
+    startTime: TimeOnly!
 
-  endTime: TimeOnly!
+    endTime: TimeOnly!
 }
 
 type UpcomingMeal {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  type: String!
+    type: String!
 
-  startTime: DateTimeOffset!
+    startTime: DateTimeOffset!
 
-  endTime: DateTimeOffset!
+    endTime: DateTimeOffset!
 }
 
 type DiningCourtCategory {
-  name: String!
+    name: String!
 
-  diningCourts: [DiningCourt!]!
+    diningCourts: [DiningCourt!]!
 }
 
 type RetailLocation implements Node & Location {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  category: String!
+    category: String!
 
-  phone: String
+    phone: String
 
-  latitude: Float
+    latitude: Float
 
-  longitude: Float
+    longitude: Float
 
-  address: Address
+    address: Address
 
-  logoUrl: Uri
+    logoUrl: Uri
 
-  darkModeLogoUrl: Uri
+    darkModeLogoUrl: Uri
 
-  bannerUrl: Uri
+    bannerUrl: Uri
 
-  url: Uri
+    url: Uri
 
-  transactMobileOrderId: Int
+    transactMobileOrderId: Int
 
-  menuUrl: Uri
+    menuUrl: Uri
 }
 
 """
 Root for querying data directly from CBORD
 """
 type Cbord {
-  """
-  Search for an item in CBORD by name
-  """
-  items(search: String, skip: Int = 0, take: Int = 10): [CbordItem]
+    """
+    Search for an item in CBORD by name
+    """
+    items(search: String, skip: Int = 0, take: Int = 10): [CbordItem]
 
-  """
-  Gets a single service unit by its CBORD primray key.
-  """
-  serviceUnit(cbordId: Int): ServiceUnit
+    """
+    Gets a single service unit by its CBORD primray key.
+    """
+    serviceUnit(cbordId: Int): ServiceUnit
 
-  serviceUnits: [ServiceUnit]
+    serviceUnits: [ServiceUnit]
 }
 
 """
 All of the available information on the item from CBORD.
 """
 type CbordItem implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  Primary key for this item in the CBORD database
-  """
-  cbordItemId: Int!
+    """
+    Primary key for this item in the CBORD database
+    """
+    cbordItemId: Int!
 
-  """
-  The name of the item in CBORD.
-  """
-  name: String
+    """
+    The name of the item in CBORD.
+    """
+    name: String
 
-  """
-  The common name of the item in CBORD.
-  """
-  commonName: String
+    """
+    The common name of the item in CBORD.
+    """
+    commonName: String
 
-  """
-  The formal name of the item in CBORD.  This is the version intended for public display.
-  """
-  formalName: String
+    """
+    The formal name of the item in CBORD.  This is the version intended for public display.
+    """
+    formalName: String
 
-  """
-  A unique string identifying this item
-  """
-  keyName: String
+    """
+    A unique string identifying this item
+    """
+    keyName: String
 
-  """
-  The date/time this item was first created in CBORD.
-  """
-  dateCreated: DateTime
+    """
+    The date/time this item was first created in CBORD.
+    """
+    dateCreated: DateTime
 
-  """
-  The date/time the item was last modified in CBORD.
-  """
-  dateModified: DateTime
+    """
+    The date/time the item was last modified in CBORD.
+    """
+    dateModified: DateTime
 
-  """
-  A list of nutrition facts available for this item.
-  """
-  nutritionFacts: [CbordNutritionFact]
+    """
+    A list of nutrition facts available for this item.
+    """
+    nutritionFacts: [CbordNutritionFact]
 
-  """
-  A list of traits associated with this item.
-  """
-  traits: [Trait]
+    """
+    A list of traits associated with this item.
+    """
+    traits: [Trait]
 
-  """
-  The ingredients this item is made up of
-  """
-  ingredients: String
+    """
+    The ingredients this item is made up of
+    """
+    ingredients: String
 
-  """
-  A list of component items within this item.
-  """
-  components: [CbordItem]
+    """
+    A list of component items within this item.
+    """
+    components: [CbordItem]
 
-  """
-  A list of CBORD item ids that are components of this item.  More efficient than the `components` field if all you need is the IDs.
-  """
-  componentIds: [Int]
+    """
+    A list of CBORD item ids that are components of this item.  More efficient than the `components` field if all you need is the IDs.
+    """
+    componentIds: [Int]
 }
 
 """
 Describes a nutrition fact, such as "Total Fat" or "Calories".
 """
 type CbordNutritionFact {
-  """
-  Name of the nutrition fact, e.g. "Calories"
-  """
-  name: String!
+    """
+    Name of the nutrition fact, e.g. "Calories"
+    """
+    name: String!
 
-  """
-  Numeric value of the nutrition 
-  """
-  value: Decimal
+    """
+    Numeric value of the nutrition
+    """
+    value: Decimal
 
-  """
-  Formatted version of the value to be displayed on a label, e.g. "34g".  Can be null.
-  """
-  label: String
+    """
+    Formatted version of the value to be displayed on a label, e.g. "34g".  Can be null.
+    """
+    label: String
 
-  """
-  The daily value, e.g. "17%".  Can be null.
-  """
-  dailyValueLabel: String
+    """
+    The daily value, e.g. "17%".  Can be null.
+    """
+    dailyValueLabel: String
 }
 
 scalar Decimal
@@ -1076,396 +1076,396 @@ scalar Decimal
 Represents a dining operation where food is served.
 """
 type ServiceUnit implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  The primary key of this service unit in CBORD.
-  """
-  cbordId: Int!
+    """
+    The primary key of this service unit in CBORD.
+    """
+    cbordId: Int!
 
-  """
-  The name of the CBORD service unit, e.g. "Earhart Dining Court"
-  """
-  name: String!
+    """
+    The name of the CBORD service unit, e.g. "Earhart Dining Court"
+    """
+    name: String!
 
-  """
-  Gets the items served on a particular day.
-  """
-  menu(date: Date): [CbordItemAppearance]
+    """
+    Gets the items served on a particular day.
+    """
+    menu(date: Date): [CbordItemAppearance]
 }
 
 type CbordItemAppearance {
-  """
-  The date this item is served.
-  """
-  date: DateTime!
+    """
+    The date this item is served.
+    """
+    date: DateTime!
 
-  """
-  The meal this item is served.
-  """
-  meal: String!
+    """
+    The meal this item is served.
+    """
+    meal: String!
 
-  """
-  The primary key of the course in the CBORD database (often a Dining Court station)
-  """
-  courseId: Int
+    """
+    The primary key of the course in the CBORD database (often a Dining Court station)
+    """
+    courseId: Int
 
-  """
-  Name of the course in CBORD (often a Dining Court station)
-  """
-  courseName: String
+    """
+    Name of the course in CBORD (often a Dining Court station)
+    """
+    courseName: String
 
-  """
-  Unique string identifying this item
-  """
-  keyName: String!
+    """
+    Unique string identifying this item
+    """
+    keyName: String!
 
-  """
-  Name of the item
-  """
-  itemName: String!
+    """
+    Name of the item
+    """
+    itemName: String!
 
-  """
-  Name of this item exposed to the public
-  """
-  formalName: String!
+    """
+    Name of this item exposed to the public
+    """
+    formalName: String!
 
-  """
-  The primary key of the item in CBORD
-  """
-  cbordItemId: Int!
+    """
+    The primary key of the item in CBORD
+    """
+    cbordItemId: Int!
 
-  """
-  All of the available information on the item from CBORD.
-  """
-  detail: CbordItem
+    """
+    All of the available information on the item from CBORD.
+    """
+    detail: CbordItem
 }
 
 """
 Root for modifying data
 """
 type MenusMutation {
-  updateMenu(menu: MenuInput!): MenuConfiguration
+    updateMenu(menu: MenuInput!): MenuConfiguration
 
-  """
-  Creates a new non-CBORD item with a particular name.
-  """
-  createNonCbordItem(name: String!): Item
+    """
+    Creates a new non-CBORD item with a particular name.
+    """
+    createNonCbordItem(name: String!): Item
 
-  setPublishStatus(locationId: String!, date: Date!, isPublished: Boolean!, meals: [String]): MenuConfiguration
+    setPublishStatus(locationId: String!, date: Date!, isPublished: Boolean!, meals: [String]): MenuConfiguration
 
-  setBlacklisted(itemId: Guid!, isBlacklisted: Boolean!): Item!
+    setBlacklisted(itemId: Guid!, isBlacklisted: Boolean!): Item!
 
-  addFavoriteById(id: ID!): [FavoritedItem!]!
+    addFavoriteById(id: ID!): [FavoritedItem!]!
 
-  addFavoriteByItemId(itemId: Guid!): [FavoritedItem!]!
+    addFavoriteByItemId(itemId: Guid!): [FavoritedItem!]!
 
-  removeFavorite(id: ID!): [FavoritedItem!]!
+    removeFavorite(id: ID!): [FavoritedItem!]!
 
-  removeFavoriteByFavoriteId(favoriteId: Guid!): [FavoritedItem!]!
+    removeFavoriteByFavoriteId(favoriteId: Guid!): [FavoritedItem!]!
 
-  editFavoritesWithItemIds(itemIds: [Guid!]!): [FavoritedItem!]!
+    editFavoritesWithItemIds(itemIds: [Guid!]!): [FavoritedItem!]!
 
-  editFavorites(ids: [ID!]!): [FavoritedItem!]!
+    editFavorites(ids: [ID!]!): [FavoritedItem!]!
 
-  createPrintList(title: String!, type: PrintListType!): PrintList
+    createPrintList(title: String!, type: PrintListType!): PrintList
 
-  modifyPrintItem(input: PrintItemInput!): PrintItem
+    modifyPrintItem(input: PrintItemInput!): PrintItem
 
-  modifyLineCardPrintList(input: LineCardPrintListUpdate!): LineCardPrintList
+    modifyLineCardPrintList(input: LineCardPrintListUpdate!): LineCardPrintList
 
-  modifyAssemblyPrintList(input: AssemblyPrintListUpdate!): AssemblyPrintList
+    modifyAssemblyPrintList(input: AssemblyPrintListUpdate!): AssemblyPrintList
 
-  modifyAssemblyPrintSection(input: PrintListSectionInput!): PrintAssemblySection
+    modifyAssemblyPrintSection(input: PrintListSectionInput!): PrintAssemblySection
 
-  deletePrintList(id: ID!): DeletedNode
+    deletePrintList(id: ID!): DeletedNode
 }
 
 """
 Update a daily menu
 """
 input MenuInput {
-  locationId: String!
+    locationId: String!
 
-  date: Date!
+    date: Date!
 
-  meals: [MealInput]
+    meals: [MealInput]
 }
 
 """
 Update a daily meal
 """
 input MealInput {
-  """
-  Meal Menu ID
-  """
-  id: Guid!
+    """
+    Meal Menu ID
+    """
+    id: Guid!
 
-  name: String!
+    name: String!
 
-  state: MealState!
+    state: MealState!
 
-  startTime: TimeOnly
+    startTime: TimeOnly
 
-  endTime: TimeOnly
+    endTime: TimeOnly
 
-  stations: [StationInput]
+    stations: [StationInput]
 }
 
 """
 Update a menued meal station
 """
 input StationInput {
-  """
-  Station Menu ID
-  """
-  id: Guid!
+    """
+    Station Menu ID
+    """
+    id: Guid!
 
-  """
-  Station ID
-  """
-  stationId: Guid!
+    """
+    Station ID
+    """
+    stationId: Guid!
 
-  specialName: String
+    specialName: String
 
-  items: [ItemInput]
+    items: [ItemInput]
 }
 
 """
 Update a menued item
 """
 input ItemInput {
-  """
-  Item Menu ID
-  """
-  itemMenuId: Guid
+    """
+    Item Menu ID
+    """
+    itemMenuId: Guid
 
-  """
-  Item ID
-  """
-  itemId: Guid!
+    """
+    Item ID
+    """
+    itemId: Guid!
 
-  specialName: String
+    specialName: String
 
-  isDisplayed: Boolean!
+    isDisplayed: Boolean!
 
-  """
-  Parstock item configuration.  If set to null, default parstock behavior will apply.
-  """
-  components: [ComponentInput]
+    """
+    Parstock item configuration.  If set to null, default parstock behavior will apply.
+    """
+    components: [ComponentInput]
 }
 
 """
 Update a parstock component
 """
 input ComponentInput {
-  """
-  Item ID
-  """
-  itemId: Guid!
+    """
+    Item ID
+    """
+    itemId: Guid!
 
-  specialName: String
+    specialName: String
 
-  isDisplayed: Boolean!
+    isDisplayed: Boolean!
 }
 
 """
 Style of print list.
 """
 enum PrintListType {
-  LINE_ITEM_CARD
+    LINE_ITEM_CARD
 
-  ASSEMBLY_CARD
+    ASSEMBLY_CARD
 
-  """
-  A line card
-  """
-  LINE_CARD
+    """
+    A line card
+    """
+    LINE_CARD
 
-  """
-  A list for a collection of items
-  """
-  ASSEMBLY
+    """
+    A list for a collection of items
+    """
+    ASSEMBLY
 }
 
 """
 Represents an item to be printed on a line card.
 """
 type PrintItem implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  Unique identifier of the CBORD item, or null if this is not a CBORD item.
-  """
-  cbordItemId: Int
+    """
+    Unique identifier of the CBORD item, or null if this is not a CBORD item.
+    """
+    cbordItemId: Int
 
-  """
-  A custom string to override the item name when printing.
-  """
-  specialName: String
+    """
+    A custom string to override the item name when printing.
+    """
+    specialName: String
 
-  """
-  The number of line cards to print
-  """
-  quantity: Int!
+    """
+    The number of line cards to print
+    """
+    quantity: Int!
 
-  cbordItem: CbordItem
+    cbordItem: CbordItem
 }
 
 """
 The number of line cards to print.
 """
 input PrintItemInput {
-  """
-  ID of the print item, or null to create a new one within the context of a session.
-  """
-  id: ID
+    """
+    ID of the print item, or null to create a new one within the context of a session.
+    """
+    id: ID
 
-  """
-  Unique identifier of the CBORD item, or null if this is not a CBORD item.
-  """
-  cbordItemId: Int
+    """
+    Unique identifier of the CBORD item, or null if this is not a CBORD item.
+    """
+    cbordItemId: Int
 
-  """
-  A custom string to override the item name when printing.
-  """
-  specialName: String
+    """
+    A custom string to override the item name when printing.
+    """
+    specialName: String
 
-  """
-  The number of line cards to print.
-  """
-  quantity: Int
+    """
+    The number of line cards to print.
+    """
+    quantity: Int
 }
 
 """
 Represents a print list for line card printing.
 """
 type LineCardPrintList implements Node & PrintList {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  Primary key of the print list.
-  """
-  printListId: Guid
+    """
+    Primary key of the print list.
+    """
+    printListId: Guid
 
-  title: String!
+    title: String!
 
-  creationTime: DateTimeOffset!
+    creationTime: DateTimeOffset!
 
-  modifiedTime: DateTimeOffset!
+    modifiedTime: DateTimeOffset!
 
-  items: [PrintItem]
+    items: [PrintItem]
 }
 
 """
 Input type for mutating an line card print list.
 """
 input LineCardPrintListUpdate {
-  id: ID
+    id: ID
 
-  title: String
+    title: String
 
-  items: [PrintItemInput]
+    items: [PrintItemInput]
 }
 
 """
 Represents a print list for line card printing.
 """
 type AssemblyPrintList implements Node & PrintList {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  """
-  Primary key of the print list.
-  """
-  printListId: Guid
+    """
+    Primary key of the print list.
+    """
+    printListId: Guid
 
-  title: String!
+    title: String!
 
-  subtitle: String
+    subtitle: String
 
-  creationTime: DateTimeOffset!
+    creationTime: DateTimeOffset!
 
-  modifiedTime: DateTimeOffset!
+    modifiedTime: DateTimeOffset!
 
-  sections: [PrintAssemblySection]
+    sections: [PrintAssemblySection]
 }
 
 """
 Represents a section on an assembly print list.
 """
 type PrintAssemblySection implements Node {
-  """
-  The globally unique identifier of the node.
-  """
-  id: ID!
+    """
+    The globally unique identifier of the node.
+    """
+    id: ID!
 
-  name: String!
+    name: String!
 
-  items: [PrintItem]
+    items: [PrintItem]
 }
 
 """
 Input type for mutating an assembly print list.
 """
 input AssemblyPrintListUpdate {
-  id: ID!
+    id: ID!
 
-  """
-  New title, or null to keep the existing title.
-  """
-  title: String
+    """
+    New title, or null to keep the existing title.
+    """
+    title: String
 
-  """
-  New subtitle, or null to keep the existing subtitle
-  """
-  subtitle: String
+    """
+    New subtitle, or null to keep the existing subtitle
+    """
+    subtitle: String
 
-  """
-  New assembly sections, or null to keep the existing sections.
-  """
-  sections: [PrintListSectionInput]
+    """
+    New assembly sections, or null to keep the existing sections.
+    """
+    sections: [PrintListSectionInput]
 }
 
 """
 Represents a section on an assembly print list.
 """
 input PrintListSectionInput {
-  """
-  ID of the section to update, or null to create a new section
-  """
-  id: ID
+    """
+    ID of the section to update, or null to create a new section
+    """
+    id: ID
 
-  """
-  New name for this section, or null to keep the same name.
-  """
-  name: String
+    """
+    New name for this section, or null to keep the same name.
+    """
+    name: String
 
-  """
-  New items for this section, or null to keep them the same.
-  """
-  items: [PrintItemInput]
+    """
+    New items for this section, or null to keep them the same.
+    """
+    items: [PrintItemInput]
 }
 
 """
 Metadata on a deleted node.
 """
 type DeletedNode {
-  """
-  ID of the deleted node.
-  """
-  deletedNodeId: ID
+    """
+    ID of the deleted node.
+    """
+    deletedNodeId: ID
 }
 
 """
@@ -1484,6 +1484,6 @@ Marks an element of a GraphQL schema as no longer supported.
 directive @deprecated ("Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted in [Markdown](https://daringfireball.net/projects/markdown/)." reason: String = "No longer supported") on FIELD_DEFINITION|ENUM_VALUE
 
 schema {
-  query: MenusQuery
-  mutation: MenusMutation
+    query: MenusQuery
+    mutation: MenusMutation
 }

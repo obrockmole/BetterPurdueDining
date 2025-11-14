@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.obrockmole.betterdining.data.UserPreferencesRepository
+import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.screens.DefaultScreenSelectionScreen
 import com.obrockmole.betterdining.ui.screens.FavoritesScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
@@ -42,6 +43,7 @@ import com.obrockmole.betterdining.ui.screens.LicensesScreen
 import com.obrockmole.betterdining.ui.screens.SettingsScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
+import com.obrockmole.betterdining.viewmodel.HomeViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +57,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BetterPurdueDiningApp() {
@@ -63,7 +64,11 @@ fun BetterPurdueDiningApp() {
     val context = LocalContext.current
     val userPreferencesRepository = remember { UserPreferencesRepository(context) }
     val defaultScreen by userPreferencesRepository.defaultScreen.collectAsState(initial = null)
-    val homeViewModel: HomeViewModel = viewModel()
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(
+            StartLocationsRepository()
+        )
+    )
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isInitialScreenSet by rememberSaveable { mutableStateOf(false) }
@@ -160,7 +165,11 @@ fun BetterPurdueDiningApp() {
                 }
             }
         }
-        composable("item/{itemId}") { backStackEntry ->
+        composable(
+            "item/{itemId}",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")
             val itemName =
                 navController.previousBackStackEntry?.savedStateHandle?.get<String>("itemName")

@@ -26,7 +26,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,7 +63,7 @@ fun FoodLocationDetail(
         viewModel.getMenu(nameFormal, date)
     }
 
-    var selectedMealIndex by rememberSaveable { mutableStateOf(0) }
+    var selectedMealIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -112,6 +112,10 @@ fun FoodLocationDetail(
                         val meals = menuData.dailyMenu!!.meals
 
                         LaunchedEffect(meals, initialMealName) {
+                            if (selectedMealIndex >= meals.size) {
+                                selectedMealIndex = 0
+                            }
+
                             if (initialMealName != null) {
                                 val index = meals.indexOfFirst { it.name == initialMealName }
                                 if (index != -1) {
@@ -133,13 +137,15 @@ fun FoodLocationDetail(
                                         if (currentHour in startTime until endTime) {
                                             selectedMealIndex = index
                                             return@forEachIndexed
+                                        } else if (currentHour < startTime) {
+                                            selectedMealIndex = index
                                         }
                                     }
                                 }
                             }
                         }
 
-                        if (meals.isNotEmpty()) {
+                        if (meals.isNotEmpty() && selectedMealIndex < meals.size) {
                             Column {
                                 SecondaryTabRow(
                                     selectedTabIndex = selectedMealIndex,
@@ -199,24 +205,39 @@ fun StationDetail(
     modifier: Modifier = Modifier,
     onNavigateToItem: (String, String) -> Unit
 ) {
-    Column(modifier = modifier.padding(vertical = 8.dp)) {
-        Text(text = station.name, style = MaterialTheme.typography.titleLarge)
-        station.items.forEach { itemWrapper ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = {
-                        onNavigateToItem(
-                            itemWrapper.item.name,
-                            itemWrapper.item.itemId
-                        )
-                    })
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(text = itemWrapper.item.name)
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = modifier.padding(vertical = 8.dp)) {
+            Text(
+                text = station.name,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp)
+            )
+
+            HorizontalDivider(thickness = 2.dp)
+
+            station.items.forEachIndexed { index, itemWrapper ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = {
+                            onNavigateToItem(
+                                itemWrapper.item.name,
+                                itemWrapper.item.itemId
+                            )
+                        })
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(text = itemWrapper.item.name)
+                }
+
+                if (index < station.items.size - 1) {
+                    HorizontalDivider()
+                }
             }
-            HorizontalDivider()
         }
     }
 }
