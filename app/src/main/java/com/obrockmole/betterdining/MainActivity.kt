@@ -31,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import com.obrockmole.betterdining.data.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.screens.DefaultScreenSelectionScreen
 import com.obrockmole.betterdining.ui.screens.FavoritesScreen
@@ -171,12 +173,20 @@ fun BetterPurdueDiningApp() {
                 )
             }
         }
-        composable("settings/defaultScreen") {
+        composable(
+            "settings/defaultScreen",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
             DefaultScreenSelectionScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        composable("settings/licenses") {
+        composable(
+            "settings/licenses",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
             LicensesScreen(
                 onNavigateBack = { navController.popBackStack() }
             )

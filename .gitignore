@@ -84,3 +84,5 @@ lint/tmp/
 .idea/
 
 app/src/androidTest/
+
+.DS_Store

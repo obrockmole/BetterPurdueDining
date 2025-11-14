@@ -44,8 +44,9 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiningCourtDetail(
-    diningCourtName: String,
+fun FoodLocationDetail(
+    name: String,
+    nameFormal: String,
     viewModel: MenuViewModel,
     onBack: () -> Unit,
     onNavigateToItem: (String, String) -> Unit,
@@ -56,11 +57,11 @@ fun DiningCourtDetail(
         onBack()
     }
 
-    LaunchedEffect(diningCourtName, initialDate) {
+    LaunchedEffect(nameFormal, initialDate) {
         val date = initialDate?.let {
             LocalDate.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString()
         }
-        viewModel.getMenu(diningCourtName, date)
+        viewModel.getMenu(nameFormal, date)
     }
 
     var selectedMealIndex by rememberSaveable { mutableStateOf(0) }
@@ -68,7 +69,7 @@ fun DiningCourtDetail(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(diningCourtName) },
+                title = { Text(name) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

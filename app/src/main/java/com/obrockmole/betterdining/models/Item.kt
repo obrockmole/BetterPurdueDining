@@ -14,8 +14,8 @@ data class ItemDetails(
     val ingredients: String?,
     val nutritionFacts: List<NutritionFact>,
     val traits: List<Trait>,
-    val appearances: List<Appearance>,
-    val components: List<Component>
+    val components: List<Component>,
+    val appearances: List<Appearance>
 )
 
 data class NutritionFact(
@@ -26,8 +26,8 @@ data class NutritionFact(
 )
 
 data class Appearance(
-    val mealName: String,
     val locationName: String,
     val stationName: String,
+    val mealName: String,
     val date: String
 )

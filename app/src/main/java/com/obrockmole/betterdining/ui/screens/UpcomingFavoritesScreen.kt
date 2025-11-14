@@ -214,7 +214,6 @@ fun UpcomingFavoriteItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-
     }
 }
 
