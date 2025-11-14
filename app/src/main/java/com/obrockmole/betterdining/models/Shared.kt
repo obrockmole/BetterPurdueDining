@@ -1,5 +1,11 @@
 package com.obrockmole.betterdining.models
 
+data class GraphQLRequest(
+    val operationName: String? = null,
+    val variables: Any,
+    val query: String
+)
+
 data class Trait(
     val name: String,
     val type: String? = null,

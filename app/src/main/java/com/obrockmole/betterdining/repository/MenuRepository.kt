@@ -1,137 +1,43 @@
 package com.obrockmole.betterdining.repository
 
-import com.obrockmole.betterdining.models.GraphQLRequest
-import com.obrockmole.betterdining.models.ItemDetailsResponse
-import com.obrockmole.betterdining.models.ItemVariables
-import com.obrockmole.betterdining.models.MenuResponse
-import com.obrockmole.betterdining.models.Variables
-import com.obrockmole.betterdining.network.RetrofitInstance
+import com.obrockmole.betterdining.GetItemDetailsQuery
+import com.obrockmole.betterdining.GetLocationMenuQuery
+import com.obrockmole.betterdining.network.ApolloInstance
 
 class MenuRepository {
-    private val query = """
-        query getLocationMenu(${'$'}name: String!, ${'$'}date: Date!) {
-          diningCourtByName(name: ${'$'}name) {
-            name
-            formalName
-            id
-            lineLength
-            dailyMenu(date: ${'$'}date) {
-              notes
-              meals {
-                name
-                notes
-                status
-                startTime
-                endTime
-                stations {
-                  name
-                  id
-                  items {
-                    specialName
-                    itemMenuId
-                    hasComponents
-                    item {
-                      name
-                      itemId
-                      traits {
-                        name
-                        svgIcon
-                        svgIconWithoutBackground
-                      }
-                      components {
-                        name
-                        itemId
-                        traits {
-                          name
-                          svgIcon
-                          svgIconWithoutBackground
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-    """.trimIndent()
+    private val apolloClient = ApolloInstance.apolloClient
 
-    private val itemQuery = """
-        query (${'$'}id: Guid!) {
-          itemByItemId(itemId: ${'$'}id) {
-            name
-            itemId
-            ingredients
-            isNutritionReady
-            nutritionFacts {
-              name
-              value
-              label
-              dailyValueLabel
-            }
-            traits {
-              name
-              type
-              svgIcon
-              svgIconWithoutBackground
-            }
-            appearances {
-              mealName
-              locationName
-              stationName
-              date
-            }
-            components {
-              name
-              itemId
-              isFlaggedForCurrentUser
-              isHiddenForCurrentUser
-              isNutritionReady
-              traits {
-                name
-                type
-                svgIcon
-                svgIconWithoutBackground
-              }
-            }
-          }
-        }
-    """.trimIndent()
+    suspend fun getDiningCourtMenu(name: String, date: String): GetLocationMenuQuery.DiningCourtByName? {
+        try {
+            val response = apolloClient.query(GetLocationMenuQuery(name = name, date = date)).execute()
 
-    suspend fun getDiningCourtMenu(name: String, date: String): Result<MenuResponse> {
-        return try {
-            val response = RetrofitInstance.api.getMenu(
-                GraphQLRequest(
-                    operationName = "getLocationMenu",
-                    variables = Variables(name = name, date = date),
-                    query = query
-                )
-            )
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error fetching menu"))
+            if (response.hasErrors()) {
+                throw Exception("GraphQL Error: ${response.errors?.firstOrNull()?.message}")
+            } else if (response.exception != null) {
+                throw response.exception!!
             }
+
+            return response.data?.diningCourtByName
+
         } catch (e: Exception) {
-            Result.failure(e)
+            throw e
         }
     }
 
-    suspend fun getItemDetails(itemId: String): Result<ItemDetailsResponse> {
-        return try {
-            val response = RetrofitInstance.api.getItemDetails(
-                GraphQLRequest(
-                    variables = ItemVariables(id = itemId),
-                    query = itemQuery
-                )
-            )
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error fetching item details"))
+    suspend fun getItemDetails(itemId: String): GetItemDetailsQuery.ItemByItemId? {
+        try {
+            val response = apolloClient.query(GetItemDetailsQuery(id = itemId)).execute()
+
+            if (response.hasErrors()) {
+                throw Exception("GraphQL Error: ${response.errors?.firstOrNull()?.message}")
+            } else if (response.exception != null) {
+                throw response.exception!!
             }
+
+            return response.data?.itemByItemId
+
         } catch (e: Exception) {
-            Result.failure(e)
+            throw e
         }
     }
 }

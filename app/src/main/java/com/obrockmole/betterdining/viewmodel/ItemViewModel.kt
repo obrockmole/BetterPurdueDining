@@ -5,14 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.obrockmole.betterdining.GetItemDetailsQuery
 import com.obrockmole.betterdining.database.FavoriteItem
-import com.obrockmole.betterdining.models.ItemDetails
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
 import kotlinx.coroutines.launch
 
 sealed interface ItemUiState {
-    data class Success(val item: ItemDetails) : ItemUiState
+    data class Success(val item: GetItemDetailsQuery.ItemByItemId) : ItemUiState
     data object Error : ItemUiState
     data object Loading : ItemUiState
 }
@@ -31,22 +31,24 @@ class ItemViewModel(
     fun getItem(itemId: String) {
         viewModelScope.launch {
             itemUiState = ItemUiState.Loading
-            isFavorite = favoritesRepository.isFavorite(itemId)
-            val result = menuRepository.getItemDetails(itemId)
-            itemUiState = result.fold(
-                onSuccess = {
-                    ItemUiState.Success(it.data.itemByItemId)
-                },
-                onFailure = {
+            try {
+                val result = menuRepository.getItemDetails(itemId)
+                itemUiState = if (result != null) {
+                    ItemUiState.Success(result)
+                } else {
                     ItemUiState.Error
                 }
-            )
+                isFavorite = favoritesRepository.isFavorite(itemId)
+
+            } catch (e: Exception) {
+                itemUiState = ItemUiState.Error
+            }
         }
     }
 
-    fun toggleFavorite(item: ItemDetails) {
+    fun toggleFavorite(item: GetItemDetailsQuery.ItemByItemId) {
         viewModelScope.launch {
-            val favoriteItem = FavoriteItem(itemId = item.itemId, name = item.name)
+            val favoriteItem = FavoriteItem(name = item.name, itemId = item.itemId)
             if (isFavorite) {
                 favoritesRepository.removeFavorite(favoriteItem)
             } else {

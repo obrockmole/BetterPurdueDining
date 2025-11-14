@@ -33,9 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.obrockmole.betterdining.GetLocationMenuQuery
 import com.obrockmole.betterdining.R
-import com.obrockmole.betterdining.models.Meal
-import com.obrockmole.betterdining.models.Station
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import java.time.LocalDate
@@ -109,7 +108,8 @@ fun FoodLocationDetail(
                     }
 
                     is MenuUiState.Success -> {
-                        val meals = uiState.meals
+                        val menuData = uiState.data
+                        val meals = menuData.dailyMenu!!.meals
 
                         LaunchedEffect(meals, initialMealName) {
                             if (initialMealName != null) {
@@ -183,7 +183,7 @@ fun FoodLocationDetail(
 
 @Composable
 fun MealDetail(
-    meal: Meal,
+    meal: GetLocationMenuQuery.Meal,
     onNavigateToItem: (String, String) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -195,7 +195,7 @@ fun MealDetail(
 
 @Composable
 fun StationDetail(
-    station: Station,
+    station: GetLocationMenuQuery.Station,
     modifier: Modifier = Modifier,
     onNavigateToItem: (String, String) -> Unit
 ) {

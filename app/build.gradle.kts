@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.apollo)
     id("com.google.devtools.ksp")
 }
 
@@ -52,6 +53,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
+    implementation(libs.apollo.runtime)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.gson)
@@ -68,4 +70,25 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+apollo {
+    service("service") {
+        packageName.set("com.obrockmole.betterdining")
+        introspection {
+            endpointUrl.set("https://api.hfs.purdue.edu/menus/v3/GraphQL")
+            schemaFile.set(file("src/main/java/com/obrockmole/betterdining/graphql/schema.graphqls"))
+        }
+        srcDir("src/main/java/com/obrockmole/betterdining/graphql")
+        mapScalar("ID", "kotlin.String")
+        mapScalar("Guid", "kotlin.String")
+        mapScalar("TimeOnly", "kotlin.String")
+        mapScalar("Uri", "kotlin.String")
+        mapScalar("DateTimeOffset", "kotlin.String")
+        mapScalar("HexColorCode", "kotlin.String")
+        mapScalar("Date", "kotlin.String")
+        mapScalar("TimeOnly", "kotlin.String")
+        mapScalar("DateTime", "kotlin.String")
+        mapScalar("Decimal", "kotlin.String")
+    }
 }

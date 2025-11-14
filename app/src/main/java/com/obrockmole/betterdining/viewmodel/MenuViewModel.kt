@@ -5,47 +5,37 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.obrockmole.betterdining.models.Meal
+import com.obrockmole.betterdining.GetLocationMenuQuery
 import com.obrockmole.betterdining.repository.MenuRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 sealed interface MenuUiState {
-    data class Success(val meals: List<Meal>) : MenuUiState
+    data class Success(val data: GetLocationMenuQuery.DiningCourtByName) : MenuUiState
     data object Error : MenuUiState
     data object Loading : MenuUiState
 }
 
 class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
-
     var menuUiState: MenuUiState by mutableStateOf(MenuUiState.Loading)
         private set
 
     fun getMenu(diningCourtName: String, date: String? = null) {
         viewModelScope.launch {
             menuUiState = MenuUiState.Loading
-            val menuDate = date ?: LocalDate.now().toString()
-            val result = menuRepository.getDiningCourtMenu(diningCourtName, menuDate)
-            menuUiState = result.fold(
-                onSuccess = {
-                    if (it.data.diningCourtByName.dailyMenu.meals.isNotEmpty()) {
-                        val mealsWithoutByRequest =
-                            it.data.diningCourtByName.dailyMenu.meals.map { meal ->
-                                val stationsWithoutByRequest = meal.stations.filter { station ->
-                                    station.name != "By Request"
-                                }
-                                meal.copy(stations = stationsWithoutByRequest)
-                            }
+            try {
+                val menuDate = date ?: LocalDate.now().toString()
+                val result = menuRepository.getDiningCourtMenu(diningCourtName, menuDate)
 
-                        MenuUiState.Success(mealsWithoutByRequest)
-                    } else {
-                        MenuUiState.Error
-                    }
-                },
-                onFailure = {
+                menuUiState = if (result != null) {
+                    MenuUiState.Success(result)
+                } else {
                     MenuUiState.Error
                 }
-            )
+
+            } catch (e: Exception) {
+                menuUiState = MenuUiState.Error
+            }
         }
     }
 }

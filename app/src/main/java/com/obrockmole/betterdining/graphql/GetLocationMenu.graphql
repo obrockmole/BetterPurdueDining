@@ -1,0 +1,41 @@
+query GetLocationMenu($name: String!, $date: Date!) {
+    diningCourtByName(name: $name) {
+        name
+        formalName
+        id
+        lineLength
+        dailyMenu(date: $date) {
+            notes
+            meals {
+                name
+                notes
+                status
+                startTime
+                endTime
+                stations {
+                    name
+                    id
+                    items {
+                        specialName
+                        itemMenuId
+                        hasComponents
+                        item {
+                            name
+                            itemId
+                            traits {
+                                name
+                            }
+                            components {
+                                name
+                                itemId
+                                traits {
+                                    name
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
