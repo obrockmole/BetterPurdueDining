@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.betterdining.ItemSearchQuery
 import com.obrockmole.betterdining.R
-import com.obrockmole.betterdining.models.Appearance
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
@@ -46,12 +46,6 @@ import com.obrockmole.betterdining.viewmodel.SearchViewModelFactory
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
-data class SearchResultItem(
-    val itemId: String,
-    val name: String,
-    val appearance: Appearance
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +60,7 @@ fun SearchScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember {
-        mutableStateOf<List<com.obrockmole.betterdining.repository.GroupedSearchResult>>(
+        mutableStateOf<List<ItemSearchQuery.ItemSearch>>(
             emptyList()
         )
     }
@@ -84,15 +78,7 @@ fun SearchScreen(
             hasSearched = false
             delay(450)
 
-            val result = searchViewModel.searchUpcoming(searchQuery)
-            result.fold(
-                onSuccess = { results ->
-                    searchResults = results
-                },
-                onFailure = { error ->
-                    searchResults = emptyList()
-                }
-            )
+            searchResults = searchViewModel.searchItems(searchQuery)
 
             isLoading = false
             hasSearched = true
@@ -162,7 +148,7 @@ fun SearchScreen(
 
                     hasSearched && searchResults.isEmpty() -> {
                         Text(
-                            text = "No upcoming items found for \"$searchQuery\"",
+                            text = "No items found for \"$searchQuery\"",
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(16.dp),
@@ -191,7 +177,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchResultsList(
-    results: List<com.obrockmole.betterdining.repository.GroupedSearchResult>,
+    results: List<ItemSearchQuery.ItemSearch>,
     homeViewModel: HomeViewModel,
     onBack: () -> Unit,
     expandedItemId: String?,
@@ -207,9 +193,9 @@ fun SearchResultsList(
                     onHeaderClick = { onItemClick(groupedResult.itemId) },
                     onAppearanceClick = { appearance ->
                         homeViewModel.navigateToMenu(
-                            diningCourt = appearance.appearance.locationName,
-                            mealName = appearance.appearance.mealName,
-                            date = appearance.appearance.date
+                            diningCourt = appearance.locationName,
+                            mealName = appearance.mealName,
+                            date = appearance.date
                         )
                         onBack()
                     }
@@ -221,10 +207,10 @@ fun SearchResultsList(
 
 @Composable
 fun ExpandableSearchResultItem(
-    groupedResult: com.obrockmole.betterdining.repository.GroupedSearchResult,
+    groupedResult: ItemSearchQuery.ItemSearch,
     isExpanded: Boolean,
     onHeaderClick: () -> Unit,
-    onAppearanceClick: (SearchResultItem) -> Unit,
+    onAppearanceClick: (ItemSearchQuery.Appearance) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -270,13 +256,36 @@ fun ExpandableSearchResultItem(
                     onClick = { onAppearanceClick(appearance) }
                 )
             }
+
+            if (groupedResult.appearances.isEmpty()) {
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Nothings coming up biggie",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Text(
+                            text = "5:00 PM, Monday the 4th of never",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                HorizontalDivider()
+            }
         }
     }
 }
 
 @Composable
 fun AppearanceListItem(
-    appearance: SearchResultItem,
+    appearance: ItemSearchQuery.Appearance,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -289,12 +298,12 @@ fun AppearanceListItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "${appearance.appearance.locationName} - ${appearance.appearance.mealName}",
+                text = "${appearance.locationName} - ${appearance.mealName}",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             val dateTime = LocalDateTime.parse(
-                appearance.appearance.date,
+                appearance.date,
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME
             )
             val formattedDate = dateTime.format(DateTimeFormatter.ofPattern("EEE, MMM d"))

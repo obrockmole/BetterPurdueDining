@@ -232,7 +232,7 @@ fun DiningCourtListItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 Text(
-                    text = "Time Shit Coming Soon",
+                    text = "That time shit be comin, just wait",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 16.dp)
@@ -319,7 +319,7 @@ fun QuickBiteListItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 Text(
-                    text = "That time shit be comin, jsut wait",
+                    text = "That time shit be comin, just wait",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 16.dp)

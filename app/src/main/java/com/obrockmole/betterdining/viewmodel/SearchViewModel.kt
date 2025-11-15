@@ -2,12 +2,12 @@ package com.obrockmole.betterdining.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.obrockmole.betterdining.repository.GroupedSearchResult
+import com.obrockmole.betterdining.ItemSearchQuery
 import com.obrockmole.betterdining.repository.SearchRepository
 
 class SearchViewModel(private val searchRepository: SearchRepository) : ViewModel() {
-    suspend fun searchUpcoming(query: String): Result<List<GroupedSearchResult>> {
-        return searchRepository.searchUpcoming(query)
+    suspend fun searchItems(query: String): List<ItemSearchQuery.ItemSearch> {
+        return searchRepository.searchItems(query)
     }
 }
 

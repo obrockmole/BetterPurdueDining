@@ -1,0 +1,12 @@
+query ItemSearch($name: String!) {
+    itemSearch(name: $name) {
+        name
+        itemId
+        appearances {
+            mealName
+            locationName
+            stationName
+            date
+        }
+    }
+}
