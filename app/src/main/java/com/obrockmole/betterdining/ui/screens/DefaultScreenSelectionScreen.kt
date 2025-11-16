@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.data.UserPreferencesRepository
+import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
@@ -41,7 +43,10 @@ fun DefaultScreenSelectionScreen(
 ) {
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(UserPreferencesRepository(context))
+        factory = SettingsViewModelFactory(
+            UserPreferencesRepository(context),
+            FavoritesRepository(AppDatabase.getDatabase(context).favoriteItemDao())
+        )
     )
     val defaultScreen by settingsViewModel.defaultScreen.collectAsState()
 
