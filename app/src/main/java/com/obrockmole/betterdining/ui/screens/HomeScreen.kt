@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +57,7 @@ fun HomeScreen(
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
     val selectedMealNameFromFav by viewModel.selectedMealName.collectAsState()
     val selectedDateFromFav by viewModel.selectedDate.collectAsState()
+    val selectedItemFromFav by viewModel.selectedItem.collectAsState()
 
     var selectedFoodLocation by rememberSaveable { mutableStateOf<String?>(null) }
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
@@ -94,13 +97,20 @@ fun HomeScreen(
             },
             onNavigateToItem = onNavigateToItem,
             initialMealName = selectedMealNameFromFav,
-            initialDate = selectedDateFromFav
+            initialDate = selectedDateFromFav,
+            initialItemName = selectedItemFromFav
         )
 
     } else {
-        LazyColumn(modifier = modifier.fillMaxSize()) {
-            when (val uiState = viewModel.homeUiState) {
-                is HomeUiState.Success -> {
+        when (val uiState = viewModel.homeUiState) {
+            is HomeUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+            }
+
+            is HomeUiState.Success -> {
+                LazyColumn(modifier = modifier.fillMaxSize()) {
                     val diningCourts =
                         uiState.data!!.filter { it.name == "Dining Courts" }[0].diningCourts
                     val quickBites =
@@ -160,9 +170,9 @@ fun HomeScreen(
                         )
                     }
                 }
-
-                else -> Log.e("HomeScreen", "HomeScreen: $uiState")
             }
+
+            else -> Log.e("HomeScreen", "HomeScreen: $uiState")
         }
     }
 }

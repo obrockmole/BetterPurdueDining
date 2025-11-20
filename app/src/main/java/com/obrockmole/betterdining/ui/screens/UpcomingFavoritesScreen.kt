@@ -141,7 +141,8 @@ fun UpcomingFavoritesScreen(
                                             homeViewModel.navigateToMenu(
                                                 diningCourt = appearance.locationName,
                                                 mealName = appearance.mealName,
-                                                date = appearance.date
+                                                date = appearance.date,
+                                                item = name
                                             )
                                         }
                                     )

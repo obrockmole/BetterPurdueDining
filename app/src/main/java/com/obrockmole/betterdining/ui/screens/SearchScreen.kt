@@ -195,7 +195,8 @@ fun SearchResultsList(
                         homeViewModel.navigateToMenu(
                             diningCourt = appearance.locationName,
                             mealName = appearance.mealName,
-                            date = appearance.date
+                            date = appearance.date,
+                            item = groupedResult.name
                         )
                         onBack()
                     }

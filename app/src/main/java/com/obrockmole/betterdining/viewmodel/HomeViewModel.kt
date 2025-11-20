@@ -28,19 +28,24 @@ class HomeViewModel(private val startLocationsRepository: StartLocationsReposito
     private val _selectedDate = MutableStateFlow<String?>(null)
     val selectedDate: StateFlow<String?> = _selectedDate
 
+    private val _selectedItem = MutableStateFlow<String?>(null)
+    val selectedItem: StateFlow<String?> = _selectedItem
+
     var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
         private set
 
-    fun navigateToMenu(diningCourt: String, mealName: String, date: String) {
+    fun navigateToMenu(diningCourt: String, mealName: String, date: String, item: String) {
         _selectedDiningCourt.value = diningCourt
         _selectedMealName.value = mealName
         _selectedDate.value = date
+        _selectedItem.value = item
     }
 
     fun clearNavigation() {
         _selectedDiningCourt.value = null
         _selectedMealName.value = null
         _selectedDate.value = null
+        _selectedItem.value = null
     }
 
     fun getLocations(date: String? = null) {

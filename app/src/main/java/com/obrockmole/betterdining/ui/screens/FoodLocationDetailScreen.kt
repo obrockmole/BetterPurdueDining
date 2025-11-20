@@ -1,6 +1,9 @@
 package com.obrockmole.betterdining.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,16 +31,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.obrockmole.betterdining.GetLocationMenuQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -50,7 +57,8 @@ fun FoodLocationDetail(
     onBack: () -> Unit,
     onNavigateToItem: (String, String) -> Unit,
     initialMealName: String?,
-    initialDate: String?
+    initialDate: String?,
+    initialItemName: String?
 ) {
     BackHandler {
         onBack()
@@ -170,7 +178,8 @@ fun FoodLocationDetail(
                                 } else {
                                     MealDetail(
                                         meal = meals[selectedMealIndex],
-                                        onNavigateToItem = onNavigateToItem
+                                        onNavigateToItem = onNavigateToItem,
+                                        initialItemName = initialItemName
                                     )
                                 }
                             }
@@ -190,54 +199,118 @@ fun FoodLocationDetail(
 @Composable
 fun MealDetail(
     meal: GetLocationMenuQuery.Meal,
-    onNavigateToItem: (String, String) -> Unit
+    onNavigateToItem: (String, String) -> Unit,
+    initialItemName: String? = null
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(meal.stations) { station ->
-            StationDetail(station = station, onNavigateToItem = onNavigateToItem)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(initialItemName) {
+        if (initialItemName != null) {
+            var targetIndex = 0
+            var found = false
+
+            for (station in meal.stations) {
+                targetIndex++
+                for (item in station.items) {
+                    if (item.item.name == initialItemName) {
+                        found = true
+                        break
+                    }
+                    targetIndex++
+                }
+                if (found) break
+            }
+
+            if (found) {
+                delay(100)
+                listState.animateScrollToItem(targetIndex)
+            }
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = listState
+    ) {
+        meal.stations.forEach { station ->
+            item {
+                StationHeader(station = station)
+            }
+
+            itemsIndexed(station.items) { index, itemWrapper ->
+                StationItem(
+                    itemWrapper = itemWrapper,
+                    isHighlighted = initialItemName != null && itemWrapper.item.name == initialItemName,
+                    onNavigateToItem = onNavigateToItem,
+                    showDivider = index < station.items.size - 1
+                )
+            }
         }
     }
 }
 
 @Composable
-fun StationDetail(
-    station: GetLocationMenuQuery.Station,
-    modifier: Modifier = Modifier,
-    onNavigateToItem: (String, String) -> Unit
+fun StationHeader(station: GetLocationMenuQuery.Station) {
+    Text(
+        text = station.name,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+    )
+}
+
+@Composable
+fun StationItem(
+    itemWrapper: GetLocationMenuQuery.Item,
+    isHighlighted: Boolean,
+    onNavigateToItem: (String, String) -> Unit,
+    showDivider: Boolean
 ) {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = modifier.padding(vertical = 8.dp)) {
-            Text(
-                text = station.name,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp)
+    val backgroundColor = remember { Animatable(Color.Transparent) }
+    val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+
+    LaunchedEffect(Unit) {
+        if (isHighlighted) {
+            delay(150)
+
+            backgroundColor.animateTo(
+                targetValue = highlightColor,
+                animationSpec = tween(durationMillis = 200)
             )
+            backgroundColor.animateTo(
+                targetValue = Color.Transparent,
+                animationSpec = tween(durationMillis = 200)
+            )
+            backgroundColor.animateTo(
+                targetValue = highlightColor,
+                animationSpec = tween(durationMillis = 200)
+            )
+            backgroundColor.animateTo(
+                targetValue = Color.Transparent,
+                animationSpec = tween(durationMillis = 800)
+            )
+        }
+    }
 
-            HorizontalDivider(thickness = 2.dp)
+    Column {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = {
+                    onNavigateToItem(
+                        itemWrapper.item.name,
+                        itemWrapper.item.itemId
+                    )
+                })
+                .background(backgroundColor.value)
+                .padding(horizontal = 24.dp, vertical = 12.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = itemWrapper.item.name)
+        }
 
-            station.items.forEachIndexed { index, itemWrapper ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = {
-                            onNavigateToItem(
-                                itemWrapper.item.name,
-                                itemWrapper.item.itemId
-                            )
-                        })
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(text = itemWrapper.item.name)
-                }
-
-                if (index < station.items.size - 1) {
-                    HorizontalDivider()
-                }
-            }
+        if (showDivider) {
+            HorizontalDivider()
         }
     }
 }
