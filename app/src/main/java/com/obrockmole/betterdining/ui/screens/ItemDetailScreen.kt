@@ -1,18 +1,33 @@
 package com.obrockmole.betterdining.ui.screens
 
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,13 +35,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.betterdining.GetItemDetailsQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.StartLocationsRepository
+import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
 import com.obrockmole.betterdining.viewmodel.ItemViewModelFactory
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+val itemDetails = listOf("Nutrition", "Traits", "Components", "Schedule")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +57,7 @@ fun ItemDetailScreen(
     itemName: String,
     itemId: String,
     onNavigateBack: () -> Unit,
+    homeViewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -48,6 +72,9 @@ fun ItemDetailScreen(
         itemViewModel.getItem(itemId)
     }
 
+    val uiState = itemViewModel.itemUiState
+    var selectedDetailIndex by rememberSaveable { mutableIntStateOf(0) }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -60,6 +87,18 @@ fun ItemDetailScreen(
                             contentDescription = "Back"
                         )
                     }
+                },
+                actions = {
+                    if (uiState is ItemUiState.Success) {
+                        val isFavorite = itemViewModel.isFavorite
+                        IconButton(onClick = { itemViewModel.toggleFavorite(uiState.item) }) {
+                            Icon(
+                                painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
+                                else painterResource(R.drawable.favorite),
+                                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -69,7 +108,7 @@ fun ItemDetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            when (val uiState = itemViewModel.itemUiState) {
+            when (uiState) {
                 is ItemUiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
@@ -80,25 +119,266 @@ fun ItemDetailScreen(
 
                 is ItemUiState.Success -> {
                     val item = uiState.item
-                    Text(
-                        text = "Ingredients: ${item.ingredients ?: "Not available"}",
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
 
-                    val isFavorite = itemViewModel.isFavorite
-                    FloatingActionButton(
-                        onClick = { itemViewModel.toggleFavorite(item) },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-                    ) {
-                        Icon(
-                            painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
-                            else painterResource(R.drawable.favorite),
-                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
-                        )
+                    Column {
+                        SecondaryTabRow(
+                            selectedTabIndex = selectedDetailIndex,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            itemDetails.forEachIndexed { index, detail ->
+                                Tab(
+                                    selected = selectedDetailIndex == index,
+                                    onClick = { selectedDetailIndex = index },
+                                    text = { Text(detail) }
+                                )
+                            }
+                        }
+
+                        if (itemDetails[selectedDetailIndex] == "Nutrition") {
+                            NutritionDetails(item)
+                        } else if (itemDetails[selectedDetailIndex] == "Traits") {
+                            TraitsDetails(item)
+                        } else if (itemDetails[selectedDetailIndex] == "Components") {
+                            ComponentsDetails(item)
+                        } else if (itemDetails[selectedDetailIndex] == "Schedule") {
+                            ScheduleDetails(item, homeViewModel, onBack = onNavigateBack)
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun NutritionDetails(
+    item: GetItemDetailsQuery.ItemByItemId
+) {
+    if (!item.isNutritionReady || item.nutritionFacts == null) {
+        Text(
+            "No nutrition details available.",
+            modifier = Modifier.padding(16.dp)
+        )
+
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item.nutritionFacts.forEach { fact ->
+                item {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 12.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = fact.name)
+
+                                fact.label?.let { Text(text = it) }
+                                if (fact.label == null) {
+                                    fact.dailyValueLabel?.let { Text(text = "$it Daily Value") }
+                                }
+                            }
+                        }
+
+                        HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TraitsDetails(
+    item: GetItemDetailsQuery.ItemByItemId
+) {
+    if (item.traits.isNullOrEmpty()) {
+        Text(
+            "This item has no traits",
+            modifier = Modifier.padding(16.dp)
+        )
+
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item.traits.forEach { trait ->
+                item {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 12.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = trait.name)
+                                Text(text = trait.type)
+                            }
+                        }
+
+                        HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ComponentsDetails(
+    item: GetItemDetailsQuery.ItemByItemId
+) {
+    if (item.components.isNullOrEmpty()) {
+        Text(
+            "This item has no components",
+            modifier = Modifier.padding(16.dp)
+        )
+
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text("chill yo shit, its coming")
+                    }
+
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScheduleDetails(
+    item: GetItemDetailsQuery.ItemByItemId,
+    homeViewModel: HomeViewModel,
+    onBack: () -> Unit
+) {
+    if (item.appearances.isEmpty()) {
+        Text(
+            "This item is not upcoming soon",
+            modifier = Modifier.padding(16.dp)
+        )
+
+    } else {
+        val today = LocalDate.now()
+        item.appearances
+
+        val groupedAppearances = item.appearances
+            .sortedBy { appearance ->
+                LocalDate.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            }
+            .groupBy { appearance ->
+                LocalDate.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            groupedAppearances.forEach { (date, appearances) ->
+                item {
+                    val dayLabel = when (date) {
+                        today -> "Today"
+                        today.plusDays(1) -> "Tomorrow"
+                        else -> date.format(DateTimeFormatter.ofPattern("EEEE"))
+                    }
+
+                    Text(
+                        text = dayLabel,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp
+                        )
+                    )
+                }
+
+                itemsIndexed(appearances) { index, appearance ->
+                    AppearanceItem(
+                        appearance = appearance,
+                        onClick = {
+                            Log.e(
+                                "ItemDetailScreen",
+                                "Navigating to ${appearance.locationName} at ${appearance.mealName}"
+                            )
+                            homeViewModel.navigateToMenu(
+                                diningCourt = appearance.locationName,
+                                mealName = appearance.mealName,
+                                date = appearance.date,
+                                item = item.name
+                            )
+                            onBack()
+                        }
+                    )
+
+                    if (index < appearances.lastIndex) {
+                        HorizontalDivider()
+                    } else if (date != groupedAppearances.keys.last()) {
+                        HorizontalDivider(thickness = 6.dp)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AppearanceItem(
+    appearance: GetItemDetailsQuery.Appearance,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = appearance.locationName, style = MaterialTheme.typography.titleMedium)
+                Text(text = appearance.mealName)
+            }
+
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = appearance.stationName)
+                Text(
+                    text = "${
+                        LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                            .format(DateTimeFormatter.ofPattern("HH:mm"))
+                    }",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -110,6 +390,9 @@ fun ItemDetailPreview() {
     ItemDetailScreen(
         itemName = "Carne Asada",
         itemId = "12345-67890",
-        onNavigateBack = {}
+        onNavigateBack = {},
+        homeViewModel = HomeViewModel(
+            StartLocationsRepository()
+        )
     )
 }

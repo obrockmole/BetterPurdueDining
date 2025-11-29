@@ -91,9 +91,11 @@ fun DefaultScreenSelectionScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                loading = true
-                                settingsViewModel.setDefaultScreen(screen)
-                                onNavigateBack()
+                                if (defaultScreen != screen) {
+                                    loading = true
+                                    onNavigateBack()
+                                    settingsViewModel.setDefaultScreen(screen)
+                                }
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -107,9 +109,11 @@ fun DefaultScreenSelectionScreen(
                         RadioButton(
                             selected = defaultScreen == screen,
                             onClick = {
-                                loading = true
-                                settingsViewModel.setDefaultScreen(screen)
-                                onNavigateBack()
+                                if (defaultScreen != screen) {
+                                    loading = true
+                                    onNavigateBack()
+                                    settingsViewModel.setDefaultScreen(screen)
+                                }
                             }
                         )
                     }

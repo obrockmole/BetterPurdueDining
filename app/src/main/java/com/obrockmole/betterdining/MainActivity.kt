@@ -165,6 +165,7 @@ fun BetterPurdueDiningApp() {
                 }
             }
         }
+
         composable(
             "item/{itemId}",
             enterTransition = { EnterTransition.None },
@@ -178,10 +179,12 @@ fun BetterPurdueDiningApp() {
                 ItemDetailScreen(
                     itemName = itemName,
                     itemId = itemId,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    homeViewModel = homeViewModel
                 )
             }
         }
+
         composable(
             "settings/defaultScreen",
             enterTransition = { EnterTransition.None },
@@ -191,6 +194,7 @@ fun BetterPurdueDiningApp() {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+
         composable(
             "settings/licenses",
             enterTransition = { EnterTransition.None },

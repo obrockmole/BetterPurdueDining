@@ -46,7 +46,6 @@ import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -296,7 +295,7 @@ fun ImportFavoritesDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Paste the JSON content from your favorites export below:",
+                    text = "Paste the favorites JSON data below:",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
