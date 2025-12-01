@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
-import com.obrockmole.betterdining.data.UserPreferencesRepository
+import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
@@ -50,6 +50,8 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     onNavigateToDefaultScreen: () -> Unit = {},
+    onNavigateToTheme: () -> Unit = {},
+    onNavigateToNavStyle: () -> Unit = {},
     onNavigateToLicensesScreen: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -60,24 +62,28 @@ fun SettingsScreen(
         )
     )
     val defaultScreen by settingsViewModel.defaultScreen.collectAsState()
+    val appTheme by settingsViewModel.appTheme.collectAsState()
+    val navStyle by settingsViewModel.navStyle.collectAsState()
 
     var showImportDialog by remember { mutableStateOf(false) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                Text(
-                    text = "Settings",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                    style = MaterialTheme.typography.headlineMedium
-                )
+            if (navStyle == "Bottom") {
+                item {
+                    Text(
+                        text = "Settings",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                }
             }
 
             item {
-                SettingsGroupDivider()
                 SettingsSectionHeader(title = "Preferences")
             }
 
@@ -87,32 +93,28 @@ fun SettingsScreen(
                     value = defaultScreen,
                     onClick = onNavigateToDefaultScreen
                 )
-                SettingsDivider()
+                HorizontalDivider()
             }
 
             item {
                 NavigationalSetting(
                     title = "Theme",
-                    value = "Material",
-                    onClick = {
-                        // TODO: Themes
-                    }
+                    value = appTheme,
+                    onClick = onNavigateToTheme
                 )
-                SettingsDivider()
+                HorizontalDivider()
             }
 
             item {
                 NavigationalSetting(
                     title = "Navigation Style",
-                    value = "Bottom",
-                    onClick = {
-                        // TODO: Alternate navigation
-                    }
+                    value = navStyle,
+                    onClick = onNavigateToNavStyle
                 )
             }
 
             item {
-                SettingsGroupDivider()
+                HorizontalDivider(thickness = 6.dp)
                 SettingsSectionHeader(title = "About")
             }
 
@@ -121,22 +123,22 @@ fun SettingsScreen(
                     title = "Licenses",
                     onClick = onNavigateToLicensesScreen
                 )
-                SettingsDivider()
+                HorizontalDivider()
             }
 
             item {
                 InformationSetting(title = "Version", value = "0.6.9")
-                SettingsDivider()
+                HorizontalDivider()
             }
 
             item {
                 ActionSetting(
                     title = "Check For Updates",
                     onClick = {
-                        // TODO: Check for updates
+                        showUpdateDialog = true
                     }
                 )
-                SettingsGroupDivider()
+                HorizontalDivider(thickness = 6.dp)
             }
 
             item {
@@ -146,7 +148,7 @@ fun SettingsScreen(
                         showImportDialog = true
                     }
                 )
-                SettingsDivider()
+                HorizontalDivider()
             }
         }
 
@@ -157,6 +159,19 @@ fun SettingsScreen(
                     coroutineScope.launch {
                         val result = settingsViewModel.importFavorites(jsonString)
                         onResult(result)
+                    }
+                }
+            )
+        }
+
+        if (showUpdateDialog) {
+            AlertDialog(
+                onDismissRequest = { showUpdateDialog = false },
+                title = { Text(text = "No Updates Found") },
+                text = { Text(text = "You really think im doing all that?") },
+                confirmButton = {
+                    TextButton(onClick = { showUpdateDialog = false }) {
+                        Text("Okay.")
                     }
                 }
             )
@@ -197,18 +212,6 @@ fun SettingsSectionHeader(title: String) {
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
-    )
-}
-
-@Composable
-fun SettingsDivider() {
-    HorizontalDivider()
-}
-
-@Composable
-fun SettingsGroupDivider() {
-    HorizontalDivider(
-        thickness = 6.dp
     )
 }
 
@@ -375,11 +378,13 @@ fun ImportFavoritesDialog(
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                enabled = !isImporting
-            ) {
-                Text("Cancel")
+            if (successMessage == null) {
+                TextButton(
+                    onClick = onDismiss,
+                    enabled = !isImporting
+                ) {
+                    Text("Cancel")
+                }
             }
         }
     )

@@ -42,7 +42,7 @@ import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefaultScreenSelectionScreen(
+fun ThemeSelectionScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -53,9 +53,9 @@ fun DefaultScreenSelectionScreen(
             FavoritesRepository(AppDatabase.getDatabase(context).favoriteItemDao())
         )
     )
-    val defaultScreen by settingsViewModel.defaultScreen.collectAsState()
+    val appTheme by settingsViewModel.appTheme.collectAsState()
 
-    val screenOptions = listOf("Home", "Favorites")
+    val themeOptions = listOf("Material", "Dark", "Light", "Cancer")
 
     var loading by remember { mutableStateOf(false) }
 
@@ -63,7 +63,7 @@ fun DefaultScreenSelectionScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("Change Default Screen") },
+                title = { Text("Select App Theme") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -86,15 +86,15 @@ fun DefaultScreenSelectionScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                screenOptions.forEachIndexed { index, screen ->
+                themeOptions.forEachIndexed { index, theme ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                if (defaultScreen != screen) {
+                                if (appTheme != theme) {
                                     loading = true
                                     onNavigateBack()
-                                    settingsViewModel.setDefaultScreen(screen)
+                                    settingsViewModel.setAppTheme(theme)
                                 }
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -102,23 +102,23 @@ fun DefaultScreenSelectionScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = screen,
+                            text = theme,
                             style = MaterialTheme.typography.bodyLarge
                         )
 
                         RadioButton(
-                            selected = defaultScreen == screen,
+                            selected = appTheme == theme,
                             onClick = {
-                                if (defaultScreen != screen) {
+                                if (appTheme != theme) {
                                     loading = true
                                     onNavigateBack()
-                                    settingsViewModel.setDefaultScreen(screen)
+                                    settingsViewModel.setAppTheme(theme)
                                 }
                             }
                         )
                     }
 
-                    if (index < screenOptions.size - 1) {
+                    if (index < themeOptions.size - 1) {
                         HorizontalDivider(
                             color = Color(0xFF2F2F2F),
                             modifier = Modifier.padding(horizontal = 16.dp)
@@ -132,8 +132,8 @@ fun DefaultScreenSelectionScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun DefaultScreenSelectionScreenPreview() {
+fun NavStyleSelectionScreenPreview() {
     BetterPurdueDiningTheme {
-        DefaultScreenSelectionScreen(onNavigateBack = {})
+        NavStyleSelectionScreen(onNavigateBack = {})
     }
 }

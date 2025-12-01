@@ -3,7 +3,7 @@ package com.obrockmole.betterdining.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.obrockmole.betterdining.data.UserPreferencesRepository
+import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,9 +24,35 @@ class SettingsViewModel(
             initialValue = "Home"
         )
 
+    val appTheme: StateFlow<String> = userPreferencesRepository.appTheme
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = "Material"
+        )
+
+    val navStyle: StateFlow<String> = userPreferencesRepository.navStyle
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = "Bottom"
+        )
+
     fun setDefaultScreen(defaultScreen: String) {
         viewModelScope.launch {
             userPreferencesRepository.setDefaultScreen(defaultScreen)
+        }
+    }
+
+    fun setAppTheme(appTheme: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setAppTheme(appTheme)
+        }
+    }
+
+    fun setNavStyle(navStyle: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setNavStyle(navStyle)
         }
     }
 

@@ -8,4 +8,3 @@ data class FavoriteItem(
     @PrimaryKey val itemId: String,
     val name: String
 )
-

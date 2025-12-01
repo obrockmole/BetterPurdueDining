@@ -20,10 +20,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "better_purdue_dining_database"
                 ).build()
+
                 INSTANCE = instance
                 instance
             }
         }
     }
 }
-
