@@ -3,9 +3,9 @@ package com.obrockmole.betterdining.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.repository.FavoritesRepository
+import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

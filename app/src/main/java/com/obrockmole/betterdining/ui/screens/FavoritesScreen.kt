@@ -42,17 +42,21 @@ import com.obrockmole.betterdining.viewmodel.HomeViewModel
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
     onNavigateToItem: (String, String) -> Unit,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    showHeader: Boolean
 ) {
     var tabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Upcoming", "All Favorites")
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = "Favorites",
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-            style = MaterialTheme.typography.headlineMedium
-        )
+        if (showHeader) {
+            Text(
+                text = "Favorites",
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
+
         SecondaryTabRow(selectedTabIndex = tabIndex) {
             tabs.forEachIndexed { index, title ->
                 Tab(
@@ -62,6 +66,7 @@ fun FavoritesScreen(
                 )
             }
         }
+
         when (tabIndex) {
             0 -> UpcomingFavoritesScreen(homeViewModel = homeViewModel)
             1 -> AllFavoritesList(onNavigateToItem = onNavigateToItem)
@@ -126,7 +131,8 @@ fun FavoritesScreenPreview() {
             onNavigateToItem = { _, _ -> },
             homeViewModel = HomeViewModel(
                 StartLocationsRepository()
-            )
+            ),
+            showHeader = true
         )
     }
 }

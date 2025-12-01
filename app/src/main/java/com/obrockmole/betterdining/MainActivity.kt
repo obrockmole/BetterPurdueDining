@@ -7,43 +7,64 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.obrockmole.betterdining.data.UserPreferencesRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
+import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.screens.DefaultScreenSelectionScreen
 import com.obrockmole.betterdining.ui.screens.FavoritesScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
 import com.obrockmole.betterdining.ui.screens.ItemDetailScreen
 import com.obrockmole.betterdining.ui.screens.LicensesScreen
+import com.obrockmole.betterdining.ui.screens.NavStyleSelectionScreen
 import com.obrockmole.betterdining.ui.screens.SettingsScreen
+import com.obrockmole.betterdining.ui.screens.ThemeSelectionScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.ui.theme.zainFontFamily
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.HomeViewModelFactory
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +85,7 @@ fun BetterPurdueDiningApp() {
     val context = LocalContext.current
     val userPreferencesRepository = remember { UserPreferencesRepository(context) }
     val defaultScreen by userPreferencesRepository.defaultScreen.collectAsState(initial = null)
+    val navStyle by userPreferencesRepository.navStyle.collectAsState(initial = null)
     val homeViewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
             StartLocationsRepository()
@@ -95,70 +117,206 @@ fun BetterPurdueDiningApp() {
                 currentDestination = AppDestinations.HOME
             }
 
-            NavigationSuiteScaffold(
-                navigationSuiteItems = {
-                    AppDestinations.entries.forEach {
-                        item(
-                            icon = {
-                                Icon(
-                                    painter = painterResource(it.painterId),
-                                    contentDescription = it.label
-                                )
-                            },
-                            label = { Text(it.label) },
-                            selected = it == currentDestination,
-                            onClick = { currentDestination = it }
-                        )
-                    }
+            if (defaultScreen == null || navStyle == null) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-            ) {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    if (defaultScreen == null) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-                    } else {
-                        when (currentDestination) {
-                            AppDestinations.HOME -> {
-                                HomeScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    onNavigateToItem = { itemName, itemId ->
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "itemName",
-                                            itemName
-                                        )
-                                        navController.navigate("item/$itemId")
-                                    },
-                                    viewModel = homeViewModel
-                                )
+            } else {
+                when (navStyle) {
+                    "Bottom" -> {
+                        NavigationSuiteScaffold(
+                            navigationSuiteItems = {
+                                AppDestinations.entries.forEach {
+                                    item(
+                                        icon = {
+                                            Icon(
+                                                painter = painterResource(it.painterId),
+                                                contentDescription = it.label
+                                            )
+                                        },
+                                        label = { Text(it.label) },
+                                        selected = it == currentDestination,
+                                        onClick = { currentDestination = it }
+                                    )
+                                }
                             }
-
-                            AppDestinations.FAVORITES -> {
-                                FavoritesScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    onNavigateToItem = { itemName, itemId ->
-                                        navController.currentBackStackEntry?.savedStateHandle?.set(
-                                            "itemName",
-                                            itemName
+                        ) {
+                            Scaffold(
+                                modifier = Modifier.fillMaxSize()
+                            ) { innerPadding ->
+                                when (currentDestination) {
+                                    AppDestinations.HOME -> {
+                                        HomeScreen(
+                                            modifier = Modifier.padding(innerPadding),
+                                            onNavigateToItem = { itemName, itemId ->
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    "itemName",
+                                                    itemName
+                                                )
+                                                navController.navigate("item/$itemId")
+                                            },
+                                            viewModel = homeViewModel
                                         )
-                                        navController.navigate("item/$itemId")
-                                    },
-                                    homeViewModel = homeViewModel
-                                )
-                            }
-
-                            AppDestinations.SETTINGS -> {
-                                SettingsScreen(
-                                    modifier = Modifier.padding(innerPadding),
-                                    onNavigateToDefaultScreen = {
-                                        navController.navigate("settings/defaultScreen")
-                                    },
-                                    onNavigateToLicensesScreen = {
-                                        navController.navigate("settings/licenses")
                                     }
-                                )
+
+                                    AppDestinations.FAVORITES -> {
+                                        FavoritesScreen(
+                                            modifier = Modifier.padding(innerPadding),
+                                            onNavigateToItem = { itemName, itemId ->
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    "itemName",
+                                                    itemName
+                                                )
+                                                navController.navigate("item/$itemId")
+                                            },
+                                            homeViewModel = homeViewModel,
+                                            showHeader = true
+                                        )
+                                    }
+
+                                    AppDestinations.SETTINGS -> {
+                                        SettingsScreen(
+                                            modifier = Modifier.padding(innerPadding),
+                                            onNavigateToDefaultScreen = {
+                                                navController.navigate("settings/defaultScreen")
+                                            },
+                                            onNavigateToTheme = {
+                                                navController.navigate("settings/theme")
+                                            },
+                                            onNavigateToNavStyle = {
+                                                navController.navigate("settings/navStyle")
+                                            },
+                                            onNavigateToLicensesScreen = {
+                                                navController.navigate("settings/licenses")
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    "Side" -> {
+                        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+                        val scope = rememberCoroutineScope()
+
+                        ModalNavigationDrawer(
+                            drawerState = drawerState,
+                            drawerContent = {
+                                ModalDrawerSheet {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.app_icon),
+                                                modifier = Modifier.size(48.dp),
+                                                contentDescription = "App Icon"
+                                            )
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Text(
+                                                text = "Better Purdue Dining",
+                                                style = MaterialTheme.typography.headlineMedium,
+                                                fontFamily = zainFontFamily,
+                                                fontWeight = FontWeight.Normal
+                                            )
+                                        }
+                                    }
+
+                                    AppDestinations.entries.forEach { destination ->
+                                        NavigationDrawerItem(
+                                            icon = {
+                                                Icon(
+                                                    painter = painterResource(destination.painterId),
+                                                    contentDescription = destination.label
+                                                )
+                                            },
+                                            label = { Text(destination.label) },
+                                            selected = destination == currentDestination,
+                                            onClick = {
+                                                currentDestination = destination
+                                                scope.launch {
+                                                    drawerState.close()
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        ) {
+                            Scaffold(
+                                modifier = Modifier.fillMaxSize(),
+                                topBar = {
+                                    TopAppBar(
+                                        title = { Text(currentDestination.label) },
+                                        navigationIcon = {
+                                            IconButton(onClick = {
+                                                scope.launch {
+                                                    drawerState.open()
+                                                }
+                                            }) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.menu),
+                                                    contentDescription = "Menu"
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
+                            ) { innerPadding ->
+                                when (currentDestination) {
+                                    AppDestinations.HOME -> {
+                                        HomeScreen(
+                                            modifier = Modifier.padding(innerPadding),
+                                            onNavigateToItem = { itemName, itemId ->
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    "itemName",
+                                                    itemName
+                                                )
+                                                navController.navigate("item/$itemId")
+                                            },
+                                            viewModel = homeViewModel
+                                        )
+                                    }
+
+                                    AppDestinations.FAVORITES -> {
+                                        FavoritesScreen(
+                                            modifier = Modifier.padding(innerPadding),
+                                            onNavigateToItem = { itemName, itemId ->
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    "itemName",
+                                                    itemName
+                                                )
+                                                navController.navigate("item/$itemId")
+                                            },
+                                            homeViewModel = homeViewModel,
+                                            showHeader = false
+                                        )
+                                    }
+
+                                    AppDestinations.SETTINGS -> {
+                                        SettingsScreen(
+                                            modifier = Modifier.padding(innerPadding),
+                                            onNavigateToDefaultScreen = {
+                                                navController.navigate("settings/defaultScreen")
+                                            },
+                                            onNavigateToTheme = {
+                                                navController.navigate("settings/theme")
+                                            },
+                                            onNavigateToNavStyle = {
+                                                navController.navigate("settings/navStyle")
+                                            },
+                                            onNavigateToLicensesScreen = {
+                                                navController.navigate("settings/licenses")
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -191,6 +349,26 @@ fun BetterPurdueDiningApp() {
             exitTransition = { ExitTransition.None }
         ) {
             DefaultScreenSelectionScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            "settings/theme",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            ThemeSelectionScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            "settings/navStyle",
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            NavStyleSelectionScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
