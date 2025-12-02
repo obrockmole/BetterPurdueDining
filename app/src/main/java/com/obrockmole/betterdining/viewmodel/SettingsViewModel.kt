@@ -62,9 +62,9 @@ class SettingsViewModel(
             val importData = json.decodeFromString<ImportFavoritesData>(jsonString)
 
             var addedCount = 0
-            for (favoritedItem in importData.data.currentUser.favorites) {
-                val itemId = favoritedItem.item.itemId
-                val name = favoritedItem.item.name
+            for (favoriteItem in importData.Favorite) {
+                val itemId = favoriteItem.ItemId
+                val name = favoriteItem.ItemName
 
                 if (!favoritesRepository.isFavorite(itemId)) {
                     favoritesRepository.addFavorite(FavoriteItem(itemId, name))
@@ -81,66 +81,24 @@ class SettingsViewModel(
 
 @Serializable
 data class ImportFavoritesData(
-    val data: DataWrapper
+    val Favorite: List<FavoriteItem>
 ) {
     @Serializable
-    data class DataWrapper(
-        val currentUser: CurrentUser
+    data class FavoriteItem(
+        val FavoriteId: String,
+        val ItemId: String,
+        val ItemName: String,
+        val DateAdded: String,
+        val IsVegetarian: Boolean,
+        val NutritionReady: Boolean,
+        val IsDiscontinued: Boolean,
+        val Allergens: List<Allergen>?
     )
 
     @Serializable
-    data class CurrentUser(
-        val commonName: String? = null,
-        val firstName: String? = null,
-        val lastName: String? = null,
-        val email: String? = null,
-        val favorites: List<FavoritedItem>,
-        val __typename: String? = null
-    )
-
-    @Serializable
-    data class FavoritedItem(
-        val dateAdded: String? = null,
-        val favoriteId: String? = null,
-        val item: Item,
-        val __typename: String? = null
-    )
-
-    @Serializable
-    data class Item(
-        val id: String? = null,
-        val itemId: String,
-        val name: String,
-        val isNutritionReady: Boolean? = null,
-        val isDiscontinued: Boolean? = null,
-        val appearances: List<Appearance>? = null,
-        val components: List<Component>? = null,
-        val traits: List<Trait>? = null,
-        val __typename: String? = null
-    )
-
-    @Serializable
-    data class Appearance(
-        val date: String? = null,
-        val locationName: String? = null,
-        val mealName: String? = null,
-        val stationName: String? = null,
-        val __typename: String? = null
-    )
-
-    @Serializable
-    data class Component(
-        val itemId: String? = null,
-        val name: String? = null,
-        val __typename: String? = null
-    )
-
-    @Serializable
-    data class Trait(
-        val name: String? = null,
-        val svgIcon: String? = null,
-        val svgIconWithoutBackground: String? = null,
-        val __typename: String? = null
+    data class Allergen(
+        val Name: String,
+        val Value: Boolean
     )
 }
 

@@ -237,16 +237,23 @@ fun DiningCourtListItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 Text(
-                    text = if (currentMealIndex >= 0) dailyMenu.meals[currentMealIndex].status.toString() else "Closed",
+                    text = if (currentMealIndex >= 0) dailyMenu.meals[currentMealIndex].status.toString()
+                        .lowercase().replaceFirstChar { it.uppercase() } else "Closed",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 16.dp)
                 )
-                Text(
-                    text = "That time shit be comin, just wait",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
+                if (currentMealIndex >= 0) {
+                    Text(
+                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " +
+                                LocalDateTime.parse(
+                                    dailyMenu.meals[currentMealIndex].endTime,
+                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                ).toLocalTime().format(DateTimeFormatter.ofPattern("h:mm a")),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
             }
         }
 
@@ -324,22 +331,29 @@ fun QuickBiteListItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 Text(
-                    text = if (currentMealIndex >= 0) dailyMenu.meals[currentMealIndex].status.toString() else "Closed",
+                    text = if (currentMealIndex >= 0) dailyMenu.meals[currentMealIndex].status.toString()
+                        .lowercase().replaceFirstChar { it.uppercase() } else "Closed",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 16.dp)
                 )
-                Text(
-                    text = "That time shit be comin, just wait",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
+                if (currentMealIndex >= 0) {
+                    Text(
+                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " +
+                                LocalDateTime.parse(
+                                    dailyMenu.meals[currentMealIndex].endTime,
+                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                ).toLocalTime().format(DateTimeFormatter.ofPattern("h:mm a")),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
             }
         }
 
         Icon(
             painter = painterResource(R.drawable.keyboard_arrow_right),
-            contentDescription = "See menu."
+            contentDescription = "View menu."
         )
     }
     HorizontalDivider()

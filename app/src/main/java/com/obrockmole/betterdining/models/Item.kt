@@ -1,13 +1,5 @@
 package com.obrockmole.betterdining.models
 
-data class ItemDetailsResponse(
-    val data: ItemData
-)
-
-data class ItemData(
-    val itemByItemId: ItemDetails
-)
-
 data class ItemDetails(
     val name: String,
     val itemId: String,
@@ -23,6 +15,22 @@ data class NutritionFact(
     val value: Double,
     val label: String,
     val dailyValueLabel: String?
+)
+
+data class Trait(
+    val name: String,
+    val type: String? = null,
+    val svgIcon: String?,
+    val svgIconWithoutBackground: String?
+)
+
+data class Component(
+    val name: String,
+    val itemId: String,
+    val traits: List<Trait>,
+    val isFlaggedForCurrentUser: Boolean? = null,
+    val isHiddenForCurrentUser: Boolean? = null,
+    val isNutritionReady: Boolean? = null
 )
 
 data class Appearance(
