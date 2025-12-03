@@ -10,6 +10,9 @@ import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 sealed interface ItemUiState {
     data class Success(val item: GetItemDetailsQuery.ItemByItemId) : ItemUiState
@@ -48,7 +51,8 @@ class ItemViewModel(
 
     fun toggleFavorite(item: GetItemDetailsQuery.ItemByItemId) {
         viewModelScope.launch {
-            val favoriteItem = FavoriteItem(name = item.name, itemId = item.itemId)
+            val date = OffsetDateTime.now(ZoneId.of("America/New_York")).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            val favoriteItem = FavoriteItem(name = item.name, itemId = item.itemId, dateAdded = date)
             if (isFavorite) {
                 favoritesRepository.removeFavorite(favoriteItem)
             } else {

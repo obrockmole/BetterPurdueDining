@@ -10,15 +10,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemShapes
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +43,10 @@ import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModel
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModelFactory
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
@@ -47,14 +56,108 @@ fun FavoritesScreen(
 ) {
     var tabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Upcoming", "All Favorites")
+    var selectedSort by remember { mutableIntStateOf(0) }
 
     Column(modifier = modifier.fillMaxWidth()) {
         if (showHeader) {
-            Text(
-                text = "Favorites",
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Favorites",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                if (tabIndex == 1) {
+                    var sortMenuShown by remember { mutableStateOf(false) }
+
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.sort),
+                            modifier = Modifier
+                                .clickable(onClick = { sortMenuShown = true }),
+                            contentDescription = "Sort favorites."
+                        )
+
+                        DropdownMenuPopup(
+                            expanded = sortMenuShown,
+                            onDismissRequest = { sortMenuShown = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Name") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.keyboard_arrow_up),
+                                        contentDescription = "Increasing name."
+                                    )
+                                },
+                                onClick = {
+                                    sortMenuShown = false
+                                    selectedSort = 0
+                                },
+                                selected = selectedSort == 0,
+                                shapes = MenuItemShapes(MenuDefaults.leadingItemShape, MenuDefaults.selectedItemShape)
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Name") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.keyboard_arrow_down),
+                                        contentDescription = "Decreasing name."
+                                    )
+                                },
+                                onClick = {
+                                    sortMenuShown = false
+                                    selectedSort = 1
+                                },
+                                selected = selectedSort == 1,
+                                shapes = MenuItemShapes(MenuDefaults.middleItemShape, MenuDefaults.selectedItemShape)
+                            )
+
+                            HorizontalDivider()
+
+                            DropdownMenuItem(
+                                text = { Text("Date Added") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.keyboard_arrow_up),
+                                        contentDescription = "Increasing date added."
+                                    )
+                                },
+                                onClick = {
+                                    sortMenuShown = false
+                                    selectedSort = 2
+                                },
+                                selected = selectedSort == 2,
+                                shapes = MenuItemShapes(MenuDefaults.middleItemShape, MenuDefaults.selectedItemShape)
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Date Added") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.keyboard_arrow_down),
+                                        contentDescription = "Decreasing date added."
+                                    )
+                                },
+                                onClick = {
+                                    sortMenuShown = false
+                                    selectedSort = 3
+                                },
+                                selected = selectedSort == 3,
+                                shapes = MenuItemShapes(MenuDefaults.trailingItemShape, MenuDefaults.selectedItemShape)
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         SecondaryTabRow(selectedTabIndex = tabIndex) {
@@ -69,7 +172,7 @@ fun FavoritesScreen(
 
         when (tabIndex) {
             0 -> UpcomingFavoritesScreen(homeViewModel = homeViewModel)
-            1 -> AllFavoritesList(onNavigateToItem = onNavigateToItem)
+            1 -> AllFavoritesList(onNavigateToItem = onNavigateToItem, selectedSort = selectedSort)
         }
     }
 }
@@ -77,7 +180,8 @@ fun FavoritesScreen(
 @Composable
 fun AllFavoritesList(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String, String) -> Unit
+    onNavigateToItem: (String, String) -> Unit,
+    selectedSort: Int
 ) {
     val context = LocalContext.current
     val favoritesViewModel: FavoritesViewModel = viewModel(
@@ -87,16 +191,26 @@ fun AllFavoritesList(
     )
 
     val favorites by favoritesViewModel.favorites.collectAsState()
+    var sortedFavorites = favorites.sortedBy { it.name }
+    if (selectedSort == 1) {
+        sortedFavorites = sortedFavorites.reversed()
+    } else if (selectedSort == 2 || selectedSort == 3) {
+        sortedFavorites = sortedFavorites.sortedBy { OffsetDateTime.parse(it.dateAdded,
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime() }
+        if (selectedSort == 3) {
+            sortedFavorites = sortedFavorites.reversed()
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (favorites.isEmpty()) {
+        if (sortedFavorites.isEmpty()) {
             Text(
                 text = "No items favorited.",
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(favorites) { favoriteItem ->
+                items(sortedFavorites) { favoriteItem ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

@@ -65,9 +65,11 @@ class SettingsViewModel(
             for (favoriteItem in importData.Favorite) {
                 val itemId = favoriteItem.ItemId
                 val name = favoriteItem.ItemName
+                val dateAdded = favoriteItem.DateAdded
+
 
                 if (!favoritesRepository.isFavorite(itemId)) {
-                    favoritesRepository.addFavorite(FavoriteItem(itemId, name))
+                    favoritesRepository.addFavorite(FavoriteItem(itemId, name, dateAdded))
                     addedCount++
                 }
             }
