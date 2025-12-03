@@ -49,6 +49,7 @@ import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,7 +139,7 @@ fun FoodLocationDetail(
                                     selectedMealIndex = index
                                 }
                             } else {
-                                val currentHour = LocalDateTime.now().toLocalTime().hour
+                                val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
                                 meals.forEachIndexed { index, meal ->
                                     if (!meal.stations.isEmpty()) {
                                         val startTime = LocalDateTime.parse(

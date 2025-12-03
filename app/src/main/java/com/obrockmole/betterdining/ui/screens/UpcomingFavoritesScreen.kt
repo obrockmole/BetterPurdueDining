@@ -35,7 +35,8 @@ import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.UpcomingFavoritesViewModel
 import com.obrockmole.betterdining.viewmodel.UpcomingFavoritesViewModelFactory
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -208,7 +209,8 @@ fun UpcomingFavoriteItem(
 
             Text(
                 text = "${appearance.mealName} at ${
-                    LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                    OffsetDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        .atZoneSameInstant(ZoneId.systemDefault()).toLocalTime()
                         .format(DateTimeFormatter.ofPattern("HH:mm"))
                 }",
                 style = MaterialTheme.typography.bodyMedium,

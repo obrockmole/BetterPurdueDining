@@ -44,7 +44,8 @@ import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModelFactory
 import kotlinx.coroutines.delay
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -303,10 +304,10 @@ fun AppearanceListItem(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            val dateTime = LocalDateTime.parse(
+            val dateTime = OffsetDateTime.parse(
                 appearance.date,
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME
-            )
+            ).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
             val formattedDate = dateTime.format(DateTimeFormatter.ofPattern("EEE, MMM d"))
             val formattedTime = dateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
 

@@ -42,6 +42,8 @@ import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Windsor")
@@ -194,7 +196,7 @@ fun DiningCourtListItem(
 
     val dailyMenu = diningCourt.dailyMenu!!
     var currentMealIndex = -1
-    val currentHour = LocalDateTime.now().toLocalTime().hour
+    val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
         if (meal.status.toString() == "OPEN") {
             val startTime = LocalDateTime.parse(
@@ -245,10 +247,12 @@ fun DiningCourtListItem(
                 if (currentMealIndex >= 0) {
                     Text(
                         text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " +
-                                LocalDateTime.parse(
+                                OffsetDateTime.parse(
                                     dailyMenu.meals[currentMealIndex].endTime,
                                     DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                ).toLocalTime().format(DateTimeFormatter.ofPattern("h:mm a")),
+                                ).atZoneSameInstant(ZoneId.systemDefault())
+                                    .toLocalTime()
+                                    .format(DateTimeFormatter.ofPattern("h:mm a")),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp)
@@ -288,7 +292,7 @@ fun QuickBiteListItem(
 
     val dailyMenu = quickBite.dailyMenu!!
     var currentMealIndex = -1
-    val currentHour = LocalDateTime.now().toLocalTime().hour
+    val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
         if (meal.status.toString() == "OPEN") {
             val startTime = LocalDateTime.parse(
@@ -339,10 +343,12 @@ fun QuickBiteListItem(
                 if (currentMealIndex >= 0) {
                     Text(
                         text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " +
-                                LocalDateTime.parse(
+                                OffsetDateTime.parse(
                                     dailyMenu.meals[currentMealIndex].endTime,
                                     DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                ).toLocalTime().format(DateTimeFormatter.ofPattern("h:mm a")),
+                                ).atZoneSameInstant(ZoneId.systemDefault())
+                                    .toLocalTime()
+                                    .format(DateTimeFormatter.ofPattern("h:mm a")),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp)

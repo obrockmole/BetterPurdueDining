@@ -46,7 +46,8 @@ import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
 import com.obrockmole.betterdining.viewmodel.ItemViewModelFactory
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 val itemDetails = listOf("Nutrition", "Traits", "Components", "Schedule")
@@ -373,7 +374,8 @@ fun AppearanceItem(
                 Text(text = appearance.stationName)
                 Text(
                     text = "${
-                        LocalDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        OffsetDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                            .atZoneSameInstant(ZoneId.systemDefault()).toLocalTime()
                             .format(DateTimeFormatter.ofPattern("HH:mm"))
                     }",
                     style = MaterialTheme.typography.bodyMedium,
