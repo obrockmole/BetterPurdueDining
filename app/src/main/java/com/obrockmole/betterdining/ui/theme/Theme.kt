@@ -8,6 +8,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -90,15 +91,18 @@ private fun CancerColorScheme(): ColorScheme {
 @Composable
 fun BetterPurdueDiningTheme(
     theme: String = "Material",
+    key: Any? = null,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when (theme) {
-        "Light" -> LightColorScheme
-        "Dark" -> DarkColorScheme
-        "Cancer" -> CancerColorScheme()
-        else -> {
-            val context = LocalContext.current
-            dynamicDarkColorScheme(context)
+    val context = LocalContext.current
+    val colorScheme = remember(theme, key) {
+        when (theme) {
+            "Light" -> LightColorScheme
+            "Dark" -> DarkColorScheme
+            "Cancer" -> CancerColorScheme()
+            else -> {
+                dynamicDarkColorScheme(context)
+            }
         }
     }
 
