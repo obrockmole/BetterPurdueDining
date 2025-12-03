@@ -5,8 +5,10 @@ import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -64,11 +67,16 @@ fun FoodLocationDetail(
         onBack()
     }
 
-    LaunchedEffect(nameFormal, initialDate) {
-        val date = initialDate?.let {
-            LocalDate.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toString()
-        }
-        viewModel.getMenu(nameFormal, date)
+    var displayedDate by remember {
+        mutableStateOf(
+            initialDate?.let {
+                LocalDate.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            } ?: LocalDate.now()
+        )
+    }
+
+    LaunchedEffect(nameFormal, displayedDate) {
+        viewModel.getMenu(nameFormal, displayedDate.toString())
     }
 
     var selectedMealIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -155,6 +163,41 @@ fun FoodLocationDetail(
 
                         if (meals.isNotEmpty() && selectedMealIndex < meals.size) {
                             Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    IconButton(onClick = { displayedDate = displayedDate.minusDays(1) }) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.keyboard_arrow_left),
+                                            contentDescription = "Previous day."
+                                        )
+                                    }
+
+                                    val today = LocalDate.now()
+                                    val tomorrow = today.plusDays(1)
+                                    val yesterday = today.minusDays(1)
+
+                                    val dateText = when (displayedDate) {
+                                        today -> "Today"
+                                        tomorrow -> "Tomorrow"
+                                        yesterday -> "Yesterday"
+                                        else -> displayedDate.format(DateTimeFormatter.ofPattern("MMM d"))
+                                    }
+
+                                    Text(
+                                        text = dateText,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+
+                                    IconButton(onClick = { displayedDate = displayedDate.plusDays(1) }) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.keyboard_arrow_right),
+                                            contentDescription = "Next day."
+                                        )
+                                    }
+                                }
                                 SecondaryTabRow(
                                     selectedTabIndex = selectedMealIndex,
                                     modifier = Modifier.fillMaxWidth()
@@ -306,7 +349,11 @@ fun StationItem(
                 .padding(horizontal = 24.dp, vertical = 12.dp),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text(text = itemWrapper.item.name)
+            if (itemWrapper.specialName != null) {
+                Text(text = itemWrapper.specialName)
+            } else {
+                Text(text = itemWrapper.item.name)
+            }
         }
 
         if (showDivider) {

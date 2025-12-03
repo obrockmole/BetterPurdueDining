@@ -1,5 +1,6 @@
 package com.obrockmole.betterdining.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -58,13 +59,14 @@ class HomeViewModel(private val startLocationsRepository: StartLocationsReposito
                 homeUiState = if (result != null) {
                     HomeUiState.Success(result)
                 } else {
+                    Log.e("HomeViewModel", "getLocations: result is null")
                     HomeUiState.Error
                 }
 
             } catch (e: Exception) {
+                Log.e("HomeViewModel", "getLocations: ${e.message}")
                 homeUiState = HomeUiState.Error
             }
         }
     }
 }
-
