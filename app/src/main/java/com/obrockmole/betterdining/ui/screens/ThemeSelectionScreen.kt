@@ -132,8 +132,8 @@ fun ThemeSelectionScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun NavStyleSelectionScreenPreview() {
+fun ThemeSelectionScreenPreview() {
     BetterPurdueDiningTheme {
-        NavStyleSelectionScreen(onNavigateBack = {})
+        ThemeSelectionScreen(onNavigateBack = {})
     }
 }

@@ -71,7 +71,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            BetterPurdueDiningTheme {
+            val context = LocalContext.current
+            val userPreferencesRepository = remember { UserPreferencesRepository(context) }
+            val appTheme by userPreferencesRepository.appTheme.collectAsState(initial = "Material")
+
+            BetterPurdueDiningTheme(theme = appTheme) {
                 BetterPurdueDiningApp()
             }
         }
