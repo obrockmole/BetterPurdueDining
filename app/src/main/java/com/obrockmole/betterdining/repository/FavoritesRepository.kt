@@ -18,4 +18,8 @@ class FavoritesRepository(private val favoriteItemDao: FavoriteItemDao) {
     suspend fun isFavorite(itemId: String): Boolean {
         return favoriteItemDao.getById(itemId) != null
     }
+
+    suspend fun getFavorite(itemId: String): FavoriteItem? {
+        return favoriteItemDao.getById(itemId)
+    }
 }

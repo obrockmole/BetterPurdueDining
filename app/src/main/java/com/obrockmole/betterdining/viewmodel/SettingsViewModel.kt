@@ -6,11 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
+import com.obrockmole.betterdining.type.DateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import kotlinx.serialization.json.Json as KotlinJson
 
 class SettingsViewModel(
@@ -67,10 +70,20 @@ class SettingsViewModel(
                 val name = favoriteItem.ItemName
                 val dateAdded = favoriteItem.DateAdded
 
-
                 if (!favoritesRepository.isFavorite(itemId)) {
                     favoritesRepository.addFavorite(FavoriteItem(itemId, name, dateAdded))
                     addedCount++
+                } else {
+                    val favorite = favoritesRepository.getFavorite(itemId)
+                    if (favorite != null) {
+                        val date1 = OffsetDateTime.parse(favorite.dateAdded, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        val date2 = OffsetDateTime.parse(dateAdded, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
+                        if (date2.isBefore(date1)) {
+                            favoritesRepository.addFavorite(FavoriteItem(itemId, name, dateAdded))
+                            addedCount++;
+                        }
+                    }
                 }
             }
 
