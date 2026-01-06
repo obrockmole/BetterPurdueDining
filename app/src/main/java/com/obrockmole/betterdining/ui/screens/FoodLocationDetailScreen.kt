@@ -162,56 +162,62 @@ fun FoodLocationDetail(
                             }
                         }
 
-                        if (meals.isNotEmpty() && selectedMealIndex < meals.size) {
-                            Column {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                IconButton(
+                                    onClick = { displayedDate = displayedDate.minusDays(1) },
+                                    modifier = Modifier.padding(start = 48.dp)
                                 ) {
-                                    IconButton(onClick = { displayedDate = displayedDate.minusDays(1) }) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.keyboard_arrow_left),
-                                            contentDescription = "Previous day."
-                                        )
-                                    }
-
-                                    val today = LocalDate.now()
-                                    val tomorrow = today.plusDays(1)
-                                    val yesterday = today.minusDays(1)
-
-                                    val dateText = when (displayedDate) {
-                                        today -> "Today"
-                                        tomorrow -> "Tomorrow"
-                                        yesterday -> "Yesterday"
-                                        else -> displayedDate.format(DateTimeFormatter.ofPattern("MMM d"))
-                                    }
-
-                                    Text(
-                                        text = dateText,
-                                        style = MaterialTheme.typography.titleMedium
+                                    Icon(
+                                        painter = painterResource(R.drawable.keyboard_arrow_left),
+                                        contentDescription = "Previous day."
                                     )
-
-                                    IconButton(onClick = { displayedDate = displayedDate.plusDays(1) }) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.keyboard_arrow_right),
-                                            contentDescription = "Next day."
-                                        )
-                                    }
                                 }
-                                SecondaryTabRow(
-                                    selectedTabIndex = selectedMealIndex,
-                                    modifier = Modifier.fillMaxWidth()
+
+                                val today = LocalDate.now()
+                                val tomorrow = today.plusDays(1)
+                                val yesterday = today.minusDays(1)
+
+                                val dateText = when (displayedDate) {
+                                    today -> "Today"
+                                    tomorrow -> "Tomorrow"
+                                    yesterday -> "Yesterday"
+                                    else -> displayedDate.format(DateTimeFormatter.ofPattern("MMM d"))
+                                }
+
+                                Text(
+                                    text = dateText,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                IconButton(
+                                    onClick = { displayedDate = displayedDate.plusDays(1) },
+                                    modifier = Modifier.padding(end = 48.dp)
                                 ) {
-                                    meals.forEachIndexed { index, meal ->
-                                        Tab(
-                                            selected = selectedMealIndex == index,
-                                            onClick = { selectedMealIndex = index },
-                                            text = { Text(meal.name) }
-                                        )
-                                    }
+                                    Icon(
+                                        painter = painterResource(R.drawable.keyboard_arrow_right),
+                                        contentDescription = "Next day."
+                                    )
                                 }
+                            }
+                            SecondaryTabRow(
+                                selectedTabIndex = selectedMealIndex,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                meals.forEachIndexed { index, meal ->
+                                    Tab(
+                                        selected = selectedMealIndex == index,
+                                        onClick = { selectedMealIndex = index },
+                                        text = { Text(meal.name) }
+                                    )
+                                }
+                            }
 
+                            if (meals.isNotEmpty() && selectedMealIndex < meals.size) {
                                 if (meals[selectedMealIndex].stations.isEmpty()) {
                                     Text(
                                         "No meal is being served.",
@@ -226,12 +232,14 @@ fun FoodLocationDetail(
                                         initialItemName = initialItemName
                                     )
                                 }
+                            } else {
+                                Text(
+                                    "No meals are being served.",
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(16.dp)
+                                )
                             }
-                        } else {
-                            Text(
-                                "No meal is being served.",
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
                         }
                     }
                 }
@@ -312,9 +320,12 @@ fun StationItem(
 ) {
     val backgroundColor = remember { Animatable(Color.Transparent) }
     val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+    var animationPlayed by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        if (isHighlighted) {
+        //FIXME: Highlight animation keeps playing everytime the page is refreshed
+        if (isHighlighted && !animationPlayed) {
+            animationPlayed = true
             delay(150)
 
             backgroundColor.animateTo(
@@ -350,10 +361,23 @@ fun StationItem(
                 .padding(horizontal = 24.dp, vertical = 12.dp),
             contentAlignment = Alignment.CenterStart
         ) {
-            if (itemWrapper.specialName != null) {
-                Text(text = itemWrapper.specialName)
-            } else {
-                Text(text = itemWrapper.item.name)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (itemWrapper.hasComponents) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.stacks),
+                        modifier = Modifier.padding(end = 8.dp),
+                        contentDescription = ""
+                    )
+                }
+
+                if (itemWrapper.specialName != null) {
+                    Text(text = itemWrapper.specialName)
+                } else {
+                    Text(text = itemWrapper.item.name)
+                }
             }
         }
 

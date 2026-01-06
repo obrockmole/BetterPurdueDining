@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,7 +51,8 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-val itemDetails = listOf("Nutrition", "Traits", "Components", "Schedule")
+// "Components" wont fit :(
+val itemDetails = listOf("Nutrition", "Traits", "Component", "Schedule")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,27 +124,37 @@ fun ItemDetailScreen(
                     val item = uiState.item
 
                     Column {
-                        SecondaryTabRow(
-                            selectedTabIndex = selectedDetailIndex,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            itemDetails.forEachIndexed { index, detail ->
-                                Tab(
-                                    selected = selectedDetailIndex == index,
-                                    onClick = { selectedDetailIndex = index },
-                                    text = { Text(detail) }
-                                )
+                        val visibleTabs = remember(item.components) {
+                            itemDetails.filter { detail ->
+                                when (detail) {
+                                    "Nutrition" -> item.isNutritionReady || item.nutritionFacts != null
+                                    "Traits" -> !item.traits.isNullOrEmpty()
+                                    "Component" -> !item.components.isNullOrEmpty()
+                                    else -> true
+                                }
                             }
                         }
 
-                        if (itemDetails[selectedDetailIndex] == "Nutrition") {
-                            NutritionDetails(item)
-                        } else if (itemDetails[selectedDetailIndex] == "Traits") {
-                            TraitsDetails(item)
-                        } else if (itemDetails[selectedDetailIndex] == "Components") {
-                            ComponentsDetails(item)
-                        } else if (itemDetails[selectedDetailIndex] == "Schedule") {
-                            ScheduleDetails(item, homeViewModel, onBack = onNavigateBack)
+                        if (visibleTabs.isNotEmpty()) {
+                            SecondaryTabRow(
+                                selectedTabIndex = selectedDetailIndex.coerceIn(0, visibleTabs.lastIndex),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                visibleTabs.forEachIndexed { index, detail ->
+                                    Tab(
+                                        selected = selectedDetailIndex == index,
+                                        onClick = { selectedDetailIndex = index },
+                                        text = { Text(detail) }
+                                    )
+                                }
+                            }
+
+                            when (visibleTabs.getOrNull(selectedDetailIndex)) {
+                                "Nutrition" -> NutritionDetails(item)
+                                "Traits" -> TraitsDetails(item)
+                                "Component" -> ComponentsDetails(item)
+                                "Schedule" -> ScheduleDetails(item, homeViewModel, onBack = onNavigateBack)
+                            }
                         }
                     }
                 }
@@ -190,6 +202,16 @@ fun NutritionDetails(
 
                         HorizontalDivider()
                     }
+                }
+            }
+
+            item {
+                item.ingredients?.let {
+                    Text(
+                        "Ingredients: $it",
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
             }
         }
@@ -251,18 +273,26 @@ fun ComponentsDetails(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                Column {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 12.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Text("chill yo shit, its coming")
-                    }
+            item.components.forEach { component ->
+                item {
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 12.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = component.name)
+                            }
+                        }
 
-                    HorizontalDivider()
+                        HorizontalDivider()
+                    }
                 }
             }
         }
