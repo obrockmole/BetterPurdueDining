@@ -11,21 +11,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemShapes
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -41,6 +50,7 @@ import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.ItemUiState
@@ -54,7 +64,7 @@ import java.time.format.DateTimeFormatter
 // "Components" wont fit :(
 val itemDetails = listOf("Nutrition", "Traits", "Component", "Schedule")
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ItemDetailScreen(
     itemName: String,
@@ -67,7 +77,8 @@ fun ItemDetailScreen(
     val itemViewModel: ItemViewModel = viewModel(
         factory = ItemViewModelFactory(
             MenuRepository(),
-            FavoritesRepository(AppDatabase.getDatabase(context).favoriteItemDao())
+            FavoritesRepository(AppDatabase.getDatabase(context).favoriteItemDao()),
+            RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao())
         )
     )
 
@@ -77,12 +88,31 @@ fun ItemDetailScreen(
 
     val uiState = itemViewModel.itemUiState
     var selectedDetailIndex by rememberSaveable { mutableIntStateOf(0) }
+    var moreMenuShown by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+
+    if (showRenameDialog && uiState is ItemUiState.Success) {
+        RenameItemDialog(
+            onDismiss = { showRenameDialog = false },
+            onRename = { newName ->
+                itemViewModel.renameItem(uiState.item.itemId, newName)
+                showRenameDialog = false
+            },
+            currentName = uiState.item.name
+        )
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(itemName) },
+                title = {
+                    if (itemViewModel.isRenamed) {
+                        Text(text = itemViewModel.renamedName)
+                    } else {
+                        Text(text = itemName)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -93,12 +123,48 @@ fun ItemDetailScreen(
                 },
                 actions = {
                     if (uiState is ItemUiState.Success) {
-                        val isFavorite = itemViewModel.isFavorite
-                        IconButton(onClick = { itemViewModel.toggleFavorite(uiState.item) }) {
+                        IconButton(onClick = { moreMenuShown = true }) {
                             Icon(
-                                painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
-                                else painterResource(R.drawable.favorite),
-                                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                                painter = painterResource(R.drawable.more_vertical)
+                                , contentDescription = "More"
+                            )
+                        }
+
+                        DropdownMenuPopup(
+                            expanded = moreMenuShown,
+                            onDismissRequest = { moreMenuShown = false }
+                        ) {
+                            val isFavorite = itemViewModel.isFavorite
+                            DropdownMenuItem(
+                                text = { Text("Favorite") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
+                                        else painterResource(R.drawable.favorite),
+                                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                                    )
+                                },
+                                onClick = {
+                                    itemViewModel.toggleFavorite(uiState.item)
+                                    moreMenuShown = false
+                                },
+                                selected = false,
+                                shapes = MenuItemShapes(MenuDefaults.leadingItemShape, MenuDefaults.selectedItemShape)
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Rename") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.keyboard_arrow_down),
+                                        contentDescription = "Rename item."
+                                    )
+                                },
+                                onClick = {
+                                    moreMenuShown = false
+                                    showRenameDialog = true
+                                },
+                                selected = false,
+                                shapes = MenuItemShapes(MenuDefaults.trailingItemShape, MenuDefaults.selectedItemShape)
                             )
                         }
                     }
@@ -161,6 +227,35 @@ fun ItemDetailScreen(
             }
         }
     }
+}
+
+@Composable
+fun RenameItemDialog(onDismiss: () -> Unit, onRename: (String) -> Unit, currentName: String) {
+    var text by remember { mutableStateOf(currentName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Rename Item") },
+        text = {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("New Name") }
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onRename(text) }
+            ) {
+                Text("Rename")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable

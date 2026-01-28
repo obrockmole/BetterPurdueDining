@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.GetItemDetailsQuery
 import com.obrockmole.betterdining.database.FavoriteItem
+import com.obrockmole.betterdining.database.RenamedItem
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -22,7 +24,8 @@ sealed interface ItemUiState {
 
 class ItemViewModel(
     private val menuRepository: MenuRepository,
-    private val favoritesRepository: FavoritesRepository
+    private val favoritesRepository: FavoritesRepository,
+    private val renamedItemsRepository: RenamedItemsRepository
 ) : ViewModel() {
 
     var itemUiState: ItemUiState by mutableStateOf(ItemUiState.Loading)
@@ -31,11 +34,22 @@ class ItemViewModel(
     var isFavorite by mutableStateOf(false)
         private set
 
+    var isRenamed by mutableStateOf(false)
+        private set
+
+    var renamedName by mutableStateOf("")
+        private set
+
     fun getItem(itemId: String) {
         viewModelScope.launch {
             itemUiState = ItemUiState.Loading
             try {
                 val result = menuRepository.getItemDetails(itemId)
+                val renamedItem = renamedItemsRepository.getRenamedItem(itemId)
+                if (renamedItem != null) {
+                    isRenamed = true
+                    renamedName = renamedItem.customName
+                }
                 itemUiState = if (result != null) {
                     ItemUiState.Success(result)
                 } else {
@@ -46,6 +60,15 @@ class ItemViewModel(
             } catch (e: Exception) {
                 itemUiState = ItemUiState.Error
             }
+        }
+    }
+
+    fun renameItem(itemId: String, customName: String) {
+        viewModelScope.launch {
+            val renamedItem = RenamedItem(itemId, customName)
+            renamedItemsRepository.insert(renamedItem)
+            isRenamed = true
+            renamedName = customName
         }
     }
 

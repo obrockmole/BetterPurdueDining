@@ -9,28 +9,33 @@ import com.obrockmole.betterdining.network.buildMultiItemQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class UpcomingFavoritesRepository(private val favoriteItemDao: FavoriteItemDao) {
+class UpcomingFavoritesRepository(
+    private val favoriteItemDao: FavoriteItemDao,
+) {
     private val diningApi: DiningApi = RetrofitInstance.api
 
     fun getUpcomingFavoritesFlow(): Flow<Result<List<UpcomingFavorite>>> {
-        return favoriteItemDao.getAll().map { favorites ->
+        return favoriteItemDao.getAllWithCustomNames().map { favorites ->
             try {
-                val favoriteIds = favorites.map { it.itemId }
-                if (favoriteIds.isEmpty()) {
+                if (favorites.isEmpty()) {
                     return@map Result.success(emptyList())
                 }
+                val favoriteIds = favorites.map { it.itemId }
 
                 val query = buildMultiItemQuery(favoriteIds)
                 val request = GraphQLRequest(query = query, variables = emptyMap<String, Any>())
                 val response = diningApi.getMultipleItems(request)
 
                 if (response.isSuccessful && response.body() != null) {
-                    val upcomingFavorites = response.body()!!.data.values.map { itemDetails ->
-                        UpcomingFavorite(
-                            itemId = itemDetails.itemId,
-                            name = itemDetails.name,
-                            appearances = itemDetails.appearances
-                        )
+                    val upcomingFavorites = response.body()!!.data.values.mapNotNull { itemDetails ->
+                        val favorite = favorites.find { it.itemId == itemDetails.itemId }
+                        favorite?.let {
+                            UpcomingFavorite(
+                                itemId = itemDetails.itemId,
+                                name = it.name,
+                                appearances = itemDetails.appearances
+                            )
+                        }
                     }
                     Result.success(upcomingFavorites)
                 } else {

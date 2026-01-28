@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,10 +38,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.ItemSearchQuery
 import com.obrockmole.betterdining.R
+import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
+import com.obrockmole.betterdining.viewmodel.SearchResultDisplay
 import com.obrockmole.betterdining.viewmodel.SearchViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModelFactory
 import kotlinx.coroutines.delay
@@ -55,39 +59,39 @@ fun SearchScreen(
     homeViewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val searchViewModel: SearchViewModel = viewModel(
-        factory = SearchViewModelFactory(SearchRepository())
+        factory = SearchViewModelFactory(
+            SearchRepository(),
+            RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao())
+        )
     )
 
-    var searchQuery by remember { mutableStateOf("") }
-    var searchResults by remember {
-        mutableStateOf<List<ItemSearchQuery.ItemSearch>>(
-            emptyList()
-        )
-    }
+    var query by remember { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf<List<SearchResultDisplay>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
-    var hasSearched by remember { mutableStateOf(false) }
+    var noResults by remember { mutableStateOf(false) }
     var expandedItemId by remember { mutableStateOf<String?>(null) }
 
     BackHandler {
         onBack()
     }
 
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotEmpty()) {
+    LaunchedEffect(query) {
+        if (query.isNotEmpty()) {
             isLoading = true
-            hasSearched = false
+            noResults = false
             delay(450)
 
-            searchResults = searchViewModel.searchItems(searchQuery)
+            searchResults = searchViewModel.searchItems(query)
 
             isLoading = false
-            hasSearched = true
+            noResults = searchResults.isEmpty()
 
         } else {
             searchResults = emptyList()
             isLoading = false
-            hasSearched = false
+            noResults = false
         }
     }
 
@@ -115,16 +119,16 @@ fun SearchScreen(
                 .padding(innerPadding)
         ) {
             TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = query,
+                onValueChange = { query = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 placeholder = { Text("Search for items...") },
                 singleLine = true,
                 trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { query = "" }) {
                             Icon(
                                 painter = painterResource(R.drawable.close),
                                 contentDescription = "Clear search"
@@ -147,9 +151,9 @@ fun SearchScreen(
                         )
                     }
 
-                    hasSearched && searchResults.isEmpty() -> {
+                    noResults -> {
                         Text(
-                            text = "No items found for \"$searchQuery\"",
+                            text = "No items found for \"$query\"",
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(16.dp),
@@ -178,7 +182,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchResultsList(
-    results: List<ItemSearchQuery.ItemSearch>,
+    results: List<SearchResultDisplay>,
     homeViewModel: HomeViewModel,
     onBack: () -> Unit,
     expandedItemId: String?,
@@ -190,14 +194,14 @@ fun SearchResultsList(
             item {
                 ExpandableSearchResultItem(
                     groupedResult = groupedResult,
-                    isExpanded = expandedItemId == groupedResult.itemId,
-                    onHeaderClick = { onItemClick(groupedResult.itemId) },
+                    isExpanded = expandedItemId == groupedResult.originalItem.itemId,
+                    onHeaderClick = { onItemClick(groupedResult.originalItem.itemId) },
                     onAppearanceClick = { appearance ->
                         homeViewModel.navigateToMenu(
                             diningCourt = appearance.locationName,
                             mealName = appearance.mealName,
                             date = appearance.date,
-                            item = groupedResult.name
+                            item = groupedResult.displayName
                         )
                         onBack()
                     }
@@ -209,7 +213,7 @@ fun SearchResultsList(
 
 @Composable
 fun ExpandableSearchResultItem(
-    groupedResult: ItemSearchQuery.ItemSearch,
+    groupedResult: SearchResultDisplay,
     isExpanded: Boolean,
     onHeaderClick: () -> Unit,
     onAppearanceClick: (ItemSearchQuery.Appearance) -> Unit,
@@ -238,12 +242,12 @@ fun ExpandableSearchResultItem(
             }
 
             Text(
-                text = groupedResult.name,
+                text = groupedResult.displayName,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = "${groupedResult.appearances.size} locations",
+                text = "${groupedResult.originalItem.appearances.size} locations",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -252,14 +256,14 @@ fun ExpandableSearchResultItem(
         HorizontalDivider()
 
         if (isExpanded) {
-            groupedResult.appearances.forEach { appearance ->
+            groupedResult.originalItem.appearances.forEach { appearance ->
                 AppearanceListItem(
                     appearance = appearance,
                     onClick = { onAppearanceClick(appearance) }
                 )
             }
 
-            if (groupedResult.appearances.isEmpty()) {
+            if (groupedResult.originalItem.appearances.isEmpty()) {
                 Row(
                     modifier = modifier
                         .fillMaxWidth()

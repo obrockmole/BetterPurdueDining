@@ -20,7 +20,9 @@ class UpcomingFavoritesViewModel(private val repository: UpcomingFavoritesReposi
             )
 }
 
-class UpcomingFavoritesViewModelFactory(private val repository: UpcomingFavoritesRepository) :
+class UpcomingFavoritesViewModelFactory(
+    private val repository: UpcomingFavoritesRepository
+) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UpcomingFavoritesViewModel::class.java)) {

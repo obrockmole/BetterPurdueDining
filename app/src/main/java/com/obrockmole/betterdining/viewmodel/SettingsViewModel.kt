@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
-import com.obrockmole.betterdining.type.DateTime
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

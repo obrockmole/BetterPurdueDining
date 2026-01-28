@@ -195,8 +195,11 @@ fun AllFavoritesList(
     if (selectedSort == 1) {
         sortedFavorites = sortedFavorites.reversed()
     } else if (selectedSort == 2 || selectedSort == 3) {
-        sortedFavorites = sortedFavorites.sortedBy { OffsetDateTime.parse(it.dateAdded,
-            DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime() }
+        sortedFavorites = sortedFavorites.sortedBy {
+            it.dateAdded?.let { date ->
+                OffsetDateTime.parse(date, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
+            }
+        }
         if (selectedSort == 3) {
             sortedFavorites = sortedFavorites.reversed()
         }
