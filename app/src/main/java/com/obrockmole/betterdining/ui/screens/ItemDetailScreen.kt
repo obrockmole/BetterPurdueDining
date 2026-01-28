@@ -125,8 +125,8 @@ fun ItemDetailScreen(
                     if (uiState is ItemUiState.Success) {
                         IconButton(onClick = { moreMenuShown = true }) {
                             Icon(
-                                painter = painterResource(R.drawable.more_vertical)
-                                , contentDescription = "More"
+                                painter = painterResource(R.drawable.more_vertical),
+                                contentDescription = "More"
                             )
                         }
 
@@ -149,7 +149,10 @@ fun ItemDetailScreen(
                                     moreMenuShown = false
                                 },
                                 selected = false,
-                                shapes = MenuItemShapes(MenuDefaults.leadingItemShape, MenuDefaults.selectedItemShape)
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.leadingItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
                             )
                             DropdownMenuItem(
                                 text = { Text("Rename") },
@@ -164,7 +167,10 @@ fun ItemDetailScreen(
                                     showRenameDialog = true
                                 },
                                 selected = false,
-                                shapes = MenuItemShapes(MenuDefaults.trailingItemShape, MenuDefaults.selectedItemShape)
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.trailingItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
                             )
                         }
                     }
@@ -203,7 +209,10 @@ fun ItemDetailScreen(
 
                         if (visibleTabs.isNotEmpty()) {
                             SecondaryTabRow(
-                                selectedTabIndex = selectedDetailIndex.coerceIn(0, visibleTabs.lastIndex),
+                                selectedTabIndex = selectedDetailIndex.coerceIn(
+                                    0,
+                                    visibleTabs.lastIndex
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 visibleTabs.forEachIndexed { index, detail ->
@@ -219,7 +228,11 @@ fun ItemDetailScreen(
                                 "Nutrition" -> NutritionDetails(item)
                                 "Traits" -> TraitsDetails(item)
                                 "Component" -> ComponentsDetails(item)
-                                "Schedule" -> ScheduleDetails(item, homeViewModel, onBack = onNavigateBack)
+                                "Schedule" -> ScheduleDetails(
+                                    item,
+                                    homeViewModel,
+                                    onBack = onNavigateBack
+                                )
                             }
                         }
                     }
@@ -499,7 +512,10 @@ fun AppearanceItem(
                 Text(text = appearance.stationName)
                 Text(
                     text = "${
-                        OffsetDateTime.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        OffsetDateTime.parse(
+                            appearance.date,
+                            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                        )
                             .atZoneSameInstant(ZoneId.systemDefault()).toLocalTime()
                             .format(DateTimeFormatter.ofPattern("HH:mm"))
                     }",

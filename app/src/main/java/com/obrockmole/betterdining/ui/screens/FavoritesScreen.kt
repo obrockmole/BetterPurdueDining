@@ -104,7 +104,10 @@ fun FavoritesScreen(
                                     selectedSort = 0
                                 },
                                 selected = selectedSort == 0,
-                                shapes = MenuItemShapes(MenuDefaults.leadingItemShape, MenuDefaults.selectedItemShape)
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.leadingItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
                             )
                             DropdownMenuItem(
                                 text = { Text("Name") },
@@ -119,7 +122,10 @@ fun FavoritesScreen(
                                     selectedSort = 1
                                 },
                                 selected = selectedSort == 1,
-                                shapes = MenuItemShapes(MenuDefaults.middleItemShape, MenuDefaults.selectedItemShape)
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.middleItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
                             )
 
                             HorizontalDivider()
@@ -137,7 +143,10 @@ fun FavoritesScreen(
                                     selectedSort = 2
                                 },
                                 selected = selectedSort == 2,
-                                shapes = MenuItemShapes(MenuDefaults.middleItemShape, MenuDefaults.selectedItemShape)
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.middleItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
                             )
                             DropdownMenuItem(
                                 text = { Text("Date Added") },
@@ -152,7 +161,10 @@ fun FavoritesScreen(
                                     selectedSort = 3
                                 },
                                 selected = selectedSort == 3,
-                                shapes = MenuItemShapes(MenuDefaults.trailingItemShape, MenuDefaults.selectedItemShape)
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.trailingItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
                             )
                         }
                     }

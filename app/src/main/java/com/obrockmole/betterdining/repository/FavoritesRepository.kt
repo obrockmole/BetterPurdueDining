@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.Flow
 class FavoritesRepository(private val favoriteItemDao: FavoriteItemDao) {
     fun getAll(): Flow<List<FavoriteItem>> = favoriteItemDao.getAll()
 
-    fun getAllWithCustomNames(): Flow<List<FavoriteItemDisplay>> = favoriteItemDao.getAllWithCustomNames()
+    fun getAllWithCustomNames(): Flow<List<FavoriteItemDisplay>> =
+        favoriteItemDao.getAllWithCustomNames()
 
     suspend fun addFavorite(item: FavoriteItem) {
         favoriteItemDao.insert(item)

@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.GetStartLocationsQuery
 import com.obrockmole.betterdining.repository.StartLocationsRepository
@@ -68,5 +69,17 @@ class HomeViewModel(private val startLocationsRepository: StartLocationsReposito
                 homeUiState = HomeUiState.Error
             }
         }
+    }
+}
+
+class HomeViewModelFactory(
+    private val startLocationsRepository: StartLocationsRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return HomeViewModel(startLocationsRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -139,7 +139,8 @@ fun FoodLocationDetail(
                                     selectedMealIndex = index
                                 }
                             } else {
-                                val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
+                                val currentHour = LocalDateTime.now(ZoneId.of("America/New_York"))
+                                    .toLocalTime().hour
                                 meals.forEachIndexed { index, meal ->
                                     if (!meal.stations.isEmpty()) {
                                         val startTime = LocalDateTime.parse(

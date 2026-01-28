@@ -75,12 +75,16 @@ class SettingsViewModel(
                 } else {
                     val favorite = favoritesRepository.getFavorite(itemId)
                     if (favorite != null) {
-                        val date1 = OffsetDateTime.parse(favorite.dateAdded, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                        val date2 = OffsetDateTime.parse(dateAdded, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                        val date1 = OffsetDateTime.parse(
+                            favorite.dateAdded,
+                            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                        )
+                        val date2 =
+                            OffsetDateTime.parse(dateAdded, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
                         if (date2.isBefore(date1)) {
                             favoritesRepository.addFavorite(FavoriteItem(itemId, name, dateAdded))
-                            addedCount++;
+                            addedCount++
                         }
                     }
                 }

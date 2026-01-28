@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.GetItemDetailsQuery
 import com.obrockmole.betterdining.database.FavoriteItem
@@ -74,8 +75,10 @@ class ItemViewModel(
 
     fun toggleFavorite(item: GetItemDetailsQuery.ItemByItemId) {
         viewModelScope.launch {
-            val date = OffsetDateTime.now(ZoneId.of("America/New_York")).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            val favoriteItem = FavoriteItem(name = item.name, itemId = item.itemId, dateAdded = date)
+            val date = OffsetDateTime.now(ZoneId.of("America/New_York"))
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            val favoriteItem =
+                FavoriteItem(name = item.name, itemId = item.itemId, dateAdded = date)
             if (isFavorite) {
                 favoritesRepository.removeFavorite(favoriteItem)
             } else {
@@ -83,5 +86,19 @@ class ItemViewModel(
             }
             isFavorite = !isFavorite
         }
+    }
+}
+
+class ItemViewModelFactory(
+    private val menuRepository: MenuRepository,
+    private val favoritesRepository: FavoritesRepository,
+    private val renamedItemsRepository: RenamedItemsRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ItemViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ItemViewModel(menuRepository, favoritesRepository, renamedItemsRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

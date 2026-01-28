@@ -27,16 +27,17 @@ class UpcomingFavoritesRepository(
                 val response = diningApi.getMultipleItems(request)
 
                 if (response.isSuccessful && response.body() != null) {
-                    val upcomingFavorites = response.body()!!.data.values.mapNotNull { itemDetails ->
-                        val favorite = favorites.find { it.itemId == itemDetails.itemId }
-                        favorite?.let {
-                            UpcomingFavorite(
-                                itemId = itemDetails.itemId,
-                                name = it.name,
-                                appearances = itemDetails.appearances
-                            )
+                    val upcomingFavorites =
+                        response.body()!!.data.values.mapNotNull { itemDetails ->
+                            val favorite = favorites.find { it.itemId == itemDetails.itemId }
+                            favorite?.let {
+                                UpcomingFavorite(
+                                    itemId = itemDetails.itemId,
+                                    name = it.name,
+                                    appearances = itemDetails.appearances
+                                )
+                            }
                         }
-                    }
                     Result.success(upcomingFavorites)
                 } else {
                     Result.failure(Exception("Failed to fetch upcoming favorites"))

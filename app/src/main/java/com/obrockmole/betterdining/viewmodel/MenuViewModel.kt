@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.GetLocationMenuQuery
 import com.obrockmole.betterdining.repository.MenuRepository
@@ -37,5 +38,17 @@ class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
                 menuUiState = MenuUiState.Error
             }
         }
+    }
+}
+
+class MenuViewModelFactory(
+    private val menuRepository: MenuRepository,
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MenuViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MenuViewModel(menuRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
