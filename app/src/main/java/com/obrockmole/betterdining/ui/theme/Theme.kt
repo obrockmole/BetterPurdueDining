@@ -35,7 +35,7 @@ private fun randomColor(): Color {
     )
 }
 
-private fun CancerColorScheme(): ColorScheme {
+private fun cancerColorScheme(): ColorScheme {
     return darkColorScheme(
         primary = randomColor(),
         onPrimary = randomColor(),
@@ -99,7 +99,7 @@ fun BetterPurdueDiningTheme(
         when (theme) {
             "Light" -> LightColorScheme
             "Dark" -> DarkColorScheme
-            "Cancer" -> CancerColorScheme()
+            "Cancer" -> cancerColorScheme()
             else -> {
                 dynamicDarkColorScheme(context)
             }
@@ -111,7 +111,8 @@ fun BetterPurdueDiningTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = theme == "Light"
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                theme == "Light"
         }
     }
 

@@ -42,10 +42,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.obrockmole.betterdining.GetLocationMenuQuery
 import com.obrockmole.betterdining.R
+import com.obrockmole.betterdining.viewmodel.MealDisplay
+import com.obrockmole.betterdining.viewmodel.MenuItemDisplay
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
+import com.obrockmole.betterdining.viewmodel.StationDisplay
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -126,15 +128,17 @@ fun FoodLocationDetail(
 
                     is MenuUiState.Success -> {
                         val menuData = uiState.data
-                        val meals = menuData.dailyMenu!!.meals
+                        val meals = menuData?.meals
 
                         LaunchedEffect(meals, initialMealName) {
-                            if (selectedMealIndex >= meals.size) {
-                                selectedMealIndex = 0
+                            meals?.size?.let {
+                                if (selectedMealIndex >= it) {
+                                    selectedMealIndex = 0
+                                }
                             }
 
                             if (initialMealName != null) {
-                                val index = meals.indexOfFirst { it.name == initialMealName }
+                                val index = meals!!.indexOfFirst { it.name == initialMealName }
                                 if (index != -1) {
                                     selectedMealIndex = index
                                 }
@@ -205,11 +209,12 @@ fun FoodLocationDetail(
                                     )
                                 }
                             }
+
                             SecondaryTabRow(
                                 selectedTabIndex = selectedMealIndex,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                meals.forEachIndexed { index, meal ->
+                                meals?.forEachIndexed { index, meal ->
                                     Tab(
                                         selected = selectedMealIndex == index,
                                         onClick = { selectedMealIndex = index },
@@ -218,7 +223,7 @@ fun FoodLocationDetail(
                                 }
                             }
 
-                            if (meals.isNotEmpty() && selectedMealIndex < meals.size) {
+                            if (meals?.isNotEmpty() == true && selectedMealIndex < meals.size) {
                                 if (meals[selectedMealIndex].stations.isEmpty()) {
                                     Text(
                                         "No meal is being served.",
@@ -251,7 +256,7 @@ fun FoodLocationDetail(
 
 @Composable
 fun MealDetail(
-    meal: GetLocationMenuQuery.Meal,
+    meal: MealDisplay,
     onNavigateToItem: (String, String) -> Unit,
     initialItemName: String? = null
 ) {
@@ -265,7 +270,7 @@ fun MealDetail(
             for (station in meal.stations) {
                 targetIndex++
                 for (item in station.items) {
-                    if (item.item.name == initialItemName) {
+                    if (item.originalItem.item.name == initialItemName) {
                         found = true
                         break
                     }
@@ -293,7 +298,7 @@ fun MealDetail(
             itemsIndexed(station.items) { index, itemWrapper ->
                 StationItem(
                     itemWrapper = itemWrapper,
-                    isHighlighted = initialItemName != null && itemWrapper.item.name == initialItemName,
+                    isHighlighted = initialItemName != null && itemWrapper.originalItem.item.name == initialItemName,
                     onNavigateToItem = onNavigateToItem,
                     showDivider = index < station.items.size - 1
                 )
@@ -303,7 +308,7 @@ fun MealDetail(
 }
 
 @Composable
-fun StationHeader(station: GetLocationMenuQuery.Station) {
+fun StationHeader(station: StationDisplay) {
     Text(
         text = station.name,
         style = MaterialTheme.typography.titleMedium,
@@ -314,7 +319,7 @@ fun StationHeader(station: GetLocationMenuQuery.Station) {
 
 @Composable
 fun StationItem(
-    itemWrapper: GetLocationMenuQuery.Item,
+    itemWrapper: MenuItemDisplay,
     isHighlighted: Boolean,
     onNavigateToItem: (String, String) -> Unit,
     showDivider: Boolean
@@ -354,8 +359,8 @@ fun StationItem(
                 .fillMaxWidth()
                 .clickable(onClick = {
                     onNavigateToItem(
-                        itemWrapper.item.name,
-                        itemWrapper.item.itemId
+                        itemWrapper.originalItem.item.name,
+                        itemWrapper.originalItem.item.itemId
                     )
                 })
                 .background(backgroundColor.value)
@@ -366,7 +371,7 @@ fun StationItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (itemWrapper.hasComponents) {
+                if (itemWrapper.originalItem.hasComponents) {
                     Icon(
                         painter = painterResource(id = R.drawable.stacks),
                         modifier = Modifier.padding(end = 8.dp),
@@ -374,11 +379,12 @@ fun StationItem(
                     )
                 }
 
-                if (itemWrapper.specialName != null) {
-                    Text(text = itemWrapper.specialName)
-                } else {
-                    Text(text = itemWrapper.item.name)
-                }
+//                if (itemWrapper.originalItem.specialName != null) {
+//                    Text(text = itemWrapper.originalItem.specialName)
+//                } else {
+//                    Text(text = itemWrapper.displayName)
+//                }
+                Text(text = itemWrapper.displayName)
             }
         }
 

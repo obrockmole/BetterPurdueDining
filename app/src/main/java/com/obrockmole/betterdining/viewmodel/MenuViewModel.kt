@@ -6,18 +6,21 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.obrockmole.betterdining.GetLocationMenuQuery
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 sealed interface MenuUiState {
-    data class Success(val data: GetLocationMenuQuery.DiningCourtByName) : MenuUiState
+    data class Success(val data: DiningCourtMenuDisplay?) : MenuUiState
     data object Error : MenuUiState
     data object Loading : MenuUiState
 }
 
-class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
+class MenuViewModel(
+    private val menuRepository: MenuRepository,
+    private val renamedItemsRepository: RenamedItemsRepository
+) : ViewModel() {
     var menuUiState: MenuUiState by mutableStateOf(MenuUiState.Loading)
         private set
 
@@ -28,8 +31,36 @@ class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
                 val menuDate = date ?: LocalDate.now().toString()
                 val result = menuRepository.getDiningCourtMenu(diningCourtName, menuDate)
 
+                val mappedResult = result?.let { diningCourtByName ->
+                    DiningCourtMenuDisplay(
+                        name = diningCourtByName.name,
+                        meals = diningCourtByName.dailyMenu?.meals.let {
+                            it?.map { meal ->
+                                MealDisplay(
+                                    name = meal.name,
+                                    stations = meal.stations.map { station ->
+                                        StationDisplay(
+                                            name = station.name,
+                                            items = station.items.map { item ->
+                                                MenuItemDisplay(
+                                                    originalItem = item,
+                                                    displayName = renamedItemsRepository.getRenamedItem(
+                                                        item.item.itemId
+                                                    )?.customName ?: item.specialName ?: item.item.name
+                                                )
+                                            }
+                                        )
+                                    },
+                                    startTime = meal.startTime,
+                                    endTime = meal.endTime
+                                )
+                            } ?: emptyList()
+                        }
+                    )
+                }
+
                 menuUiState = if (result != null) {
-                    MenuUiState.Success(result)
+                    MenuUiState.Success(mappedResult)
                 } else {
                     MenuUiState.Error
                 }
@@ -43,11 +74,12 @@ class MenuViewModel(private val menuRepository: MenuRepository) : ViewModel() {
 
 class MenuViewModelFactory(
     private val menuRepository: MenuRepository,
+    private val renamedItemsRepository: RenamedItemsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MenuViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MenuViewModel(menuRepository) as T
+            return MenuViewModel(menuRepository, renamedItemsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

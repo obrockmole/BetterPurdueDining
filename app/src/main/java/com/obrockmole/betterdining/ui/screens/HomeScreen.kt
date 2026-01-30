@@ -27,13 +27,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.GetStartLocationsQuery
 import com.obrockmole.betterdining.R
+import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeUiState
@@ -79,9 +82,13 @@ fun HomeScreen(
             homeViewModel = viewModel
         )
     } else if (selectedFoodLocation != null) {
+        val context = LocalContext.current
         val menuViewModel: MenuViewModel = viewModel(
             key = selectedFoodLocation,
-            factory = MenuViewModelFactory(MenuRepository())
+            factory = MenuViewModelFactory(
+                MenuRepository(),
+                RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao())
+            )
         )
         Log.e("HomeScreen", "Selected food location: $selectedFoodLocation")
         FoodLocationDetail(
