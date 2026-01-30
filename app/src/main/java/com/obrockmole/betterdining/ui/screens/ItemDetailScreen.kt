@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -134,44 +135,54 @@ fun ItemDetailScreen(
                             expanded = moreMenuShown,
                             onDismissRequest = { moreMenuShown = false }
                         ) {
-                            val isFavorite = itemViewModel.isFavorite
-                            DropdownMenuItem(
-                                text = { Text("Favorite") },
-                                trailingIcon = {
-                                    Icon(
-                                        painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
-                                        else painterResource(R.drawable.favorite),
-                                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                            DropdownMenuGroup(
+                                shapes = MenuDefaults.groupShape(0, 1)
+                            ) {
+                                val isFavorite = itemViewModel.isFavorite
+                                DropdownMenuItem(
+                                    text = { Text("Favorite") },
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = if (isFavorite) painterResource(R.drawable.favorite_filled)
+                                            else painterResource(R.drawable.favorite),
+                                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites"
+                                        )
+                                    },
+                                    onClick = {
+                                        itemViewModel.toggleFavorite(uiState.item)
+                                        moreMenuShown = false
+                                    },
+                                    selected = false,
+                                    shapes = MenuItemShapes(
+                                        MenuDefaults.leadingItemShape,
+                                        MenuDefaults.selectedItemShape
                                     )
-                                },
-                                onClick = {
-                                    itemViewModel.toggleFavorite(uiState.item)
-                                    moreMenuShown = false
-                                },
-                                selected = false,
-                                shapes = MenuItemShapes(
-                                    MenuDefaults.leadingItemShape,
-                                    MenuDefaults.selectedItemShape
                                 )
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Rename") },
-                                trailingIcon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.keyboard_arrow_down),
-                                        contentDescription = "Rename item."
+
+                                HorizontalDivider(
+                                    modifier =
+                                        Modifier.padding(horizontal = MenuDefaults.HorizontalDividerPadding)
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text("Rename") },
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.edit),
+                                            contentDescription = "Rename item."
+                                        )
+                                    },
+                                    onClick = {
+                                        moreMenuShown = false
+                                        showRenameDialog = true
+                                    },
+                                    selected = false,
+                                    shapes = MenuItemShapes(
+                                        MenuDefaults.trailingItemShape,
+                                        MenuDefaults.selectedItemShape
                                     )
-                                },
-                                onClick = {
-                                    moreMenuShown = false
-                                    showRenameDialog = true
-                                },
-                                selected = false,
-                                shapes = MenuItemShapes(
-                                    MenuDefaults.trailingItemShape,
-                                    MenuDefaults.selectedItemShape
                                 )
-                            )
+                            }
                         }
                     }
                 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -91,81 +92,88 @@ fun FavoritesScreen(
                             expanded = sortMenuShown,
                             onDismissRequest = { sortMenuShown = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Name") },
-                                trailingIcon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.keyboard_arrow_up),
-                                        contentDescription = "Increasing name."
+                            DropdownMenuGroup(
+                                shapes = MenuDefaults.groupShape(0, 1)
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Name") },
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.keyboard_arrow_up),
+                                            contentDescription = "Increasing name."
+                                        )
+                                    },
+                                    onClick = {
+                                        sortMenuShown = false
+                                        selectedSort = 0
+                                    },
+                                    selected = selectedSort == 0,
+                                    shapes = MenuItemShapes(
+                                        MenuDefaults.leadingItemShape,
+                                        MenuDefaults.selectedItemShape
                                     )
-                                },
-                                onClick = {
-                                    sortMenuShown = false
-                                    selectedSort = 0
-                                },
-                                selected = selectedSort == 0,
-                                shapes = MenuItemShapes(
-                                    MenuDefaults.leadingItemShape,
-                                    MenuDefaults.selectedItemShape
                                 )
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Name") },
-                                trailingIcon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.keyboard_arrow_down),
-                                        contentDescription = "Decreasing name."
+                                DropdownMenuItem(
+                                    text = { Text("Name") },
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.keyboard_arrow_down),
+                                            contentDescription = "Decreasing name."
+                                        )
+                                    },
+                                    onClick = {
+                                        sortMenuShown = false
+                                        selectedSort = 1
+                                    },
+                                    selected = selectedSort == 1,
+                                    shapes = MenuItemShapes(
+                                        MenuDefaults.middleItemShape,
+                                        MenuDefaults.selectedItemShape
                                     )
-                                },
-                                onClick = {
-                                    sortMenuShown = false
-                                    selectedSort = 1
-                                },
-                                selected = selectedSort == 1,
-                                shapes = MenuItemShapes(
-                                    MenuDefaults.middleItemShape,
-                                    MenuDefaults.selectedItemShape
                                 )
-                            )
 
-                            HorizontalDivider()
+                                HorizontalDivider(
+                                    modifier =
+                                        Modifier.padding(horizontal = MenuDefaults.HorizontalDividerPadding)
+                                )
 
-                            DropdownMenuItem(
-                                text = { Text("Date Added") },
-                                trailingIcon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.keyboard_arrow_up),
-                                        contentDescription = "Increasing date added."
+                                DropdownMenuItem(
+                                    text = { Text("Date Added") },
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.keyboard_arrow_up),
+                                            contentDescription = "Increasing date added."
+                                        )
+                                    },
+                                    onClick = {
+                                        sortMenuShown = false
+                                        selectedSort = 2
+                                    },
+                                    selected = selectedSort == 2,
+                                    shapes = MenuItemShapes(
+                                        MenuDefaults.middleItemShape,
+                                        MenuDefaults.selectedItemShape
                                     )
-                                },
-                                onClick = {
-                                    sortMenuShown = false
-                                    selectedSort = 2
-                                },
-                                selected = selectedSort == 2,
-                                shapes = MenuItemShapes(
-                                    MenuDefaults.middleItemShape,
-                                    MenuDefaults.selectedItemShape
                                 )
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Date Added") },
-                                trailingIcon = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.keyboard_arrow_down),
-                                        contentDescription = "Decreasing date added."
+                                DropdownMenuItem(
+                                    text = { Text("Date Added") },
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.keyboard_arrow_down),
+                                            contentDescription = "Decreasing date added."
+                                        )
+                                    },
+                                    onClick = {
+                                        sortMenuShown = false
+                                        selectedSort = 3
+                                    },
+                                    selected = selectedSort == 3,
+                                    shapes = MenuItemShapes(
+                                        MenuDefaults.trailingItemShape,
+                                        MenuDefaults.selectedItemShape
                                     )
-                                },
-                                onClick = {
-                                    sortMenuShown = false
-                                    selectedSort = 3
-                                },
-                                selected = selectedSort == 3,
-                                shapes = MenuItemShapes(
-                                    MenuDefaults.trailingItemShape,
-                                    MenuDefaults.selectedItemShape
                                 )
-                            )
+                            }
                         }
                     }
                 }
@@ -208,9 +216,10 @@ fun AllFavoritesList(
         sortedFavorites = sortedFavorites.reversed()
     } else if (selectedSort == 2 || selectedSort == 3) {
         sortedFavorites = sortedFavorites.sortedBy {
-            it.dateAdded?.let { date ->
-                OffsetDateTime.parse(date, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime()
-            }
+            OffsetDateTime.parse(
+                it.dateAdded,
+                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            ).toLocalDateTime()
         }
         if (selectedSort == 3) {
             sortedFavorites = sortedFavorites.reversed()
