@@ -145,8 +145,10 @@ fun FoodLocationDetail(
                             } else {
                                 val currentHour = LocalDateTime.now(ZoneId.of("America/New_York"))
                                     .toLocalTime().hour
-                                meals.forEachIndexed { index, meal ->
-                                    if (!meal.stations.isEmpty()) {
+                                meals?.let { mealList ->
+                                    for ((index, meal) in mealList.withIndex()) {
+                                        if (meal.startTime == null || meal.endTime == null) continue
+
                                         val startTime = LocalDateTime.parse(
                                             meal.startTime,
                                             DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -156,9 +158,9 @@ fun FoodLocationDetail(
                                             DateTimeFormatter.ISO_OFFSET_DATE_TIME
                                         ).toLocalTime().hour
 
-                                        if (currentHour in startTime until endTime) {
+                                        if (currentHour in startTime..endTime) {
                                             selectedMealIndex = index
-                                            return@forEachIndexed
+                                            break
                                         } else if (currentHour < startTime) {
                                             selectedMealIndex = index
                                         }
