@@ -8,19 +8,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.GetStartLocationsQuery
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+
+data class DiningCourtWithCustomName(
+    val diningCourt: GetStartLocationsQuery.DiningCourt,
+    val customName: String?
+)
 
 sealed interface HomeUiState {
-    data class Success(val data: List<GetStartLocationsQuery.DiningCourtCategory>?) : HomeUiState
+    data class Success(val data: List<Pair<String, List<DiningCourtWithCustomName>>>?) : HomeUiState
     data object Error : HomeUiState
     data object Loading : HomeUiState
 }
 
-class HomeViewModel(private val startLocationsRepository: StartLocationsRepository) : ViewModel() {
+class HomeViewModel(
+    private val startLocationsRepository: StartLocationsRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
+    ) : ViewModel() {
     private val _selectedDiningCourt = MutableStateFlow<String?>(null)
     val selectedDiningCourt: StateFlow<String?> = _selectedDiningCourt
 
@@ -50,22 +58,21 @@ class HomeViewModel(private val startLocationsRepository: StartLocationsReposito
         _selectedItem.value = null
     }
 
-    fun getLocations(date: String? = null) {
+    fun getLocations(date: String) {
         viewModelScope.launch {
             homeUiState = HomeUiState.Loading
             try {
-                val menuDate = date ?: LocalDate.now().toString()
-                val result = startLocationsRepository.getStartLocations(menuDate)
-
-                homeUiState = if (result != null) {
-                    HomeUiState.Success(result)
-                } else {
-                    Log.e("HomeViewModel", "getLocations: result is null")
-                    HomeUiState.Error
+                val startLocations = startLocationsRepository.getStartLocations(date)
+                val result = startLocations?.map { category ->
+                    val courtsWithCustomNames = category.diningCourts.map { court ->
+                        val customName = renamedCourtsRepository.getRenamedCourt(court.id) ?.customName
+                        DiningCourtWithCustomName(court, customName)
+                    }
+                    Pair(category.name, courtsWithCustomNames)
                 }
-
+                homeUiState = HomeUiState.Success(result)
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "getLocations: ${e.message}")
+                Log.e("HomeViewModel", "Error getting locations: ${e.message}")
                 homeUiState = HomeUiState.Error
             }
         }
@@ -73,12 +80,13 @@ class HomeViewModel(private val startLocationsRepository: StartLocationsReposito
 }
 
 class HomeViewModelFactory(
-    private val startLocationsRepository: StartLocationsRepository
+    private val startLocationsRepository: StartLocationsRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(startLocationsRepository) as T
+            return HomeViewModel(startLocationsRepository, renamedCourtsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

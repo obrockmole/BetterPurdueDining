@@ -51,6 +51,7 @@ import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
@@ -545,12 +546,14 @@ fun AppearanceItem(
 @Preview(showBackground = true)
 @Composable
 fun ItemDetailPreview() {
+    val context = LocalContext.current
     ItemDetailScreen(
         itemName = "Carne Asada",
         itemId = "12345-67890",
         onNavigateBack = {},
         homeViewModel = HomeViewModel(
-            StartLocationsRepository()
+            StartLocationsRepository(),
+            RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
         )
     )
 }

@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModel
@@ -264,11 +265,13 @@ fun AllFavoritesList(
 @Preview(showBackground = true)
 @Composable
 fun FavoritesScreenPreview() {
+    val context = LocalContext.current
     BetterPurdueDiningTheme {
         FavoritesScreen(
             onNavigateToItem = { _, _ -> },
             homeViewModel = HomeViewModel(
-                StartLocationsRepository()
+                StartLocationsRepository(),
+                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
             ),
             showHeader = true
         )

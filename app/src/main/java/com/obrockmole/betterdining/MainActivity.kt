@@ -51,6 +51,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.screens.DefaultScreenSelectionScreen
@@ -96,7 +98,8 @@ fun BetterPurdueDiningApp() {
         val navStyle by userPreferencesRepository.navStyle.collectAsState(initial = null)
         val homeViewModel: HomeViewModel = viewModel(
             factory = HomeViewModelFactory(
-                StartLocationsRepository()
+                StartLocationsRepository(),
+                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
             )
         )
 

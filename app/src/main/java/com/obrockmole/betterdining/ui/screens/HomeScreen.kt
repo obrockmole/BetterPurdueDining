@@ -32,7 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.obrockmole.betterdining.GetStartLocationsQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.MenuRepository
@@ -40,6 +39,7 @@ import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.betterdining.viewmodel.HomeUiState
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
@@ -123,9 +123,9 @@ fun HomeScreen(
             is HomeUiState.Success -> {
                 LazyColumn(modifier = modifier.fillMaxSize()) {
                     val diningCourts =
-                        uiState.data!!.filter { it.name == "Dining Courts" }[0].diningCourts
+                        uiState.data!!.first { it.first == "Dining Courts" }.second
                     val quickBites =
-                        uiState.data.filter { it.name == "Quick Bites" }[0].diningCourts
+                        uiState.data.first { it.first == "Quick Bites" }.second
 
                     item {
                         Row(
@@ -149,11 +149,12 @@ fun HomeScreen(
                             )
                         }
                     }
-                    items(diningCourtOptions) { diningCourt ->
+                    items(diningCourtOptions) { diningCourtName ->
+                        val diningCourt = diningCourts.first { it.diningCourt.name == diningCourtName }
                         DiningCourtListItem(
-                            diningCourt = diningCourts.first { it.name == diningCourt },
+                            diningCourt = diningCourt,
                             onClicked = {
-                                selectedFoodLocation = diningCourt
+                                selectedFoodLocation = diningCourt.customName ?: diningCourt.diningCourt.name
                             }
                         )
                     }
@@ -172,11 +173,12 @@ fun HomeScreen(
                             )
                         }
                     }
-                    items(quickBiteOptionsFormal) { quickBite ->
+                    items(quickBiteOptionsFormal) { quickBiteName ->
+                        val quickBite = quickBites.first { it.diningCourt.name == quickBiteName }
                         QuickBiteListItem(
-                            quickBite = quickBites.first { it.name == quickBite },
+                            quickBite = quickBite,
                             onClicked = {
-                                selectedFoodLocation = quickBite
+                                selectedFoodLocation = quickBite.customName ?: quickBite.diningCourt.name
                             }
                         )
                     }
@@ -190,11 +192,11 @@ fun HomeScreen(
 
 @Composable
 fun DiningCourtListItem(
-    diningCourt: GetStartLocationsQuery.DiningCourt,
+    diningCourt: DiningCourtWithCustomName,
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val diningCourtIcon = when (diningCourt.name.lowercase()) {
+    val diningCourtIcon = when (diningCourt.diningCourt.name.lowercase()) {
         "earhart" -> R.drawable.earhart_icon
         "ford" -> R.drawable.ford_icon
         "hillenbrand" -> R.drawable.hillenbrand_icon
@@ -203,7 +205,7 @@ fun DiningCourtListItem(
         else -> R.drawable.app_icon
     }
 
-    val dailyMenu = diningCourt.dailyMenu!!
+    val dailyMenu = diningCourt.diningCourt.dailyMenu!!
     var currentMealIndex = -1
     val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
@@ -243,7 +245,7 @@ fun DiningCourtListItem(
 
             Column {
                 Text(
-                    text = diningCourt.name,
+                    text = diningCourt.customName ?: diningCourt.diningCourt.name,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 16.dp)
                 )
@@ -281,15 +283,15 @@ fun DiningCourtListItem(
 
 @Composable
 fun QuickBiteListItem(
-    quickBite: GetStartLocationsQuery.DiningCourt,
+    quickBite: DiningCourtWithCustomName,
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val name = when (quickBite.name) {
+    val name = when (quickBite.diningCourt.name) {
         "1bowl at Meredith Hall" -> "1bowl"
         "Pete's Za at Tarkington Hall" -> "Pete's Za"
         "Sushi Boss at Meredith Hall" -> "Sushi Boss"
-        else -> quickBite.name
+        else -> quickBite.diningCourt.name
     }
 
     val quickBiteIcon = when (name.lowercase()) {
@@ -299,7 +301,7 @@ fun QuickBiteListItem(
         else -> R.drawable.app_icon
     }
 
-    val dailyMenu = quickBite.dailyMenu!!
+    val dailyMenu = quickBite.diningCourt.dailyMenu!!
     var currentMealIndex = -1
     val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
@@ -339,7 +341,7 @@ fun QuickBiteListItem(
 
             Column {
                 Text(
-                    text = name,
+                    text = quickBite.customName ?: quickBite.diningCourt.name,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 16.dp)
                 )
@@ -377,11 +379,13 @@ fun QuickBiteListItem(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
+    val context = LocalContext.current
     BetterPurdueDiningTheme {
         HomeScreen(
             onNavigateToItem = { _, _ -> },
             viewModel = HomeViewModel(
-                StartLocationsRepository()
+                StartLocationsRepository(),
+                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
             )
         )
     }

@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.ItemSearchQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
@@ -328,11 +329,13 @@ fun AppearanceListItem(
 @Preview(showBackground = true)
 @Composable
 fun SearchScreenPreview() {
+    val context = LocalContext.current
     BetterPurdueDiningTheme {
         SearchScreen(
             onBack = {},
             homeViewModel = HomeViewModel(
-                StartLocationsRepository()
+                StartLocationsRepository(),
+                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
             )
         )
     }
