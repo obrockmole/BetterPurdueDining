@@ -21,6 +21,7 @@ data class MealDisplay(
 
 data class DiningCourtMenuDisplay(
     val name: String,
+    val courtId: String,
     val meals: List<MealDisplay>
 )
 

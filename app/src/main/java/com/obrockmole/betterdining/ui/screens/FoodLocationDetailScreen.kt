@@ -16,17 +16,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuGroup
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemShapes
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -54,12 +62,12 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FoodLocationDetail(
     name: String,
     nameFormal: String,
-    viewModel: MenuViewModel,
+    menuViewModel: MenuViewModel,
     onBack: () -> Unit,
     onNavigateToItem: (String, String) -> Unit,
     initialMealName: String?,
@@ -79,21 +87,80 @@ fun FoodLocationDetail(
     }
 
     LaunchedEffect(nameFormal, displayedDate) {
-        viewModel.getMenu(nameFormal, displayedDate.toString())
+        menuViewModel.getMenu(nameFormal, displayedDate.toString())
     }
 
+
+    val uiState = menuViewModel.menuUiState
     var selectedMealIndex by rememberSaveable { mutableIntStateOf(0) }
+    var moreMenuShown by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+
+    if (showRenameDialog && uiState is MenuUiState.Success) {
+        DiningCourtRenameItemDialog(
+            onDismiss = { showRenameDialog = false },
+            onRename = { newName ->
+                menuViewModel.renameDiningCourt(uiState.data!!.courtId, newName)
+                showRenameDialog = false
+            },
+            currentName = if (menuViewModel.isRenamed) menuViewModel.renamedName else name
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(name) },
+                title = {
+                    if (menuViewModel.isRenamed) {
+                        Text(text = menuViewModel.renamedName)
+                    } else {
+                        Text(text = name)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
                         )
+                    }
+                },
+                actions = {
+                    if (uiState is MenuUiState.Success) {
+                        IconButton(onClick = { moreMenuShown = true }) {
+                            Icon(
+                                painter = painterResource(R.drawable.more_vertical),
+                                contentDescription = "More"
+                            )
+                        }
+                    }
+
+                    DropdownMenuPopup(
+                        expanded = moreMenuShown,
+                        onDismissRequest = { moreMenuShown = false }
+                    ) {
+                        DropdownMenuGroup(
+                            shapes = MenuDefaults.groupShape(0, 1)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Rename") },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.edit),
+                                        contentDescription = "Rename item."
+                                    )
+                                },
+                                onClick = {
+                                    moreMenuShown = false
+                                    showRenameDialog = true
+                                },
+                                selected = false,
+                                shapes = MenuItemShapes(
+                                    MenuDefaults.standaloneItemShape,
+                                    MenuDefaults.selectedItemShape
+                                )
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors()
@@ -106,7 +173,7 @@ fun FoodLocationDetail(
                 .padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                when (val uiState = viewModel.menuUiState) {
+                when (uiState) {
                     is MenuUiState.Loading -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -257,6 +324,39 @@ fun FoodLocationDetail(
 }
 
 @Composable
+fun DiningCourtRenameItemDialog(
+    onDismiss: () -> Unit,
+    onRename: (String) -> Unit,
+    currentName: String
+) {
+    var text by remember { mutableStateOf(currentName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Rename Dining Court") },
+        text = {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("New Name") }
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onRename(text) }
+            ) {
+                Text("Rename")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
 fun MealDetail(
     meal: MealDisplay,
     onNavigateToItem: (String, String) -> Unit,
@@ -381,11 +481,6 @@ fun StationItem(
                     )
                 }
 
-//                if (itemWrapper.originalItem.specialName != null) {
-//                    Text(text = itemWrapper.originalItem.specialName)
-//                } else {
-//                    Text(text = itemWrapper.displayName)
-//                }
                 Text(text = itemWrapper.displayName)
             }
         }

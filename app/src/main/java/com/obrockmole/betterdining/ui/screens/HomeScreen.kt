@@ -36,6 +36,7 @@ import com.obrockmole.betterdining.GetStartLocationsQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.MenuRepository
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
@@ -87,7 +88,8 @@ fun HomeScreen(
             key = selectedFoodLocation,
             factory = MenuViewModelFactory(
                 MenuRepository(),
-                RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao())
+                RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao()),
+                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
             )
         )
         Log.e("HomeScreen", "Selected food location: $selectedFoodLocation")
@@ -99,7 +101,7 @@ fun HomeScreen(
                 else -> selectedFoodLocation!!
             },
             nameFormal = selectedFoodLocation!!,
-            viewModel = menuViewModel,
+            menuViewModel = menuViewModel,
             onBack = {
                 selectedFoodLocation = null
                 viewModel.clearNavigation()
