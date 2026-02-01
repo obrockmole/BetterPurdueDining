@@ -200,6 +200,7 @@ fun SearchResultsList(
                     onAppearanceClick = { appearance ->
                         homeViewModel.navigateToMenu(
                             diningCourt = appearance.locationName,
+                            diningCourtId = null,
                             mealName = appearance.mealName,
                             date = appearance.date,
                             item = groupedResult.displayName

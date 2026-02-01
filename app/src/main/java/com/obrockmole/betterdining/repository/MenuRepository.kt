@@ -8,12 +8,11 @@ class MenuRepository {
     private val apolloClient = ApolloInstance.apolloClient
 
     suspend fun getDiningCourtMenu(
-        name: String,
+        courtId: String,
         date: String
-    ): GetLocationMenuQuery.DiningCourtByName? {
+    ): GetLocationMenuQuery.DiningCourt {
         try {
-            val response =
-                apolloClient.query(GetLocationMenuQuery(name = name, date = date)).execute()
+            val response = apolloClient.query(GetLocationMenuQuery(id = courtId, date = date)).execute()
 
             if (response.hasErrors()) {
                 throw Exception("GraphQL Error: ${response.errors?.firstOrNull()?.message}")
@@ -21,7 +20,7 @@ class MenuRepository {
                 throw response.exception!!
             }
 
-            return response.data?.diningCourtByName
+            return response.data?.diningCourt ?: throw Exception("No dining court found with ID: $courtId")
 
         } catch (e: Exception) {
             throw e

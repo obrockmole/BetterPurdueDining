@@ -65,11 +65,11 @@ fun HomeScreen(
     val selectedDateFromFav by viewModel.selectedDate.collectAsState()
     val selectedItemFromFav by viewModel.selectedItem.collectAsState()
 
-    var selectedFoodLocation by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedFoodLocation by rememberSaveable { mutableStateOf<Pair<String?, String?>?>(null) }
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedDiningCourtFromFav) {
-        if (selectedDiningCourtFromFav != null) {
+        if (selectedDiningCourtFromFav.first != null || selectedDiningCourtFromFav.second != null) {
             selectedFoodLocation = selectedDiningCourtFromFav
         }
 
@@ -85,22 +85,22 @@ fun HomeScreen(
     } else if (selectedFoodLocation != null) {
         val context = LocalContext.current
         val menuViewModel: MenuViewModel = viewModel(
-            key = selectedFoodLocation,
+            key = selectedFoodLocation!!.second,
             factory = MenuViewModelFactory(
                 MenuRepository(),
                 RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao()),
                 RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
             )
         )
-        Log.e("HomeScreen", "Selected food location: $selectedFoodLocation")
+        Log.e("HomeScreen", "Selected food location: ${selectedFoodLocation.toString()}")
         FoodLocationDetail(
-            name = when (selectedFoodLocation) {
+            name = when (selectedFoodLocation!!.first!!) {
                 "1bowl at Meredith Hall" -> "1bowl"
                 "Pete's Za at Tarkington Hall" -> "Pete's Za"
                 "Sushi Boss at Meredith Hall" -> "Sushi Boss"
-                else -> selectedFoodLocation!!
+                else -> selectedFoodLocation!!.first!!
             },
-            nameFormal = selectedFoodLocation!!,
+            courtId = selectedFoodLocation!!.second,
             menuViewModel = menuViewModel,
             onBack = {
                 selectedFoodLocation = null
@@ -154,7 +154,9 @@ fun HomeScreen(
                         DiningCourtListItem(
                             diningCourt = diningCourt,
                             onClicked = {
-                                selectedFoodLocation = diningCourt.customName ?: diningCourt.diningCourt.name
+                                selectedFoodLocation = diningCourt.customName?.let { customName ->
+                                    Pair(customName, diningCourt.diningCourt.id)
+                                } ?: Pair(diningCourt.diningCourt.name, diningCourt.diningCourt.id)
                             }
                         )
                     }
@@ -178,7 +180,9 @@ fun HomeScreen(
                         QuickBiteListItem(
                             quickBite = quickBite,
                             onClicked = {
-                                selectedFoodLocation = quickBite.customName ?: quickBite.diningCourt.name
+                                selectedFoodLocation = quickBite.customName?.let { customName ->
+                                    Pair(customName, quickBite.diningCourt.id)
+                                } ?: Pair(quickBite.diningCourt.name, quickBite.diningCourt.id)
                             }
                         )
                     }

@@ -1,5 +1,5 @@
-query GetLocationMenu($name: String!, $date: Date!) {
-    diningCourtByName(name: $name) {
+query GetLocationMenu($id: ID!, $date: Date!) {
+    diningCourt(id: $id) {
         name
         formalName
         id

@@ -66,7 +66,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun FoodLocationDetail(
     name: String,
-    nameFormal: String,
+    courtId: String?,
     menuViewModel: MenuViewModel,
     onBack: () -> Unit,
     onNavigateToItem: (String, String) -> Unit,
@@ -86,8 +86,8 @@ fun FoodLocationDetail(
         )
     }
 
-    LaunchedEffect(nameFormal, displayedDate) {
-        menuViewModel.getMenu(nameFormal, displayedDate.toString())
+    LaunchedEffect(name, courtId, displayedDate) {
+        menuViewModel.getMenu(name, courtId, displayedDate.toString())
     }
 
 

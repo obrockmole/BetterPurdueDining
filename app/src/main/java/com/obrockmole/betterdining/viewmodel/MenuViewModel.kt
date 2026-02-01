@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.database.RenamedDiningCourt
+import com.obrockmole.betterdining.models.DiningCourtIdMap
 import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 sealed interface MenuUiState {
     data class Success(val data: DiningCourtMenuDisplay?) : MenuUiState
@@ -33,39 +33,38 @@ class MenuViewModel(
     var renamedName by mutableStateOf("")
         private set
 
-    fun getMenu(diningCourtName: String, date: String? = null) {
+    fun getMenu(name: String?, courtId: String?, date: String) {
         viewModelScope.launch {
             menuUiState = MenuUiState.Loading
             try {
-                val menuDate = date ?: LocalDate.now().toString()
-                val result = menuRepository.getDiningCourtMenu(diningCourtName, menuDate)
+                val id = courtId ?: (DiningCourtIdMap.diningCourtIdMap[name] ?: "")
 
-                val mappedResult = result?.let { diningCourtByName ->
+                val result = menuRepository.getDiningCourtMenu(id, date)
+
+                val mappedResult = result.let { diningCourt ->
                     DiningCourtMenuDisplay(
-                        name = diningCourtByName.name,
-                        courtId = diningCourtByName.id,
-                        meals = diningCourtByName.dailyMenu?.meals.let {
-                            it?.map { meal ->
-                                MealDisplay(
-                                    name = meal.name,
-                                    stations = meal.stations.map { station ->
-                                        StationDisplay(
-                                            name = station.name,
-                                            items = station.items.map { item ->
-                                                MenuItemDisplay(
-                                                    originalItem = item,
-                                                    displayName = renamedItemsRepository.getRenamedItem(
-                                                        item.item.itemId
-                                                    )?.customName ?: item.specialName ?: item.item.name
-                                                )
-                                            }
-                                        )
-                                    },
-                                    startTime = meal.startTime,
-                                    endTime = meal.endTime
-                                )
-                            } ?: emptyList()
-                        }
+                        name = diningCourt.name,
+                        courtId = diningCourt.id,
+                        meals = diningCourt.dailyMenu?.meals?.map { meal ->
+                            MealDisplay(
+                                name = meal.name,
+                                stations = meal.stations.map { station ->
+                                    StationDisplay(
+                                        name = station.name,
+                                        items = station.items.map { item ->
+                                            MenuItemDisplay(
+                                                originalItem = item,
+                                                displayName = renamedItemsRepository.getRenamedItem(
+                                                    item.item.itemId
+                                                )?.customName ?: item.specialName ?: item.item.name
+                                            )
+                                        }
+                                    )
+                                },
+                                startTime = meal.startTime,
+                                endTime = meal.endTime
+                            )
+                        } ?: emptyList()
                     )
                 }
 
@@ -75,11 +74,7 @@ class MenuViewModel(
                     renamedName = renamedCourt.customName
                 }
 
-                menuUiState = if (result != null) {
-                    MenuUiState.Success(mappedResult)
-                } else {
-                    MenuUiState.Error
-                }
+                menuUiState = MenuUiState.Success(mappedResult)
 
             } catch (e: Exception) {
                 menuUiState = MenuUiState.Error
