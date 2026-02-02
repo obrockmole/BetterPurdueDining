@@ -97,13 +97,14 @@ fun FoodLocationDetail(
     var showRenameDialog by remember { mutableStateOf(false) }
 
     if (showRenameDialog && uiState is MenuUiState.Success) {
-        DiningCourtRenameItemDialog(
+        RenameDiningCourtDialog(
             onDismiss = { showRenameDialog = false },
             onRename = { newName ->
                 menuViewModel.renameDiningCourt(uiState.data!!.courtId, newName)
                 showRenameDialog = false
             },
-            currentName = if (menuViewModel.isRenamed) menuViewModel.renamedName else name
+            currentName = if (menuViewModel.isRenamed) menuViewModel.renamedName else name,
+            officialName = name
         )
     }
 
@@ -324,10 +325,11 @@ fun FoodLocationDetail(
 }
 
 @Composable
-fun DiningCourtRenameItemDialog(
+fun RenameDiningCourtDialog(
     onDismiss: () -> Unit,
     onRename: (String) -> Unit,
-    currentName: String
+    currentName: String,
+    officialName: String
 ) {
     var text by remember { mutableStateOf(currentName) }
 
@@ -337,13 +339,14 @@ fun DiningCourtRenameItemDialog(
         text = {
             TextField(
                 value = text,
+                placeholder = { Text(officialName) },
                 onValueChange = { text = it },
                 label = { Text("New Name") }
             )
         },
         confirmButton = {
             Button(
-                onClick = { onRename(text) }
+                onClick = { onRename(text.ifEmpty { officialName }) }
             ) {
                 Text("Rename")
             }

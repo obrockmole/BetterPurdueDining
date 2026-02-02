@@ -94,13 +94,14 @@ fun ItemDetailScreen(
     var showRenameDialog by remember { mutableStateOf(false) }
 
     if (showRenameDialog && uiState is ItemUiState.Success) {
-        ItemRenameItemDialog(
+        RenameItemDialog(
             onDismiss = { showRenameDialog = false },
             onRename = { newName ->
                 itemViewModel.renameItem(uiState.item.itemId, newName)
                 showRenameDialog = false
             },
-            currentName = if (itemViewModel.isRenamed) itemViewModel.renamedName else uiState.item.name
+            currentName = if (itemViewModel.isRenamed) itemViewModel.renamedName else uiState.item.name,
+            officialName = uiState.item.name
         )
     }
 
@@ -255,10 +256,11 @@ fun ItemDetailScreen(
 }
 
 @Composable
-fun ItemRenameItemDialog(
+fun RenameItemDialog(
     onDismiss: () -> Unit,
     onRename: (String) -> Unit,
-    currentName: String
+    currentName: String,
+    officialName: String
 ) {
     var text by remember { mutableStateOf(currentName) }
 
@@ -268,13 +270,14 @@ fun ItemRenameItemDialog(
         text = {
             TextField(
                 value = text,
+                placeholder = { Text(officialName) },
                 onValueChange = { text = it },
                 label = { Text("New Name") }
             )
         },
         confirmButton = {
             Button(
-                onClick = { onRename(text) }
+                onClick = { onRename(text.ifEmpty { officialName }) }
             ) {
                 Text("Rename")
             }
