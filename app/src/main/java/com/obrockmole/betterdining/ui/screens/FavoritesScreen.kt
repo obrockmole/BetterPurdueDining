@@ -72,7 +72,7 @@ fun FavoritesScreen(
                 Text(
                     text = "Favorites",
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMediumEmphasized
                 )
 
                 if (tabIndex == 1) {

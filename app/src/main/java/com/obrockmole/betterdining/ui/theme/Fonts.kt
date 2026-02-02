@@ -6,10 +6,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.obrockmole.betterdining.R
 
-val zainFontFamily = FontFamily(
-    Font(R.font.zain_light, FontWeight.Light),
-    Font(R.font.zain_regular, FontWeight.Normal),
-    Font(R.font.zain_bold, FontWeight.Bold),
-    Font(R.font.zain_lightitalic, FontWeight.Light, FontStyle.Italic),
-    Font(R.font.zain_italic, FontWeight.Normal, FontStyle.Italic),
+val acuminProFontFamily = FontFamily(
+    Font(R.font.acumin_pro_400_italic, FontWeight.Normal, FontStyle.Italic),
+    Font(R.font.acumin_pro_400_normal, FontWeight.Normal, FontStyle.Normal),
+    Font(R.font.acumin_pro_500_italic, FontWeight.Medium, FontStyle.Italic),
+    Font(R.font.acumin_pro_500_normal, FontWeight.Medium, FontStyle.Normal),
+    Font(R.font.acumin_pro_600_italic, FontWeight.SemiBold, FontStyle.Italic),
+    Font(R.font.acumin_pro_600_normal, FontWeight.SemiBold, FontStyle.Normal),
+    Font(R.font.acumin_pro_700_italic, FontWeight.Bold, FontStyle.Italic),
+    Font(R.font.acumin_pro_700_normal, FontWeight.Bold, FontStyle.Normal)
 )

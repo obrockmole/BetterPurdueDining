@@ -64,7 +64,6 @@ import com.obrockmole.betterdining.ui.screens.NavStyleSelectionScreen
 import com.obrockmole.betterdining.ui.screens.SettingsScreen
 import com.obrockmole.betterdining.ui.screens.ThemeSelectionScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
-import com.obrockmole.betterdining.ui.theme.zainFontFamily
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.HomeViewModelFactory
 import kotlinx.coroutines.launch
@@ -229,9 +228,7 @@ fun BetterPurdueDiningApp() {
                                                 Spacer(modifier = Modifier.width(16.dp))
                                                 Text(
                                                     text = "Better Purdue Dining",
-                                                    style = MaterialTheme.typography.headlineMedium,
-                                                    fontFamily = zainFontFamily,
-                                                    fontWeight = FontWeight.Normal
+                                                    style = MaterialTheme.typography.headlineMedium
                                                 )
                                             }
                                         }

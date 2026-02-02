@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +47,7 @@ import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -78,7 +80,7 @@ fun SettingsScreen(
                     Text(
                         text = "Settings",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.headlineMediumEmphasized
                     )
                 }
             }
