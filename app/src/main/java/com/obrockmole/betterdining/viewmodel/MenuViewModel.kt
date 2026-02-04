@@ -68,7 +68,8 @@ class MenuViewModel(
                     )
                 }
 
-                val renamedCourt = renamedCourtsRepository.getRenamedCourt(mappedResult?.courtId ?: "")
+                val renamedCourt =
+                    renamedCourtsRepository.getRenamedCourt(mappedResult?.courtId ?: "")
                 if (renamedCourt != null) {
                     isRenamed = true
                     renamedName = renamedCourt.customName
@@ -100,7 +101,11 @@ class MenuViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MenuViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MenuViewModel(menuRepository, renamedItemsRepository, renamedCourtsRepository) as T
+            return MenuViewModel(
+                menuRepository,
+                renamedItemsRepository,
+                renamedCourtsRepository
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

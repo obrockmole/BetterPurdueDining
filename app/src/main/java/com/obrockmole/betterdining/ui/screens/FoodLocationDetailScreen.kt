@@ -64,18 +64,18 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FoodLocationDetail(
+fun FoodLocationDetailScreen(
     name: String,
     courtId: String?,
     menuViewModel: MenuViewModel,
-    onBack: () -> Unit,
+    onNavigateBack: () -> Unit,
     onNavigateToItem: (String, String) -> Unit,
     initialMealName: String?,
     initialDate: String?,
     initialItemName: String?
 ) {
     BackHandler {
-        onBack()
+        onNavigateBack()
     }
 
     var displayedDate by remember {
@@ -119,7 +119,7 @@ fun FoodLocationDetail(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
@@ -183,11 +183,11 @@ fun FoodLocationDetail(
 
                     is MenuUiState.Error -> {
                         AlertDialog(
-                            onDismissRequest = onBack,
+                            onDismissRequest = onNavigateBack,
                             title = { Text(text = "Oopsie Poopsie") },
                             text = { Text(text = "Purdue did a fucky wucky.") },
                             confirmButton = {
-                                TextButton(onClick = onBack) {
+                                TextButton(onClick = onNavigateBack) {
                                     Text("God Damnit.")
                                 }
                             }

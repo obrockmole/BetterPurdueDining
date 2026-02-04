@@ -32,19 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
-import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.repository.RenamedCourtsRepository
-import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.betterdining.viewmodel.HomeUiState
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
-import com.obrockmole.betterdining.viewmodel.MenuViewModel
-import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -59,20 +54,20 @@ val quickBiteOptionsFormal =
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onNavigateToItem: (String, String) -> Unit,
+    onNavigateToFoodLocation: (String, String) -> Unit,
     viewModel: HomeViewModel
 ) {
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
-    val selectedMealNameFromFav by viewModel.selectedMealName.collectAsState()
-    val selectedDateFromFav by viewModel.selectedDate.collectAsState()
-    val selectedItemFromFav by viewModel.selectedItem.collectAsState()
 
-    var selectedFoodLocation by rememberSaveable { mutableStateOf<Pair<String?, String?>?>(null) }
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedDiningCourtFromFav) {
-        if (selectedDiningCourtFromFav.first != null || selectedDiningCourtFromFav.second != null) {
-            selectedFoodLocation = selectedDiningCourtFromFav
+        if (selectedDiningCourtFromFav.first != null && selectedDiningCourtFromFav.second != null) {
+            onNavigateToFoodLocation(
+                selectedDiningCourtFromFav.first!!,
+                selectedDiningCourtFromFav.second!!
+            )
+            viewModel.clearNavigation()
         }
 
         val date = LocalDate.now()
@@ -83,35 +78,6 @@ fun HomeScreen(
         SearchScreen(
             onBack = { isSearchActive = false },
             homeViewModel = viewModel
-        )
-    } else if (selectedFoodLocation != null) {
-        val context = LocalContext.current
-        val menuViewModel: MenuViewModel = viewModel(
-            key = selectedFoodLocation!!.second,
-            factory = MenuViewModelFactory(
-                MenuRepository(),
-                RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao()),
-                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
-            )
-        )
-        Log.e("HomeScreen", "Selected food location: ${selectedFoodLocation.toString()}")
-        FoodLocationDetail(
-            name = when (selectedFoodLocation!!.first!!) {
-                "1bowl at Meredith Hall" -> "1bowl"
-                "Pete's Za at Tarkington Hall" -> "Pete's Za"
-                "Sushi Boss at Meredith Hall" -> "Sushi Boss"
-                else -> selectedFoodLocation!!.first!!
-            },
-            courtId = selectedFoodLocation!!.second,
-            menuViewModel = menuViewModel,
-            onBack = {
-                selectedFoodLocation = null
-                viewModel.clearNavigation()
-            },
-            onNavigateToItem = onNavigateToItem,
-            initialMealName = selectedMealNameFromFav,
-            initialDate = selectedDateFromFav,
-            initialItemName = selectedItemFromFav
         )
 
     } else {
@@ -152,13 +118,15 @@ fun HomeScreen(
                         }
                     }
                     items(diningCourtOptions) { diningCourtName ->
-                        val diningCourt = diningCourts.first { it.diningCourt.name == diningCourtName }
+                        val diningCourt =
+                            diningCourts.first { it.diningCourt.name == diningCourtName }
                         DiningCourtListItem(
                             diningCourt = diningCourt,
                             onClicked = {
-                                selectedFoodLocation = diningCourt.customName?.let { customName ->
-                                    Pair(customName, diningCourt.diningCourt.id)
-                                } ?: Pair(diningCourt.diningCourt.name, diningCourt.diningCourt.id)
+                                onNavigateToFoodLocation(
+                                    diningCourt.diningCourt.name,
+                                    diningCourt.diningCourt.id
+                                )
                             }
                         )
                     }
@@ -182,9 +150,10 @@ fun HomeScreen(
                         QuickBiteListItem(
                             quickBite = quickBite,
                             onClicked = {
-                                selectedFoodLocation = quickBite.customName?.let { customName ->
-                                    Pair(customName, quickBite.diningCourt.id)
-                                } ?: Pair(quickBite.diningCourt.name, quickBite.diningCourt.id)
+                                onNavigateToFoodLocation(
+                                    quickBite.diningCourt.name,
+                                    quickBite.diningCourt.id
+                                )
                             }
                         )
                     }
@@ -388,7 +357,7 @@ fun HomeScreenPreview() {
     val context = LocalContext.current
     BetterPurdueDiningTheme {
         HomeScreen(
-            onNavigateToItem = { _, _ -> },
+            onNavigateToFoodLocation = { _, _ -> },
             viewModel = HomeViewModel(
                 StartLocationsRepository(),
                 RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())

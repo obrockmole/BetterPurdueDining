@@ -28,7 +28,7 @@ sealed interface HomeUiState {
 class HomeViewModel(
     private val startLocationsRepository: StartLocationsRepository,
     private val renamedCourtsRepository: RenamedCourtsRepository
-    ) : ViewModel() {
+) : ViewModel() {
     private val _selectedDiningCourt = MutableStateFlow<String?>(null)
     private val _selectedDiningCourtId = MutableStateFlow<String?>(null)
     val selectedDiningCourt: StateFlow<Pair<String?, String?>> = MutableStateFlow(
@@ -47,7 +47,13 @@ class HomeViewModel(
     var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
         private set
 
-    fun navigateToMenu(diningCourt: String, diningCourtId: String?, mealName: String, date: String, item: String) {
+    fun navigateToMenu(
+        diningCourt: String,
+        diningCourtId: String?,
+        mealName: String,
+        date: String,
+        item: String
+    ) {
         _selectedDiningCourt.value = diningCourt
         _selectedDiningCourtId.value = diningCourtId
         _selectedMealName.value = mealName
@@ -70,7 +76,8 @@ class HomeViewModel(
                 val startLocations = startLocationsRepository.getStartLocations(date)
                 val result = startLocations?.map { category ->
                     val courtsWithCustomNames = category.diningCourts.map { court ->
-                        val customName = renamedCourtsRepository.getRenamedCourt(court.id) ?.customName
+                        val customName =
+                            renamedCourtsRepository.getRenamedCourt(court.id)?.customName
                         DiningCourtWithCustomName(court, customName)
                     }
                     Pair(category.name, courtsWithCustomNames)

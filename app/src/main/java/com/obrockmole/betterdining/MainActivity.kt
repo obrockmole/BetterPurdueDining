@@ -51,11 +51,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.repository.RenamedCourtsRepository
+import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.screens.DefaultScreenSelectionScreen
 import com.obrockmole.betterdining.ui.screens.FavoritesScreen
+import com.obrockmole.betterdining.ui.screens.FoodLocationDetailScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
 import com.obrockmole.betterdining.ui.screens.ItemDetailScreen
 import com.obrockmole.betterdining.ui.screens.LicensesScreen
@@ -65,6 +68,8 @@ import com.obrockmole.betterdining.ui.screens.ThemeSelectionScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.HomeViewModelFactory
+import com.obrockmole.betterdining.viewmodel.MenuViewModel
+import com.obrockmole.betterdining.viewmodel.MenuViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -154,12 +159,12 @@ fun BetterPurdueDiningApp() {
                                         AppDestinations.HOME -> {
                                             HomeScreen(
                                                 modifier = Modifier.padding(innerPadding),
-                                                onNavigateToItem = { itemName, itemId ->
+                                                onNavigateToFoodLocation = { locationName, locationId ->
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                        "itemName",
-                                                        itemName
+                                                        "locationName",
+                                                        locationName
                                                     )
-                                                    navController.navigate("item/$itemId")
+                                                    navController.navigate("location/$locationId")
                                                 },
                                                 viewModel = homeViewModel
                                             )
@@ -277,12 +282,12 @@ fun BetterPurdueDiningApp() {
                                         AppDestinations.HOME -> {
                                             HomeScreen(
                                                 modifier = Modifier.padding(innerPadding),
-                                                onNavigateToItem = { itemName, itemId ->
+                                                onNavigateToFoodLocation = { locationName, locationId ->
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                        "itemName",
-                                                        itemName
+                                                        "locationName",
+                                                        locationName
                                                     )
-                                                    navController.navigate("item/$itemId")
+                                                    navController.navigate("location/$locationId")
                                                 },
                                                 viewModel = homeViewModel
                                             )
@@ -325,6 +330,52 @@ fun BetterPurdueDiningApp() {
                             }
                         }
                     }
+                }
+            }
+
+            composable(
+                "location/{locationId}",
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) { backStackEntry ->
+                val locationId = backStackEntry.arguments?.getString("locationId")
+                val locationName =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("locationName")
+                        ?: ""
+                val initialMealName =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialMealName")
+                val initialDate =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialDate")
+                val initialItemName =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialItemName")
+                val context = LocalContext.current
+                val menuViewModel: MenuViewModel = viewModel(
+                    key = locationId,
+                    factory = MenuViewModelFactory(
+                        MenuRepository(),
+                        RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao()),
+                        RenamedCourtsRepository(
+                            AppDatabase.getDatabase(context).renamedDiningCourtDao()
+                        )
+                    )
+                )
+                if (locationId != null) {
+                    FoodLocationDetailScreen(
+                        name = locationName,
+                        courtId = locationId,
+                        onNavigateBack = { navController.popBackStack() },
+                        menuViewModel = menuViewModel,
+                        onNavigateToItem = { itemName, itemId ->
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "itemName",
+                                itemName
+                            )
+                            navController.navigate("item/$itemId")
+                        },
+                        initialMealName = initialMealName,
+                        initialDate = initialDate,
+                        initialItemName = initialItemName
+                    )
                 }
             }
 
