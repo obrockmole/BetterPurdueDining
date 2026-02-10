@@ -133,7 +133,9 @@ fun DefaultScreenSelectionScreen(
 @Preview(showBackground = true)
 @Composable
 fun DefaultScreenSelectionScreenPreview() {
-    BetterPurdueDiningTheme {
+    BetterPurdueDiningTheme(
+        theme = "Dark"
+    ) {
         DefaultScreenSelectionScreen(onNavigateBack = {})
     }
 }

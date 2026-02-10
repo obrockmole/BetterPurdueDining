@@ -331,7 +331,9 @@ fun AppearanceListItem(
 @Composable
 fun SearchScreenPreview() {
     val context = LocalContext.current
-    BetterPurdueDiningTheme {
+    BetterPurdueDiningTheme(
+        theme = "Dark"
+    ) {
         SearchScreen(
             onBack = {},
             homeViewModel = HomeViewModel(

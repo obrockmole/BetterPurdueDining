@@ -395,7 +395,9 @@ fun ImportFavoritesDialog(
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
-    BetterPurdueDiningTheme {
+    BetterPurdueDiningTheme(
+        theme = "Dark"
+    ) {
         SettingsScreen()
     }
 }

@@ -266,7 +266,9 @@ fun AllFavoritesList(
 @Composable
 fun FavoritesScreenPreview() {
     val context = LocalContext.current
-    BetterPurdueDiningTheme {
+    BetterPurdueDiningTheme(
+        theme = "Dark"
+    ) {
         FavoritesScreen(
             onNavigateToItem = { _, _ -> },
             homeViewModel = HomeViewModel(

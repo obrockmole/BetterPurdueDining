@@ -67,7 +67,9 @@ fun LicensesScreen(
 @Preview(showBackground = true)
 @Composable
 fun LicensesPreview() {
-    BetterPurdueDiningTheme {
+    BetterPurdueDiningTheme(
+        theme = "Dark"
+    ) {
         LicensesScreen(onNavigateBack = {})
     }
 }

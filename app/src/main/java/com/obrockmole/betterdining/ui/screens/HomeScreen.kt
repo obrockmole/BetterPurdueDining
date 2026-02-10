@@ -28,15 +28,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.obrockmole.betterdining.R
-import com.obrockmole.betterdining.database.AppDatabase
-import com.obrockmole.betterdining.repository.RenamedCourtsRepository
-import com.obrockmole.betterdining.repository.StartLocationsRepository
-import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.type.MealStatus
 import com.obrockmole.betterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.betterdining.viewmodel.HomeUiState
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
@@ -189,7 +184,7 @@ fun DiningCourtListItem(
     var currentMealIndex = -1
     val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
-        if (meal.status.toString() == "OPEN") {
+        if (meal.status == MealStatus.OPEN) {
             val startTime = LocalDateTime.parse(
                 meal.startTime,
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -284,7 +279,7 @@ fun QuickBiteListItem(
     var currentMealIndex = -1
     val currentHour = LocalDateTime.now(ZoneId.of("America/New_York")).toLocalTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
-        if (meal.status.toString() == "OPEN") {
+        if (meal.status == MealStatus.OPEN) {
             val startTime = LocalDateTime.parse(
                 meal.startTime,
                 DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -353,19 +348,4 @@ fun QuickBiteListItem(
         )
     }
     HorizontalDivider()
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    val context = LocalContext.current
-    BetterPurdueDiningTheme {
-        HomeScreen(
-            onNavigateToFoodLocation = { _, _ -> },
-            viewModel = HomeViewModel(
-                StartLocationsRepository(),
-                RenamedCourtsRepository(AppDatabase.getDatabase(context).renamedDiningCourtDao())
-            )
-        )
-    }
 }

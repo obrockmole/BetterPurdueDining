@@ -224,11 +224,13 @@ fun UpcomingFavoriteItem(
 @Preview(showBackground = true)
 @Composable
 fun UpcomingFavoriteItemPreview() {
-    BetterPurdueDiningTheme {
+    BetterPurdueDiningTheme(
+        theme = "Dark"
+    ) {
         UpcomingFavoriteItem(
             name = "Carne Asada",
             appearance = Appearance(
-                date = "2024-06-15T11:00:00Z",
+                date = "2024-06-15T11:00:00-04:00",
                 mealName = "Lunch",
                 locationName = "Wiley",
                 stationName = "La Fonde"
