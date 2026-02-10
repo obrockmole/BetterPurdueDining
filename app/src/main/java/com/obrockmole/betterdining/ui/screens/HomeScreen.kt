@@ -151,7 +151,12 @@ fun HomeScreen(
                             quickBite = quickBite,
                             onClicked = {
                                 onNavigateToFoodLocation(
-                                    quickBite.diningCourt.name,
+                                    when (quickBite.diningCourt.name) {
+                                        "1bowl at Meredith Hall" -> "1bowl"
+                                        "Pete's Za at Tarkington Hall" -> "Pete's Za"
+                                        "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+                                        else -> quickBite.diningCourt.name
+                                    },
                                     quickBite.diningCourt.id
                                 )
                             }
@@ -255,7 +260,6 @@ fun DiningCourtListItem(
     HorizontalDivider()
 }
 
-
 @Composable
 fun QuickBiteListItem(
     quickBite: DiningCourtWithCustomName,
@@ -310,7 +314,7 @@ fun QuickBiteListItem(
         ) {
             Image(
                 painter = painterResource(id = quickBiteIcon),
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(80.dp),
                 contentDescription = "Quick Bite Icon"
             )
 

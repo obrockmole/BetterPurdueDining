@@ -85,10 +85,15 @@ class MenuViewModel(
 
     fun renameDiningCourt(courtId: String, customName: String) {
         viewModelScope.launch {
-            val renamedCourt = RenamedDiningCourt(courtId, customName)
-            renamedCourtsRepository.insert(renamedCourt)
-            isRenamed = true
-            renamedName = customName
+            if (customName.isEmpty()) {
+                renamedCourtsRepository.delete(RenamedDiningCourt(courtId, renamedName))
+                isRenamed = false
+            } else {
+                val renamedCourt = RenamedDiningCourt(courtId, customName)
+                renamedCourtsRepository.insert(renamedCourt)
+                isRenamed = true
+                renamedName = customName
+            }
         }
     }
 }

@@ -184,11 +184,11 @@ fun FoodLocationDetailScreen(
                     is MenuUiState.Error -> {
                         AlertDialog(
                             onDismissRequest = onNavigateBack,
-                            title = { Text(text = "Oopsie Poopsie") },
-                            text = { Text(text = "Purdue did a fucky wucky.") },
+                            title = { Text(text = "Error") },
+                            text = { Text(text = "Something went wrong fetching the menu.") },
                             confirmButton = {
                                 TextButton(onClick = onNavigateBack) {
-                                    Text("God Damnit.")
+                                    Text("Ok")
                                 }
                             }
                         )
@@ -346,7 +346,7 @@ fun RenameDiningCourtDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onRename(text.ifEmpty { officialName }) }
+                onClick = { onRename(text) }
             ) {
                 Text("Rename")
             }
