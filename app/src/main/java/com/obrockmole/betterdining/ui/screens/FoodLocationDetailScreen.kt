@@ -82,7 +82,7 @@ fun FoodLocationDetailScreen(
         mutableStateOf(
             initialDate?.let {
                 LocalDate.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            } ?: LocalDate.now()
+            } ?: LocalDate.now(ZoneId.of("America/New_York"))
         )
     }
 
@@ -90,6 +90,7 @@ fun FoodLocationDetailScreen(
         menuViewModel.getMenu(name, courtId, displayedDate.toString())
     }
 
+    var firstVisit = rememberSaveable { mutableStateOf(true) }
 
     val uiState = menuViewModel.menuUiState
     var selectedMealIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -199,38 +200,49 @@ fun FoodLocationDetailScreen(
                         val meals = menuData?.meals
 
                         LaunchedEffect(meals, initialMealName) {
-                            meals?.size?.let {
-                                if (selectedMealIndex >= it) {
-                                    selectedMealIndex = 0
+                            if (firstVisit.value) {
+                                firstVisit.value = false
+
+                                meals?.size?.let {
+                                    if (selectedMealIndex >= it) {
+                                        selectedMealIndex = 0
+                                    }
                                 }
-                            }
 
-                            if (initialMealName != null) {
-                                val index = meals!!.indexOfFirst { it.name == initialMealName }
-                                if (index != -1) {
-                                    selectedMealIndex = index
-                                }
-                            } else {
-                                val currentHour = LocalDateTime.now(ZoneId.of("America/New_York"))
-                                    .toLocalTime().hour
-                                meals?.let { mealList ->
-                                    for ((index, meal) in mealList.withIndex()) {
-                                        if (meal.startTime == null || meal.endTime == null) continue
+                                if (initialMealName != null) {
+                                    val index = meals!!.indexOfFirst { it.name == initialMealName }
+                                    if (index != -1) {
+                                        selectedMealIndex = index
+                                    }
+                                } else {
+                                    val currentHour =
+                                        LocalDateTime.now(ZoneId.of("America/New_York"))
+                                            .toLocalTime().hour
+                                    meals?.let { mealList ->
+                                        for ((index, meal) in mealList.withIndex()) {
+                                            if (meal.startTime == null || meal.endTime == null) continue
 
-                                        val startTime = LocalDateTime.parse(
-                                            meal.startTime,
-                                            DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                        ).toLocalTime().hour
-                                        val endTime = LocalDateTime.parse(
-                                            meal.endTime,
-                                            DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                        ).toLocalTime().hour
+                                            val startTime = LocalDateTime.parse(
+                                                meal.startTime,
+                                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                            ).toLocalTime().hour
+                                            val endTime = LocalDateTime.parse(
+                                                meal.endTime,
+                                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                            ).toLocalTime().hour
 
-                                        if (currentHour in startTime..endTime) {
-                                            selectedMealIndex = index
-                                            break
-                                        } else if (currentHour < startTime) {
-                                            selectedMealIndex = index
+                                            if (currentHour in startTime..<endTime) {
+                                                selectedMealIndex = index
+                                                break
+                                            } else if (currentHour < startTime) {
+                                                selectedMealIndex = index
+                                                break
+                                            }
+
+                                            if (index == mealList.lastIndex) {
+                                                selectedMealIndex = 0
+                                                displayedDate = displayedDate.plusDays(1)
+                                            }
                                         }
                                     }
                                 }
