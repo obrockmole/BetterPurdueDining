@@ -129,7 +129,7 @@ fun SettingsScreen(
             }
 
             item {
-                InformationSetting(title = "Version", value = "0.6.9")
+                InformationSetting(title = "Version", value = "1.0.0")
                 HorizontalDivider()
             }
 
@@ -170,7 +170,6 @@ fun SettingsScreen(
             AlertDialog(
                 onDismissRequest = { showUpdateDialog = false },
                 title = { Text(text = "No Updates Found") },
-                text = { Text(text = "You really think im doing all that?") },
                 confirmButton = {
                     TextButton(onClick = { showUpdateDialog = false }) {
                         Text("Okay.")
@@ -196,7 +195,7 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.padding(4.dp))
                 Text(
-                    text = "Purdue keeps fucking up so this exists now.",
+                    text = "Purdue keeps breaking things so this exists now.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

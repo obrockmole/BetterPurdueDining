@@ -55,7 +55,7 @@ fun ThemeSelectionScreen(
     )
     val appTheme by settingsViewModel.appTheme.collectAsState()
 
-    val themeOptions = listOf("Material", "Dark", "Light", "Cancer")
+    val themeOptions = listOf("Material", "Dark", "Light", "Rainbow")
 
     var loading by remember { mutableStateOf(false) }
 

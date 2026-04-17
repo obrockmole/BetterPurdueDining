@@ -35,7 +35,7 @@ private fun randomColor(): Color {
     )
 }
 
-private fun cancerColorScheme(): ColorScheme {
+private fun rainbowColorScheme(): ColorScheme {
     return darkColorScheme(
         primary = randomColor(),
         onPrimary = randomColor(),
@@ -99,7 +99,7 @@ fun BetterPurdueDiningTheme(
         when (theme) {
             "Light" -> LightColorScheme
             "Dark" -> DarkColorScheme
-            "Cancer" -> cancerColorScheme()
+            "Rainbow" -> rainbowColorScheme()
             else -> {
                 dynamicDarkColorScheme(context)
             }
