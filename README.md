@@ -18,14 +18,23 @@ Are you tired of Purdue's dining court menu app randomly crashing, their lack of
 *   Android Studio
 *   Java 11
 
-### Installation
+## Installation
 
-1.  Clone the repo
+There are two ways to install the Better Purdue Dining app:
+
+### Download the APK
+
+1. Download the latest `.apk` file from [releases](https://github.com/obrockmole/BetterPurdueDining/releases).
+2. Move the APK to a device or emulator and run it.
+
+### Build from source
+
+1. Clone the repo
     ```sh
     git clone https://github.com/obrockmole/BetterPurdueDining.git
     ```
-2.  Open the project in Android Studio.
-3.  Build the project into an APK
+2. Open the project in Android Studio.
+3. Build the project into an APK
     ```
     Build -> Generate App Bundles or APKs -> Generate APKs
     ```
