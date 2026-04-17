@@ -1,1 +1,32 @@
-# BetterPurdueDining
+# Better Purdue Dining
+
+Are you tired of Purdue's dining court menu app randomly crashing, their lack of features, or questionable design choices? If so then the Better Purdue Dining app is perfect. Built from the ground up, it was designed to be both familiar, taking cues from the original, but also different. Expanding on the original feature set, the Better Purdue Dining app is all one needs to peruse daily and weekly menu options how you want to do it.
+
+## Features
+
+- **API Integration**: Menu items are fetched directly from Purdue ensuring accurate menus for each meal.
+- **Search**: Find the specific food you want by searching for it.
+- **Nutrition**: View nutritional information for all items.
+- **Renaming**: Give dining courts and menu items custom names to make it more personal.
+- **Favorites**: Favorite items and see when they are coming up to know where to eat.
+- **On Device Storage**: Everything is kept on device such as favorites. Never sent anywhere for any reason and never will.
+- **Themes**: Any app in 2026 should have at least a light and dark theme, but there is also a Material theme.
+
+## Usage
+### Prerequisites
+
+*   Android Studio
+*   Java 11
+
+### Installation
+
+1.  Clone the repo
+    ```sh
+    git clone https://github.com/obrockmole/BetterPurdueDining.git
+    ```
+2.  Open the project in Android Studio.
+3.  Build the project into an APK
+    ```
+    Build -> Generate App Bundles or APKs -> Generate APKs
+    ```
+4. Move the APK to a device or emulator and run it.
