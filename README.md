@@ -1,6 +1,6 @@
 # Better Purdue Dining
 
-Are you tired of Purdue's dining court menu app randomly crashing, their lack of features, or questionable design choices? If so then the Better Purdue Dining app is perfect. Built from the ground up, it was designed to be both familiar, taking cues from the original, but also different. Expanding on the original feature set, the Better Purdue Dining app is all one needs to peruse daily and weekly menu options how you want to do it.
+Tired of Purdue's dining court menu app randomly crashing, their lack of features, or questionable design choices? If so then the Better Purdue Dining app is perfect. Built from the ground up, it was designed to be both familiar, taking cues from the original, but also different. Expanding on the original feature set, the Better Purdue Dining app is all one needs to peruse daily and weekly menu options how you want to do it.
 
 ## Features
 
@@ -9,14 +9,8 @@ Are you tired of Purdue's dining court menu app randomly crashing, their lack of
 - **Nutrition**: View nutritional information for all items.
 - **Renaming**: Give dining courts and menu items custom names to make it more personal.
 - **Favorites**: Favorite items and see when they are coming up to know where to eat.
-- **On Device Storage**: Everything is kept on device such as favorites. Never sent anywhere for any reason and never will.
-- **Themes**: Any app in 2026 should have at least a light and dark theme, but there is also a Material theme.
-
-## Usage
-### Prerequisites
-
-*   Android Studio
-*   Java 11
+- **Themes**: Any app in 2026 should have at least a light and dark theme. Those are included in addition to a Material and _rainbow_ theme.
+- **On Device Storage**: Everything is kept on device such as favorites and custom names. Nothing is ever sent anywhere for any reason and never will be.
 
 ## Installation
 
@@ -28,6 +22,12 @@ There are two ways to install the Better Purdue Dining app:
 2. Move the APK to a device or emulator and run it.
 
 ### Build from source
+#### Prerequisites
+
+* Android Studio
+* Java 11
+
+#### Building
 
 1. Clone the repo
     ```sh
