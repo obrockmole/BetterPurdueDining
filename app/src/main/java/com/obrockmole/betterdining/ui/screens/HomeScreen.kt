@@ -1,6 +1,5 @@
 package com.obrockmole.betterdining.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.type.MealStatus
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.betterdining.viewmodel.HomeUiState
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
@@ -55,13 +55,13 @@ fun HomeScreen(
     viewModel: HomeViewModel
 ) {
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
-    Log.d(LOG_TAG, "selectedDiningCourtFromFav: ${selectedDiningCourtFromFav.first}")
+    Logger.LogDebug(LOG_TAG, "selectedDiningCourtFromFav: ${selectedDiningCourtFromFav.first}")
 
     var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedDiningCourtFromFav) {
         if (selectedDiningCourtFromFav.first != null && selectedDiningCourtFromFav.second != null) {
-            Log.d(LOG_TAG, "Navigating to dining court from favorites: ${selectedDiningCourtFromFav.first}")
+            Logger.LogDebug(LOG_TAG, "Navigating to dining court from favorites: ${selectedDiningCourtFromFav.first}")
             onNavigateToFoodLocation(
                 selectedDiningCourtFromFav.first!!,
                 selectedDiningCourtFromFav.second!!
@@ -70,15 +70,15 @@ fun HomeScreen(
         }
 
         val date = LocalDate.now()
-        Log.d(LOG_TAG, "Getting locations for date: $date")
+        Logger.LogDebug(LOG_TAG, "Getting locations for date: $date")
         viewModel.getLocations(date.toString())
     }
 
     if (isSearchActive) {
-        Log.d(LOG_TAG, "Activated search")
+        Logger.LogDebug(LOG_TAG, "Activated search")
         SearchScreen(
             onBack = {
-                Log.d(LOG_TAG, "Exited search")
+                Logger.LogDebug(LOG_TAG, "Exited search")
                 isSearchActive = false
             },
             homeViewModel = viewModel
@@ -87,14 +87,14 @@ fun HomeScreen(
     } else {
         when (val uiState = viewModel.homeUiState) {
             is HomeUiState.Loading -> {
-                Log.d(LOG_TAG, "UI loading")
+                Logger.LogDebug(LOG_TAG, "UI loading")
                 Box(modifier = Modifier.fillMaxSize()) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
 
             is HomeUiState.Success -> {
-                Log.d(LOG_TAG, "UI loaded successfully")
+                Logger.LogDebug(LOG_TAG, "UI loaded successfully")
                 LazyColumn(modifier = modifier.fillMaxSize()) {
                     val diningCourts =
                         uiState.data!!.first { it.first == "Dining Courts" }.second
@@ -118,7 +118,7 @@ fun HomeScreen(
                                 painter = painterResource(id = R.drawable.search),
                                 modifier = Modifier
                                     .clickable(onClick = {
-                                        Log.d(LOG_TAG, "Activating search attempt")
+                                        Logger.LogDebug(LOG_TAG, "Activating search attempt")
                                         isSearchActive = true
                                     })
                                     .padding(16.dp),
@@ -132,7 +132,7 @@ fun HomeScreen(
                         DiningCourtListItem(
                             diningCourt = diningCourt,
                             onClicked = {
-                                Log.d(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
+                                Logger.LogDebug(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
                                 onNavigateToFoodLocation(
                                     diningCourt.diningCourt.name,
                                     diningCourt.diningCourt.id
@@ -166,7 +166,7 @@ fun HomeScreen(
                                     "Sushi Boss at Meredith Hall" -> "Sushi Boss"
                                     else -> quickBite.diningCourt.name
                                 }
-                                Log.d(LOG_TAG, "Navigating to quick bite: $name")
+                                Logger.LogDebug(LOG_TAG, "Navigating to quick bite: $name")
                                 onNavigateToFoodLocation(
                                     name,
                                     quickBite.diningCourt.id
@@ -177,7 +177,7 @@ fun HomeScreen(
                 }
             }
 
-            else -> Log.e(LOG_TAG, "Error loading UI. State: $uiState")
+            else -> Logger.LogError(LOG_TAG, "Error loading UI. State: $uiState")
         }
     }
 }
@@ -188,7 +188,7 @@ fun DiningCourtListItem(
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Log.d(LOG_TAG, "DiningCourtListItem: Composing ${diningCourt.diningCourt.name} (${diningCourt.diningCourt.id})")
+    Logger.LogDebug(LOG_TAG, "DiningCourtListItem: Composing ${diningCourt.diningCourt.name} (${diningCourt.diningCourt.id})")
     val diningCourtIcon = when (diningCourt.diningCourt.name.lowercase()) {
         "earhart" -> R.drawable.earhart_icon
         "ford" -> R.drawable.ford_icon
@@ -214,14 +214,14 @@ fun DiningCourtListItem(
 
             if (currentHour in startTime until endTime) {
                 currentMealIndex = index
-                Log.d(LOG_TAG, "DiningCourtListItem: ${diningCourt.diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
+                Logger.LogDebug(LOG_TAG, "DiningCourtListItem: ${diningCourt.diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
                 return@forEachIndexed
             }
         }
     }
 
     if (currentMealIndex == -1) {
-        Log.d(LOG_TAG, "DiningCourtListItem: ${diningCourt.diningCourt.name} CLOSED")
+        Logger.LogDebug(LOG_TAG, "DiningCourtListItem: ${diningCourt.diningCourt.name} CLOSED")
     }
 
     Row(
@@ -284,7 +284,7 @@ fun QuickBiteListItem(
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Log.d(LOG_TAG, "QuickBiteListItem: Composing ${quickBite.diningCourt.name} (${quickBite.diningCourt.id})")
+    Logger.LogDebug(LOG_TAG, "QuickBiteListItem: Composing ${quickBite.diningCourt.name} (${quickBite.diningCourt.id})")
     val name = when (quickBite.diningCourt.name) {
         "1bowl at Meredith Hall" -> "1bowl"
         "Pete's Za at Tarkington Hall" -> "Pete's Za"
@@ -315,14 +315,14 @@ fun QuickBiteListItem(
 
             if (currentHour in startTime until endTime) {
                 currentMealIndex = index
-                Log.d(LOG_TAG, "QuickBiteListItem: ${quickBite.diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
+                Logger.LogDebug(LOG_TAG, "QuickBiteListItem: ${quickBite.diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
                 return@forEachIndexed
             }
         }
     }
 
     if (currentMealIndex == -1) {
-        Log.d(LOG_TAG, "QuickBiteListItem: ${quickBite.diningCourt.name} CLOSED")
+        Logger.LogDebug(LOG_TAG, "QuickBiteListItem: ${quickBite.diningCourt.name} CLOSED")
     }
 
     Row(

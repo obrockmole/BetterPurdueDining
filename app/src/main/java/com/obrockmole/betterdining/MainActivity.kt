@@ -1,7 +1,6 @@
 package com.obrockmole.betterdining
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -67,6 +66,7 @@ import com.obrockmole.betterdining.ui.screens.NavStyleSelectionScreen
 import com.obrockmole.betterdining.ui.screens.SettingsScreen
 import com.obrockmole.betterdining.ui.screens.ThemeSelectionScreen
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.HomeViewModelFactory
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
@@ -78,7 +78,7 @@ private const val LOG_TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(LOG_TAG, "onCreate: Created activity")
+        Logger.LogDebug(LOG_TAG, "onCreate: Created activity")
         enableEdgeToEdge()
         setContent {
             BetterPurdueDiningApp()
@@ -102,9 +102,9 @@ fun BetterPurdueDiningApp() {
 
     BetterPurdueDiningTheme(theme = appTheme, key = currentRoute to currentDestination) {
         val defaultScreen by userPreferencesRepository.defaultScreen.collectAsState(initial = null)
-        Log.d(LOG_TAG, "Default screen: $defaultScreen")
+        Logger.LogDebug(LOG_TAG, "Default screen: $defaultScreen")
         val navStyle by userPreferencesRepository.navStyle.collectAsState(initial = null)
-        Log.d(LOG_TAG, "Nav style: $navStyle")
+        Logger.LogDebug(LOG_TAG, "Nav style: $navStyle")
         val homeViewModel: HomeViewModel = viewModel(
             factory = HomeViewModelFactory(
                 StartLocationsRepository(),
@@ -118,20 +118,20 @@ fun BetterPurdueDiningApp() {
                 "Home" -> AppDestinations.HOME
                 else -> AppDestinations.HOME
             }
-            Log.d(LOG_TAG, "Set initial screen to: $currentDestination")
+            Logger.LogDebug(LOG_TAG, "Set initial screen to: $currentDestination")
             isInitialScreenSet = true
         }
 
         val navigatedFromFavorites by homeViewModel.selectedDiningCourt.collectAsState()
         LaunchedEffect(navigatedFromFavorites) {
-            Log.d(LOG_TAG, "Navigated from favorites")
+            Logger.LogDebug(LOG_TAG, "Navigated from favorites")
             currentDestination = AppDestinations.HOME
         }
 
         NavHost(navController = navController, startDestination = "main") {
             composable("main") {
                 BackHandler(enabled = currentDestination != AppDestinations.HOME) {
-                    Log.d(LOG_TAG, "NavHost main: Navigating to HOME")
+                    Logger.LogDebug(LOG_TAG, "NavHost main: Navigating to HOME")
                     currentDestination = AppDestinations.HOME
                 }
 
@@ -155,7 +155,7 @@ fun BetterPurdueDiningApp() {
                                             label = { Text(it.label) },
                                             selected = it == currentDestination,
                                             onClick = {
-                                                Log.d(LOG_TAG, "NavHost main suit: Navigating to ${it.label}")
+                                                Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to ${it.label}")
                                                 currentDestination = it
                                             }
                                         )
@@ -170,7 +170,7 @@ fun BetterPurdueDiningApp() {
                                             HomeScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToFoodLocation = { locationName, locationId ->
-                                                    Log.d(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                                         "locationName",
                                                         locationName
@@ -185,7 +185,7 @@ fun BetterPurdueDiningApp() {
                                             FavoritesScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToItem = { itemName, itemId ->
-                                                    Log.d(LOG_TAG, "NavHost main suit: Navigating to item $itemName ($itemId)")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to item $itemName ($itemId)")
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                                         "itemName",
                                                         itemName
@@ -201,19 +201,19 @@ fun BetterPurdueDiningApp() {
                                             SettingsScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToDefaultScreen = {
-                                                    Log.d(LOG_TAG, "NavHost main suit: Navigating to default screen settings")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to default screen settings")
                                                     navController.navigate("settings/defaultScreen")
                                                 },
                                                 onNavigateToTheme = {
-                                                    Log.d(LOG_TAG, "NavHost main suit: Navigating to theme settings")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to theme settings")
                                                     navController.navigate("settings/theme")
                                                 },
                                                 onNavigateToNavStyle = {
-                                                    Log.d(LOG_TAG, "NavHost main suit: Navigating to nav style settings")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to nav style settings")
                                                     navController.navigate("settings/navStyle")
                                                 },
                                                 onNavigateToLicensesScreen = {
-                                                    Log.d(LOG_TAG, "NavHost main suit: Navigating to licenses")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to licenses")
                                                     navController.navigate("settings/licenses")
                                                 }
                                             )
@@ -264,7 +264,7 @@ fun BetterPurdueDiningApp() {
                                                 label = { Text(destination.label) },
                                                 selected = destination == currentDestination,
                                                 onClick = {
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to ${destination.label}")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to ${destination.label}")
                                                     currentDestination = destination
                                                     scope.launch {
                                                         drawerState.close()
@@ -283,7 +283,7 @@ fun BetterPurdueDiningApp() {
                                             navigationIcon = {
                                                 IconButton(onClick = {
                                                     scope.launch {
-                                                        Log.d(LOG_TAG, "NavHost main drawer: Opening")
+                                                        Logger.LogDebug(LOG_TAG, "NavHost main drawer: Opening")
                                                         drawerState.open()
                                                     }
                                                 }) {
@@ -301,7 +301,7 @@ fun BetterPurdueDiningApp() {
                                             HomeScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToFoodLocation = { locationName, locationId ->
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to location $locationName ($locationId)")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to location $locationName ($locationId)")
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                                         "locationName",
                                                         locationName
@@ -316,7 +316,7 @@ fun BetterPurdueDiningApp() {
                                             FavoritesScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToItem = { itemName, itemId ->
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to item $itemName ($itemId)")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to item $itemName ($itemId)")
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                                         "itemName",
                                                         itemName
@@ -332,19 +332,19 @@ fun BetterPurdueDiningApp() {
                                             SettingsScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToDefaultScreen = {
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to default screen settings")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to default screen settings")
                                                     navController.navigate("settings/defaultScreen")
                                                 },
                                                 onNavigateToTheme = {
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to theme settings")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to theme settings")
                                                     navController.navigate("settings/theme")
                                                 },
                                                 onNavigateToNavStyle = {
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to nav style settings")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to nav style settings")
                                                     navController.navigate("settings/navStyle")
                                                 },
                                                 onNavigateToLicensesScreen = {
-                                                    Log.d(LOG_TAG, "NavHost main drawer: Navigating to licenses")
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to licenses")
                                                     navController.navigate("settings/licenses")
                                                 }
                                             )
@@ -363,7 +363,7 @@ fun BetterPurdueDiningApp() {
                 exitTransition = { ExitTransition.None }
             ) { backStackEntry ->
                 val locationId = backStackEntry.arguments?.getString("locationId")
-                Log.d(LOG_TAG, "NavHost location: Entered location composable with id $locationId")
+                Logger.LogDebug(LOG_TAG, "NavHost location: Entered location composable with id $locationId")
                 val locationName =
                     navController.previousBackStackEntry?.savedStateHandle?.get<String>("locationName")
                         ?: ""
@@ -410,7 +410,7 @@ fun BetterPurdueDiningApp() {
                 exitTransition = { ExitTransition.None }
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getString("itemId")
-                Log.d(LOG_TAG, "NavHost item: Entered item composable with id $itemId")
+                Logger.LogDebug(LOG_TAG, "NavHost item: Entered item composable with id $itemId")
                 val itemName =
                     navController.previousBackStackEntry?.savedStateHandle?.get<String>("itemName")
                         ?: ""
@@ -419,7 +419,7 @@ fun BetterPurdueDiningApp() {
                         itemName = itemName,
                         itemId = itemId,
                         onNavigateBack = {
-                            Log.d(LOG_TAG, "Navigating back from ItemDetailScreen")
+                            Logger.LogDebug(LOG_TAG, "Navigating back from ItemDetailScreen")
                             navController.popBackStack()
                         },
                         homeViewModel = homeViewModel
@@ -434,7 +434,7 @@ fun BetterPurdueDiningApp() {
             ) {
                 DefaultScreenSelectionScreen(
                     onNavigateBack = {
-                        Log.d(LOG_TAG, "NavHost settings: Navigating back from DefaultScreenSelectionScreen")
+                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from DefaultScreenSelectionScreen")
                         navController.popBackStack()
                     }
                 )
@@ -447,7 +447,7 @@ fun BetterPurdueDiningApp() {
             ) {
                 ThemeSelectionScreen(
                     onNavigateBack = {
-                        Log.d(LOG_TAG, "NavHost settings: Navigating back from ThemeSelectionScreen")
+                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from ThemeSelectionScreen")
                         navController.popBackStack()
                     }
                 )
@@ -460,7 +460,7 @@ fun BetterPurdueDiningApp() {
             ) {
                 NavStyleSelectionScreen(
                     onNavigateBack = {
-                        Log.d(LOG_TAG, "NavHost settings: Navigating back from NavStyleSelectionScreen")
+                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from NavStyleSelectionScreen")
                         navController.popBackStack()
                     }
                 )
@@ -473,7 +473,7 @@ fun BetterPurdueDiningApp() {
             ) {
                 LicensesScreen(
                     onNavigateBack = {
-                        Log.d(LOG_TAG, "NavHost settings: Navigating back from LicensesScreen")
+                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from LicensesScreen")
                         navController.popBackStack()
                     }
                 )

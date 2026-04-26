@@ -1,6 +1,5 @@
 package com.obrockmole.betterdining.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -478,10 +477,6 @@ fun ScheduleDetails(
                     AppearanceItem(
                         appearance = appearance,
                         onClick = {
-                            Log.e(
-                                "ItemDetailScreen",
-                                "Navigating to ${appearance.locationName} at ${appearance.mealName}"
-                            )
                             homeViewModel.navigateToMenu(
                                 diningCourt = appearance.locationName,
                                 diningCourtId = null,
