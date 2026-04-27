@@ -40,6 +40,13 @@ class SettingsViewModel(
             initialValue = "Bottom"
         )
 
+    val logLevel: StateFlow<String> = userPreferencesRepository.logLevel
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = "Minimal"
+        )
+
     fun setDefaultScreen(defaultScreen: String) {
         viewModelScope.launch {
             userPreferencesRepository.setDefaultScreen(defaultScreen)
@@ -55,6 +62,12 @@ class SettingsViewModel(
     fun setNavStyle(navStyle: String) {
         viewModelScope.launch {
             userPreferencesRepository.setNavStyle(navStyle)
+        }
+    }
+
+    fun setLogLevel(logLevel: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setLogLevel(logLevel)
         }
     }
 

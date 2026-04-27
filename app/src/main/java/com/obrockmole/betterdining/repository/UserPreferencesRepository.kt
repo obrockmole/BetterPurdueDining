@@ -16,6 +16,7 @@ class UserPreferencesRepository(private val context: Context) {
         val DEFAULT_SCREEN = stringPreferencesKey("default_screen")
         val APP_THEME = stringPreferencesKey("app_theme")
         val NAV_STYLE = stringPreferencesKey("nav_style")
+        val LOG_LEVEL = stringPreferencesKey("log_level")
     }
 
     val defaultScreen: Flow<String> = context.dataStore.data
@@ -33,6 +34,11 @@ class UserPreferencesRepository(private val context: Context) {
             preferences[PreferencesKeys.NAV_STYLE] ?: "Bottom"
         }
 
+    val logLevel: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.LOG_LEVEL] ?: "Minimal"
+        }
+
     suspend fun setDefaultScreen(defaultScreen: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEFAULT_SCREEN] = defaultScreen
@@ -48,6 +54,12 @@ class UserPreferencesRepository(private val context: Context) {
     suspend fun setNavStyle(navStyle: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.NAV_STYLE] = navStyle
+        }
+    }
+
+    suspend fun setLogLevel(logLevel: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LOG_LEVEL] = logLevel
         }
     }
 }

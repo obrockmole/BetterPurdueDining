@@ -54,7 +54,8 @@ fun SettingsScreen(
     onNavigateToDefaultScreen: () -> Unit = {},
     onNavigateToTheme: () -> Unit = {},
     onNavigateToNavStyle: () -> Unit = {},
-    onNavigateToLicensesScreen: () -> Unit = {}
+    onNavigateToLicensesScreen: () -> Unit = {},
+    onNavigateToLogLevel: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
@@ -66,6 +67,7 @@ fun SettingsScreen(
     val defaultScreen by settingsViewModel.defaultScreen.collectAsState()
     val appTheme by settingsViewModel.appTheme.collectAsState()
     val navStyle by settingsViewModel.navStyle.collectAsState()
+    val logLevel by settingsViewModel.logLevel.collectAsState()
 
     var showImportDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
@@ -112,6 +114,15 @@ fun SettingsScreen(
                     title = "Navigation Style",
                     value = navStyle,
                     onClick = onNavigateToNavStyle
+                )
+                HorizontalDivider()
+            }
+
+            item {
+                NavigationalSetting(
+                    title = "Logging",
+                    value = logLevel,
+                    onClick = onNavigateToLogLevel
                 )
             }
 

@@ -62,6 +62,7 @@ import com.obrockmole.betterdining.ui.screens.FoodLocationDetailScreen
 import com.obrockmole.betterdining.ui.screens.HomeScreen
 import com.obrockmole.betterdining.ui.screens.ItemDetailScreen
 import com.obrockmole.betterdining.ui.screens.LicensesScreen
+import com.obrockmole.betterdining.ui.screens.LogLevelSelectionScreen
 import com.obrockmole.betterdining.ui.screens.NavStyleSelectionScreen
 import com.obrockmole.betterdining.ui.screens.SettingsScreen
 import com.obrockmole.betterdining.ui.screens.ThemeSelectionScreen
@@ -215,6 +216,10 @@ fun BetterPurdueDiningApp() {
                                                 onNavigateToLicensesScreen = {
                                                     Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to licenses")
                                                     navController.navigate("settings/licenses")
+                                                },
+                                                onNavigateToLogLevel = {
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to log level settings")
+                                                    navController.navigate("settings/logLevel")
                                                 }
                                             )
                                         }
@@ -346,6 +351,10 @@ fun BetterPurdueDiningApp() {
                                                 onNavigateToLicensesScreen = {
                                                     Logger.LogDebug(LOG_TAG, "NavHost main drawer: Navigating to licenses")
                                                     navController.navigate("settings/licenses")
+                                                },
+                                                onNavigateToLogLevel = {
+                                                    Logger.LogDebug(LOG_TAG, "NavHost main suit: Navigating to log level settings")
+                                                    navController.navigate("settings/logLevel")
                                                 }
                                             )
                                         }
@@ -474,6 +483,21 @@ fun BetterPurdueDiningApp() {
                 LicensesScreen(
                     onNavigateBack = {
                         Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from LicensesScreen")
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+
+
+            composable(
+                "settings/logLevel",
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
+                LogLevelSelectionScreen(
+                    onNavigateBack = {
+                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from LogLevelSelectionScreen")
                         navController.popBackStack()
                     }
                 )
