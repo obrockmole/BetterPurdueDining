@@ -61,7 +61,7 @@ fun HomeScreen(
 
     LaunchedEffect(selectedDiningCourtFromFav) {
         if (selectedDiningCourtFromFav.first != null && selectedDiningCourtFromFav.second != null) {
-            Logger.LogDebug(LOG_TAG, "Navigating to dining court from favorites: ${selectedDiningCourtFromFav.first}")
+            Logger.LogInfo(LOG_TAG, "Navigating to dining court from favorites: ${selectedDiningCourtFromFav.first}")
             onNavigateToFoodLocation(
                 selectedDiningCourtFromFav.first!!,
                 selectedDiningCourtFromFav.second!!
@@ -132,7 +132,7 @@ fun HomeScreen(
                         DiningCourtListItem(
                             diningCourt = diningCourt,
                             onClicked = {
-                                Logger.LogDebug(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
+                                Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
                                 onNavigateToFoodLocation(
                                     diningCourt.diningCourt.name,
                                     diningCourt.diningCourt.id
@@ -166,7 +166,7 @@ fun HomeScreen(
                                     "Sushi Boss at Meredith Hall" -> "Sushi Boss"
                                     else -> quickBite.diningCourt.name
                                 }
-                                Logger.LogDebug(LOG_TAG, "Navigating to quick bite: $name")
+                                Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
                                 onNavigateToFoodLocation(
                                     name,
                                     quickBite.diningCourt.id
@@ -188,7 +188,6 @@ fun DiningCourtListItem(
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Logger.LogDebug(LOG_TAG, "DiningCourtListItem: Composing ${diningCourt.diningCourt.name} (${diningCourt.diningCourt.id})")
     val diningCourtIcon = when (diningCourt.diningCourt.name.lowercase()) {
         "earhart" -> R.drawable.earhart_icon
         "ford" -> R.drawable.ford_icon
@@ -284,7 +283,6 @@ fun QuickBiteListItem(
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Logger.LogDebug(LOG_TAG, "QuickBiteListItem: Composing ${quickBite.diningCourt.name} (${quickBite.diningCourt.id})")
     val name = when (quickBite.diningCourt.name) {
         "1bowl at Meredith Hall" -> "1bowl"
         "Pete's Za at Tarkington Hall" -> "Pete's Za"
