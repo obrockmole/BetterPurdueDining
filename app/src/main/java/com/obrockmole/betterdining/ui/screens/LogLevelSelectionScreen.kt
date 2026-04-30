@@ -37,8 +37,11 @@ import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
+
+private const val LOG_TAG = "LogLevelSelectionScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +49,7 @@ fun LogLevelSelectionScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
@@ -94,6 +98,7 @@ fun LogLevelSelectionScreen(
                                 if (logLevel != level) {
                                     loading = true
                                     onNavigateBack()
+                                    Logger.LogInfo(LOG_TAG, "Changed log level from $logLevel to $level")
                                     settingsViewModel.setLogLevel(level)
                                 }
                             }
@@ -112,6 +117,7 @@ fun LogLevelSelectionScreen(
                                 if (logLevel != level) {
                                     loading = true
                                     onNavigateBack()
+                                    Logger.LogInfo(LOG_TAG, "Changed log level from $logLevel to $level")
                                     settingsViewModel.setLogLevel(level)
                                 }
                             }

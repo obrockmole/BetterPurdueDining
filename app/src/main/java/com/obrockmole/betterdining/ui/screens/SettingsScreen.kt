@@ -43,9 +43,12 @@ import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 import kotlinx.coroutines.launch
+
+private const val LOG_TAG = "SettingsScreen"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -57,6 +60,7 @@ fun SettingsScreen(
     onNavigateToLicensesScreen: () -> Unit = {},
     onNavigateToLogLevel: () -> Unit = {}
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
@@ -95,7 +99,10 @@ fun SettingsScreen(
                 NavigationalSetting(
                     title = "Default Screen",
                     value = defaultScreen,
-                    onClick = onNavigateToDefaultScreen
+                    onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to default screen settings")
+                        onNavigateToDefaultScreen()
+                    }
                 )
                 HorizontalDivider()
             }
@@ -104,7 +111,10 @@ fun SettingsScreen(
                 NavigationalSetting(
                     title = "Theme",
                     value = appTheme,
-                    onClick = onNavigateToTheme
+                    onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to theme settings")
+                        onNavigateToTheme()
+                    }
                 )
                 HorizontalDivider()
             }
@@ -113,7 +123,10 @@ fun SettingsScreen(
                 NavigationalSetting(
                     title = "Navigation Style",
                     value = navStyle,
-                    onClick = onNavigateToNavStyle
+                    onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to nav style settings")
+                        onNavigateToNavStyle()
+                    }
                 )
                 HorizontalDivider()
             }
@@ -122,7 +135,10 @@ fun SettingsScreen(
                 NavigationalSetting(
                     title = "Logging",
                     value = logLevel,
-                    onClick = onNavigateToLogLevel
+                    onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to log level settings")
+                        onNavigateToLogLevel()
+                    }
                 )
             }
 
@@ -134,7 +150,10 @@ fun SettingsScreen(
             item {
                 NavigationalSetting(
                     title = "Licenses",
-                    onClick = onNavigateToLicensesScreen
+                    onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to licenses")
+                        onNavigateToLicensesScreen()
+                    }
                 )
                 HorizontalDivider()
             }
@@ -148,6 +167,7 @@ fun SettingsScreen(
                 ActionSetting(
                     title = "Check For Updates",
                     onClick = {
+                        Logger.LogDebug(LOG_TAG, "Check for updates attempt")
                         showUpdateDialog = true
                     }
                 )
@@ -158,6 +178,7 @@ fun SettingsScreen(
                 ActionSetting(
                     title = "Import Favorites",
                     onClick = {
+                        Logger.LogDebug(LOG_TAG, "Import favorites attempt")
                         showImportDialog = true
                     }
                 )
@@ -167,9 +188,13 @@ fun SettingsScreen(
 
         if (showImportDialog) {
             ImportFavoritesDialog(
-                onDismiss = { showImportDialog = false },
+                onDismiss = {
+                    Logger.LogDebug(LOG_TAG, "Import favorites cancelled")
+                    showImportDialog = false
+                },
                 onImport = { jsonString, onResult ->
                     coroutineScope.launch {
+                        Logger.LogDebug(LOG_TAG, "Imported favorites")
                         val result = settingsViewModel.importFavorites(jsonString)
                         onResult(result)
                     }
@@ -374,9 +399,11 @@ fun ImportFavoritesDialog(
                                 onSuccess = { count ->
                                     successMessage =
                                         "Successfully imported $count favorite${if (count != 1) "s" else ""}!"
+                                    Logger.LogInfo(LOG_TAG, "ImportFavoritesDialog: Successfully imported $count favorites")
                                 },
                                 onFailure = { exception ->
                                     errorMessage = "Import failed: ${exception.message}"
+                                    Logger.LogError(LOG_TAG, "ImportFavoritesDialog: Importing favorites failed ${exception.message}")
                                 }
                             )
                         }

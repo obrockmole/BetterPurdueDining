@@ -37,8 +37,11 @@ import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
+
+private const val LOG_TAG = "DefaultScreenSelectionScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +49,7 @@ fun DefaultScreenSelectionScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
@@ -94,6 +98,7 @@ fun DefaultScreenSelectionScreen(
                                 if (defaultScreen != screen) {
                                     loading = true
                                     onNavigateBack()
+                                    Logger.LogInfo(LOG_TAG, "Changed default screen from $defaultScreen to $screen")
                                     settingsViewModel.setDefaultScreen(screen)
                                 }
                             }
@@ -112,6 +117,7 @@ fun DefaultScreenSelectionScreen(
                                 if (defaultScreen != screen) {
                                     loading = true
                                     onNavigateBack()
+                                    Logger.LogInfo(LOG_TAG, "Changed default screen from $defaultScreen to $screen")
                                     settingsViewModel.setDefaultScreen(screen)
                                 }
                             }

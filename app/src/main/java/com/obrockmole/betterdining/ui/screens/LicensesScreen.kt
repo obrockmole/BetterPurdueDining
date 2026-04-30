@@ -19,6 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
+
+private const val LOG_TAG = "LicensesScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +29,7 @@ fun LicensesScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
