@@ -39,12 +39,16 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.obrockmole.betterdining.utils.Logger
+
+private const val LOG_TAG = "UpcomingFavoritesScreen"
 
 @Composable
 fun UpcomingFavoritesScreen(
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     val context = LocalContext.current
     val upcomingFavoritesViewModel: UpcomingFavoritesViewModel = viewModel(
         factory = UpcomingFavoritesViewModelFactory(
@@ -61,6 +65,7 @@ fun UpcomingFavoritesScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(text = "No upcoming favorites this next week.")
                 }
+                Logger.LogDebug(LOG_TAG, "No upcoming favorites found this week")
                 return@fold
             }
 
@@ -94,8 +99,8 @@ fun UpcomingFavoritesScreen(
             }
 
             if (groupedAppearances.isEmpty()) {
-                val message =
-                    if (showMore) "No upcoming favorites found for the next week." else "Nothing available today."
+                val message = if (showMore) "No upcoming favorites found for the next week." else "Nothing available today."
+                Logger.LogDebug(LOG_TAG, message)
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
@@ -140,6 +145,7 @@ fun UpcomingFavoritesScreen(
                                         name = name,
                                         appearance = appearance,
                                         onClick = {
+                                            Logger.LogInfo(LOG_TAG, "Navigating to $name at ${appearance.locationName}")
                                             homeViewModel.navigateToMenu(
                                                 diningCourt = appearance.locationName,
                                                 diningCourtId = null,
@@ -169,7 +175,10 @@ fun UpcomingFavoritesScreen(
                             contentAlignment = Alignment.BottomStart
                         ) {
                             Button(
-                                onClick = { showMore = !showMore }
+                                onClick = {
+                                    showMore = !showMore
+                                    Logger.LogDebug(LOG_TAG, "Showing more appearances: $showMore")
+                                }
                             ) {
                                 Text(if (showMore) "Show Less" else "Show More")
                             }
@@ -179,6 +188,7 @@ fun UpcomingFavoritesScreen(
             }
         },
         onFailure = {
+            Logger.LogError(LOG_TAG, "Error loading upcoming favorites: ${it.message}")
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = "Error: ${it.message}")
             }

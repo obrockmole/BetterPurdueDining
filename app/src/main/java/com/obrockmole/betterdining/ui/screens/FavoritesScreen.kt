@@ -47,6 +47,9 @@ import com.obrockmole.betterdining.viewmodel.FavoritesViewModelFactory
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import com.obrockmole.betterdining.utils.Logger
+
+private const val LOG_TAG = "FavoritesScreen"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -56,6 +59,7 @@ fun FavoritesScreen(
     homeViewModel: HomeViewModel,
     showHeader: Boolean
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     var tabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Upcoming", "All Favorites")
     var selectedSort by remember { mutableIntStateOf(0) }
@@ -107,6 +111,7 @@ fun FavoritesScreen(
                                     onClick = {
                                         sortMenuShown = false
                                         selectedSort = 0
+                                        Logger.LogDebug(LOG_TAG, "Sorting by name ascending")
                                     },
                                     selected = selectedSort == 0,
                                     shapes = MenuItemShapes(
@@ -125,6 +130,7 @@ fun FavoritesScreen(
                                     onClick = {
                                         sortMenuShown = false
                                         selectedSort = 1
+                                        Logger.LogDebug(LOG_TAG, "Sorting by name descending")
                                     },
                                     selected = selectedSort == 1,
                                     shapes = MenuItemShapes(
@@ -149,6 +155,7 @@ fun FavoritesScreen(
                                     onClick = {
                                         sortMenuShown = false
                                         selectedSort = 2
+                                        Logger.LogDebug(LOG_TAG, "Sorting by date ascending")
                                     },
                                     selected = selectedSort == 2,
                                     shapes = MenuItemShapes(
@@ -167,6 +174,7 @@ fun FavoritesScreen(
                                     onClick = {
                                         sortMenuShown = false
                                         selectedSort = 3
+                                        Logger.LogDebug(LOG_TAG, "Sorting by date descending")
                                     },
                                     selected = selectedSort == 3,
                                     shapes = MenuItemShapes(
@@ -186,7 +194,10 @@ fun FavoritesScreen(
                 Tab(
                     text = { Text(title) },
                     selected = tabIndex == index,
-                    onClick = { tabIndex = index }
+                    onClick = {
+                        Logger.LogDebug(LOG_TAG, "Switched to $title")
+                        tabIndex = index
+                    }
                 )
             }
         }
@@ -240,6 +251,7 @@ fun AllFavoritesList(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable(onClick = {
+                                Logger.LogInfo(LOG_TAG, "Navigating to item ${favoriteItem.name} (${favoriteItem.itemId})")
                                 onNavigateToItem(
                                     favoriteItem.name,
                                     favoriteItem.itemId
