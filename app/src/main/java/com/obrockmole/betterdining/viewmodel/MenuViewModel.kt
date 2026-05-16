@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 sealed interface MenuUiState {
     data class Success(val data: DiningCourtMenuDisplay?) : MenuUiState
-    data object Error : MenuUiState
+    data class Error(val message: String) : MenuUiState
     data object Loading : MenuUiState
 }
 
@@ -78,7 +78,7 @@ class MenuViewModel(
                 menuUiState = MenuUiState.Success(mappedResult)
 
             } catch (e: Exception) {
-                menuUiState = MenuUiState.Error
+                menuUiState = MenuUiState.Error(e.message ?: "An unknown error occurred")
             }
         }
     }

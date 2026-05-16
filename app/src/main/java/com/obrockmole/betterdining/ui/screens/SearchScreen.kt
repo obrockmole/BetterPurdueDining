@@ -48,10 +48,13 @@ import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.SearchResultDisplay
 import com.obrockmole.betterdining.viewmodel.SearchViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModelFactory
+import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.delay
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private const val LOG_TAG = "SearchScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +63,7 @@ fun SearchScreen(
     homeViewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
     val context = LocalContext.current
     val searchViewModel: SearchViewModel = viewModel(
         factory = SearchViewModelFactory(
@@ -80,16 +84,19 @@ fun SearchScreen(
 
     LaunchedEffect(query) {
         if (query.isNotEmpty()) {
+            Logger.LogDebug(LOG_TAG, "Search query changed to '$query'")
             isLoading = true
             noResults = false
             delay(450)
 
             searchResults = searchViewModel.searchItems(query)
+            Logger.LogDebug(LOG_TAG, "Search returned ${searchResults.size} results")
 
             isLoading = false
             noResults = searchResults.isEmpty()
 
         } else {
+            Logger.LogDebug(LOG_TAG, "Search query cleared")
             searchResults = emptyList()
             isLoading = false
             noResults = false
@@ -102,7 +109,10 @@ fun SearchScreen(
             TopAppBar(
                 title = { Text("Search") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        Logger.LogDebug(LOG_TAG, "Back navigation clicked")
+                        onBack()
+                    }) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
@@ -147,12 +157,14 @@ fun SearchScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 when {
                     isLoading -> {
+                        Logger.LogDebug(LOG_TAG, "UI loading")
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
 
                     noResults -> {
+                        Logger.LogDebug(LOG_TAG, "UI loaded with no results for query '$query'")
                         Text(
                             text = "No items found for \"$query\"",
                             modifier = Modifier
@@ -165,6 +177,7 @@ fun SearchScreen(
                     }
 
                     searchResults.isNotEmpty() -> {
+                        Logger.LogDebug(LOG_TAG, "UI loaded successfully with ${searchResults.size} results")
                         SearchResultsList(
                             results = searchResults,
                             homeViewModel = homeViewModel,
@@ -172,6 +185,7 @@ fun SearchScreen(
                             expandedItemId = expandedItemId,
                             onItemClick = { itemId ->
                                 expandedItemId = if (expandedItemId == itemId) null else itemId
+                                Logger.LogDebug(LOG_TAG, "Search result $itemId clicked, expandedItemId = $expandedItemId")
                             }
                         )
                     }
@@ -198,6 +212,7 @@ fun SearchResultsList(
                     isExpanded = expandedItemId == groupedResult.originalItem.itemId,
                     onHeaderClick = { onItemClick(groupedResult.originalItem.itemId) },
                     onAppearanceClick = { appearance ->
+                        Logger.LogInfo(LOG_TAG, "Navigating to search result: ${groupedResult.displayName} at ${appearance.locationName} on ${appearance.date}")
                         homeViewModel.navigateToMenu(
                             diningCourt = appearance.locationName,
                             diningCourtId = null,

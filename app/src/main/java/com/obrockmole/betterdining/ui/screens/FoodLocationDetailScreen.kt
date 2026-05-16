@@ -56,11 +56,14 @@ import com.obrockmole.betterdining.viewmodel.MenuItemDisplay
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import com.obrockmole.betterdining.viewmodel.StationDisplay
+import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private const val LOG_TAG = "FoodLocationDetailScreen"
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -74,6 +77,7 @@ fun FoodLocationDetailScreen(
     initialDate: String?,
     initialItemName: String?
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded for $name")
     BackHandler {
         onNavigateBack()
     }
@@ -87,6 +91,7 @@ fun FoodLocationDetailScreen(
     }
 
     LaunchedEffect(name, courtId, displayedDate) {
+        Logger.LogDebug(LOG_TAG, "Fetching menu for $displayedDate")
         menuViewModel.getMenu(name, courtId, displayedDate.toString())
     }
 
@@ -98,9 +103,14 @@ fun FoodLocationDetailScreen(
     var showRenameDialog by remember { mutableStateOf(false) }
 
     if (showRenameDialog && uiState is MenuUiState.Success) {
+        Logger.LogDebug(LOG_TAG, "Showing rename dialog")
         RenameDiningCourtDialog(
-            onDismiss = { showRenameDialog = false },
+            onDismiss = {
+                Logger.LogDebug(LOG_TAG, "Rename dialog dismissed")
+                showRenameDialog = false
+            },
             onRename = { newName ->
+                Logger.LogInfo(LOG_TAG, "Renaming dining court '$name' to '$newName'")
                 menuViewModel.renameDiningCourt(uiState.data!!.courtId, newName)
                 showRenameDialog = false
             },
@@ -120,7 +130,10 @@ fun FoodLocationDetailScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        Logger.LogDebug(LOG_TAG, "Back navigation clicked")
+                        onNavigateBack()
+                    }) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
@@ -129,7 +142,10 @@ fun FoodLocationDetailScreen(
                 },
                 actions = {
                     if (uiState is MenuUiState.Success) {
-                        IconButton(onClick = { moreMenuShown = true }) {
+                        IconButton(onClick = {
+                            Logger.LogDebug(LOG_TAG, "More menu shown")
+                            moreMenuShown = true
+                        }) {
                             Icon(
                                 painter = painterResource(R.drawable.more_vertical),
                                 contentDescription = "More"
@@ -139,7 +155,10 @@ fun FoodLocationDetailScreen(
 
                     DropdownMenuPopup(
                         expanded = moreMenuShown,
-                        onDismissRequest = { moreMenuShown = false }
+                        onDismissRequest = {
+                            Logger.LogDebug(LOG_TAG, "More menu hidden")
+                            moreMenuShown = false
+                        }
                     ) {
                         DropdownMenuGroup(
                             shapes = MenuDefaults.groupShape(0, 1)
@@ -153,6 +172,7 @@ fun FoodLocationDetailScreen(
                                     )
                                 },
                                 onClick = {
+                                    Logger.LogDebug(LOG_TAG, "Rename option clicked")
                                     moreMenuShown = false
                                     showRenameDialog = true
                                 },
@@ -177,25 +197,24 @@ fun FoodLocationDetailScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 when (uiState) {
                     is MenuUiState.Loading -> {
+                        Logger.LogDebug(LOG_TAG, "UI loading")
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                     }
 
                     is MenuUiState.Error -> {
-                        AlertDialog(
-                            onDismissRequest = onNavigateBack,
-                            title = { Text(text = "Error") },
-                            text = { Text(text = "Something went wrong fetching the menu.") },
-                            confirmButton = {
-                                TextButton(onClick = onNavigateBack) {
-                                    Text("Ok")
-                                }
-                            }
+                        Logger.LogError(LOG_TAG, "Failed to load UI: ${uiState.message}")
+                        Text(
+                            text = "Error loading menu.",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                                .padding(16.dp)
                         )
                     }
 
                     is MenuUiState.Success -> {
+                        Logger.LogDebug(LOG_TAG, "UI loaded successfully")
                         val menuData = uiState.data
                         val meals = menuData?.meals
 
@@ -256,7 +275,10 @@ fun FoodLocationDetailScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 IconButton(
-                                    onClick = { displayedDate = displayedDate.minusDays(1) },
+                                    onClick = {
+                                        Logger.LogDebug(LOG_TAG, "Previous day clicked")
+                                        displayedDate = displayedDate.minusDays(1)
+                                    },
                                     modifier = Modifier.padding(start = 48.dp)
                                 ) {
                                     Icon(
@@ -282,7 +304,10 @@ fun FoodLocationDetailScreen(
                                 )
 
                                 IconButton(
-                                    onClick = { displayedDate = displayedDate.plusDays(1) },
+                                    onClick = {
+                                        Logger.LogDebug(LOG_TAG, "Next day clicked")
+                                        displayedDate = displayedDate.plusDays(1)
+                                    },
                                     modifier = Modifier.padding(end = 48.dp)
                                 ) {
                                     Icon(
@@ -299,7 +324,10 @@ fun FoodLocationDetailScreen(
                                 meals?.forEachIndexed { index, meal ->
                                     Tab(
                                         selected = selectedMealIndex == index,
-                                        onClick = { selectedMealIndex = index },
+                                        onClick = {
+                                            Logger.LogDebug(LOG_TAG, "Meal clicked: ${meal.name}")
+                                            selectedMealIndex = index
+                                        },
                                         text = { Text(meal.name) }
                                     )
                                 }
@@ -307,6 +335,7 @@ fun FoodLocationDetailScreen(
 
                             if (meals?.isNotEmpty() == true && selectedMealIndex < meals.size) {
                                 if (meals[selectedMealIndex].stations.isEmpty()) {
+                                    Logger.LogInfo(LOG_TAG, "No stations for meal ${meals[selectedMealIndex].name}")
                                     Text(
                                         "No meal is being served.",
                                         modifier = Modifier
@@ -314,13 +343,18 @@ fun FoodLocationDetailScreen(
                                             .padding(16.dp)
                                     )
                                 } else {
+                                    Logger.LogDebug(LOG_TAG, "Displaying meal details for ${meals[selectedMealIndex].name}")
                                     MealDetail(
                                         meal = meals[selectedMealIndex],
-                                        onNavigateToItem = onNavigateToItem,
+                                        onNavigateToItem = { name, id ->
+                                            Logger.LogInfo(LOG_TAG, "Navigating to item: $name ($id)")
+                                            onNavigateToItem(name, id)
+                                        },
                                         initialItemName = initialItemName
                                     )
                                 }
                             } else {
+                                Logger.LogDebug(LOG_TAG, "No meals available for this date")
                                 Text(
                                     "No meals are being served.",
                                     modifier = Modifier
@@ -475,6 +509,7 @@ fun StationItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = {
+                    Logger.LogDebug(LOG_TAG, "Navigating to ${itemWrapper.displayName}")
                     onNavigateToItem(
                         itemWrapper.originalItem.item.name,
                         itemWrapper.originalItem.item.itemId
@@ -505,3 +540,4 @@ fun StationItem(
         }
     }
 }
+

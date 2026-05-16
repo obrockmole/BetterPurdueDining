@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 
 sealed interface ItemUiState {
     data class Success(val item: GetItemDetailsQuery.ItemByItemId) : ItemUiState
-    data object Error : ItemUiState
+    data class Error(val message: String) : ItemUiState
     data object Loading : ItemUiState
 }
 
@@ -54,12 +54,12 @@ class ItemViewModel(
                 itemUiState = if (result != null) {
                     ItemUiState.Success(result)
                 } else {
-                    ItemUiState.Error
+                    ItemUiState.Error("Item not found")
                 }
                 isFavorite = favoritesRepository.isFavorite(itemId)
 
             } catch (e: Exception) {
-                itemUiState = ItemUiState.Error
+                itemUiState = ItemUiState.Error(e.message ?: "An unknown error occurred")
             }
         }
     }

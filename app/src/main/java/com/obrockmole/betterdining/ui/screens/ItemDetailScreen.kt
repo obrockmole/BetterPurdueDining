@@ -58,10 +58,13 @@ import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
 import com.obrockmole.betterdining.viewmodel.ItemViewModelFactory
+import com.obrockmole.betterdining.utils.Logger
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private const val LOG_TAG = "ItemDetailScreen"
 
 // "Components" wont fit :(
 val itemDetails = listOf("Nutrition", "Traits", "Component", "Schedule")
@@ -75,6 +78,7 @@ fun ItemDetailScreen(
     homeViewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded for $itemName ($itemId)")
     val context = LocalContext.current
     val itemViewModel: ItemViewModel = viewModel(
         factory = ItemViewModelFactory(
@@ -94,9 +98,14 @@ fun ItemDetailScreen(
     var showRenameDialog by remember { mutableStateOf(false) }
 
     if (showRenameDialog && uiState is ItemUiState.Success) {
+        Logger.LogDebug(LOG_TAG, "Showing rename dialog")
         RenameItemDialog(
-            onDismiss = { showRenameDialog = false },
+            onDismiss = {
+                Logger.LogDebug(LOG_TAG, "Rename dialog dismissed")
+                showRenameDialog = false
+            },
             onRename = { newName ->
+                Logger.LogInfo(LOG_TAG, "Renaming item '${uiState.item.name}' to '$newName'")
                 itemViewModel.renameItem(uiState.item.itemId, newName)
                 showRenameDialog = false
             },
@@ -117,7 +126,10 @@ fun ItemDetailScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        Logger.LogDebug(LOG_TAG, "Back navigation clicked")
+                        onNavigateBack()
+                    }) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back),
                             contentDescription = "Back"
@@ -126,7 +138,10 @@ fun ItemDetailScreen(
                 },
                 actions = {
                     if (uiState is ItemUiState.Success) {
-                        IconButton(onClick = { moreMenuShown = true }) {
+                        IconButton(onClick = {
+                            Logger.LogDebug(LOG_TAG, "More menu shown")
+                            moreMenuShown = true
+                        }) {
                             Icon(
                                 painter = painterResource(R.drawable.more_vertical),
                                 contentDescription = "More"
@@ -135,7 +150,10 @@ fun ItemDetailScreen(
 
                         DropdownMenuPopup(
                             expanded = moreMenuShown,
-                            onDismissRequest = { moreMenuShown = false }
+                            onDismissRequest = {
+                                Logger.LogDebug(LOG_TAG, "More menu hidden")
+                                moreMenuShown = false
+                            }
                         ) {
                             DropdownMenuGroup(
                                 shapes = MenuDefaults.groupShape(0, 1)
@@ -151,6 +169,7 @@ fun ItemDetailScreen(
                                         )
                                     },
                                     onClick = {
+                                        Logger.LogDebug(LOG_TAG, "Favorite option clicked ($isFavorite)")
                                         itemViewModel.toggleFavorite(uiState.item)
                                         moreMenuShown = false
                                     },
@@ -175,6 +194,7 @@ fun ItemDetailScreen(
                                         )
                                     },
                                     onClick = {
+                                        Logger.LogDebug(LOG_TAG, "Rename option clicked")
                                         moreMenuShown = false
                                         showRenameDialog = true
                                     },
@@ -198,14 +218,23 @@ fun ItemDetailScreen(
         ) {
             when (uiState) {
                 is ItemUiState.Loading -> {
+                    Logger.LogDebug(LOG_TAG, "UI loading")
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
                 is ItemUiState.Error -> {
-                    Text("Error loading item details", modifier = Modifier.align(Alignment.Center))
+                    Logger.LogError(LOG_TAG, "Failed to load UI: ${uiState.message}")
+                    Text(
+                        text = "Error loading item details.",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
                 }
 
                 is ItemUiState.Success -> {
+                    Logger.LogDebug(LOG_TAG, "UI loaded successfully")
                     val item = uiState.item
 
                     Column {
@@ -238,14 +267,26 @@ fun ItemDetailScreen(
                             }
 
                             when (visibleTabs.getOrNull(selectedDetailIndex)) {
-                                "Nutrition" -> NutritionDetails(item)
-                                "Traits" -> TraitsDetails(item)
-                                "Component" -> ComponentsDetails(item)
-                                "Schedule" -> ScheduleDetails(
-                                    item,
-                                    homeViewModel,
-                                    onBack = onNavigateBack
-                                )
+                                "Nutrition" -> {
+                                    Logger.LogDebug(LOG_TAG, "Displaying NutritionDetails")
+                                    NutritionDetails(item)
+                                }
+                                "Traits" -> {
+                                    Logger.LogDebug(LOG_TAG, "Displaying TraitsDetails")
+                                    TraitsDetails(item)
+                                }
+                                "Component" -> {
+                                    Logger.LogDebug(LOG_TAG, "Displaying ComponentsDetails")
+                                    ComponentsDetails(item)
+                                }
+                                "Schedule" -> {
+                                    Logger.LogDebug(LOG_TAG, "Displaying ScheduleDetails")
+                                    ScheduleDetails(
+                                        item,
+                                        homeViewModel,
+                                        onBack = onNavigateBack
+                                    )
+                                }
                             }
                         }
                     }
@@ -477,6 +518,7 @@ fun ScheduleDetails(
                     AppearanceItem(
                         appearance = appearance,
                         onClick = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to ${appearance.mealName} menu for ${appearance.locationName} on ${appearance.date} for item ${item.name}")
                             homeViewModel.navigateToMenu(
                                 diningCourt = appearance.locationName,
                                 diningCourtId = null,

@@ -20,7 +20,7 @@ data class DiningCourtWithCustomName(
 
 sealed interface HomeUiState {
     data class Success(val data: List<Pair<String, List<DiningCourtWithCustomName>>>?) : HomeUiState
-    data object Error : HomeUiState
+    data class Error(val message: String) : HomeUiState
     data object Loading : HomeUiState
 }
 
@@ -83,7 +83,7 @@ class HomeViewModel(
                 }
                 homeUiState = HomeUiState.Success(result)
             } catch (e: Exception) {
-                homeUiState = HomeUiState.Error
+                homeUiState = HomeUiState.Error(e.message ?: "An unknown error occurred")
             }
         }
     }

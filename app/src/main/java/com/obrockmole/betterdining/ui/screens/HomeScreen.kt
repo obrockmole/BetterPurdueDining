@@ -93,6 +93,17 @@ fun HomeScreen(
                 }
             }
 
+            is HomeUiState.Error -> {
+                Logger.LogError(LOG_TAG, "Failed to load UI: ${uiState.message}")
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = "Error loading locations.",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+
             is HomeUiState.Success -> {
                 Logger.LogDebug(LOG_TAG, "UI loaded successfully")
                 LazyColumn(modifier = modifier.fillMaxSize()) {
@@ -176,8 +187,6 @@ fun HomeScreen(
                     }
                 }
             }
-
-            else -> Logger.LogError(LOG_TAG, "Error loading UI. State: $uiState")
         }
     }
 }
