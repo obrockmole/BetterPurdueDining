@@ -159,7 +159,7 @@ fun SettingsScreen(
             }
 
             item {
-                InformationSetting(title = "Version", value = "1.0.0")
+                InformationSetting(title = "Version", value = "1.2.0")
                 HorizontalDivider()
             }
 
