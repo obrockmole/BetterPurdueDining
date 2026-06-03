@@ -4,6 +4,9 @@ import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.database.FavoriteItemDao
 import com.obrockmole.betterdining.viewmodel.FavoriteItemDisplay
 import kotlinx.coroutines.flow.Flow
+import com.obrockmole.betterdining.utils.Logger
+
+private const val LOG_TAG = "FavoritesRepository"
 
 class FavoritesRepository(private val favoriteItemDao: FavoriteItemDao) {
     fun getAll(): Flow<List<FavoriteItem>> = favoriteItemDao.getAll()
@@ -13,10 +16,12 @@ class FavoritesRepository(private val favoriteItemDao: FavoriteItemDao) {
 
     suspend fun addFavorite(item: FavoriteItem) {
         favoriteItemDao.insert(item)
+        Logger.LogDebug(LOG_TAG, "Added ${item.name} (${item.itemId}) as a favorite")
     }
 
     suspend fun removeFavorite(item: FavoriteItem) {
         favoriteItemDao.delete(item)
+        Logger.LogDebug(LOG_TAG, "Removed ${item.name} (${item.itemId}) from favorites")
     }
 
     suspend fun isFavorite(itemId: String): Boolean {
