@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.models.Appearance
+import com.obrockmole.betterdining.models.DiningCourtIdMap
 import com.obrockmole.betterdining.repository.UpcomingFavoritesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
@@ -98,6 +99,8 @@ fun UpcomingFavoritesScreen(
                 }
             }
 
+            Logger.LogDebug(LOG_TAG, "Loaded ${allAppearances.size} total appearances, ${todayAppearances.size} today, ${weekAppearances.size} this week")
+
             if (groupedAppearances.isEmpty()) {
                 val message = if (showMore) "No upcoming favorites found for the next week." else "Nothing available today."
                 Logger.LogDebug(LOG_TAG, message)
@@ -148,7 +151,7 @@ fun UpcomingFavoritesScreen(
                                             Logger.LogInfo(LOG_TAG, "Navigating to $name at ${appearance.locationName}")
                                             homeViewModel.navigateToMenu(
                                                 diningCourt = appearance.locationName,
-                                                diningCourtId = null,
+                                                diningCourtId = DiningCourtIdMap.diningCourtIdMap[appearance.locationName],
                                                 mealName = appearance.mealName,
                                                 date = appearance.date,
                                                 item = name

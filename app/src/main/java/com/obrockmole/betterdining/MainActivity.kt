@@ -175,10 +175,12 @@ fun BetterPurdueDiningApp() {
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToFoodLocation = { locationName, locationId ->
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                        "locationName",
-                                                        locationName
-                                                    )
+
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("locationName", locationName)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialMealName", homeViewModel.selectedMealName.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialDate", homeViewModel.selectedDate.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialItemName", homeViewModel.selectedItem.value)
+
                                                     navController.navigate("location/$locationId")
                                                 },
                                                 viewModel = homeViewModel
@@ -190,10 +192,7 @@ fun BetterPurdueDiningApp() {
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToItem = { itemName, itemId ->
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to item $itemName ($itemId)")
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                        "itemName",
-                                                        itemName
-                                                    )
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("itemName", itemName)
                                                     navController.navigate("item/$itemId")
                                                 },
                                                 homeViewModel = homeViewModel,
@@ -309,11 +308,13 @@ fun BetterPurdueDiningApp() {
                                             HomeScreen(
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToFoodLocation = { locationName, locationId ->
-                                                    Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to location $locationName ($locationId)")
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                        "locationName",
-                                                        locationName
-                                                    )
+                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
+
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("locationName", locationName)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialMealName", homeViewModel.selectedMealName.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialDate", homeViewModel.selectedDate.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialItemName", homeViewModel.selectedItem.value)
+
                                                     navController.navigate("location/$locationId")
                                                 },
                                                 viewModel = homeViewModel
@@ -325,10 +326,7 @@ fun BetterPurdueDiningApp() {
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToItem = { itemName, itemId ->
                                                     Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to item $itemName ($itemId)")
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                        "itemName",
-                                                        itemName
-                                                    )
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("itemName", itemName)
                                                     navController.navigate("item/$itemId")
                                                 },
                                                 homeViewModel = homeViewModel,

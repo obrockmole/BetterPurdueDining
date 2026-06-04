@@ -28,11 +28,8 @@ class HomeViewModel(
     private val startLocationsRepository: StartLocationsRepository,
     private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModel() {
-    private val _selectedDiningCourt = MutableStateFlow<String?>(null)
-    private val _selectedDiningCourtId = MutableStateFlow<String?>(null)
-    val selectedDiningCourt: StateFlow<Pair<String?, String?>> = MutableStateFlow(
-        Pair(_selectedDiningCourt.value, _selectedDiningCourtId.value)
-    )
+    private val _selectedDiningCourt = MutableStateFlow<Pair<String?, String?>>(Pair(null, null))
+    val selectedDiningCourt: StateFlow<Pair<String?, String?>> = _selectedDiningCourt
 
     private val _selectedMealName = MutableStateFlow<String?>(null)
     val selectedMealName: StateFlow<String?> = _selectedMealName
@@ -53,16 +50,14 @@ class HomeViewModel(
         date: String,
         item: String
     ) {
-        _selectedDiningCourt.value = diningCourt
-        _selectedDiningCourtId.value = diningCourtId
+        _selectedDiningCourt.value = Pair(diningCourt, diningCourtId)
         _selectedMealName.value = mealName
         _selectedDate.value = date
         _selectedItem.value = item
     }
 
     fun clearNavigation() {
-        _selectedDiningCourt.value = null
-        _selectedDiningCourtId.value = null
+        _selectedDiningCourt.value = Pair(null, null)
         _selectedMealName.value = null
         _selectedDate.value = null
         _selectedItem.value = null

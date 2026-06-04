@@ -48,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.GetItemDetailsQuery
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
+import com.obrockmole.betterdining.models.DiningCourtIdMap
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.repository.RenamedCourtsRepository
@@ -521,7 +522,7 @@ fun ScheduleDetails(
                             Logger.LogInfo(LOG_TAG, "Navigating to ${appearance.mealName} menu for ${appearance.locationName} on ${appearance.date} for item ${item.name}")
                             homeViewModel.navigateToMenu(
                                 diningCourt = appearance.locationName,
-                                diningCourtId = null,
+                                diningCourtId = DiningCourtIdMap.diningCourtIdMap[appearance.locationName],
                                 mealName = appearance.mealName,
                                 date = appearance.date,
                                 item = item.name
