@@ -89,7 +89,7 @@ fun UpcomingFavoritesScreen(
                 date.isAfter(today) && date.isBefore(today.plusDays(7))
             }
 
-            val groupedAppearances = if (showMore) {
+            val groupedAppearances = if (showMore || todayAppearances.isEmpty()) {
                 (todayAppearances + weekAppearances).groupBy { (_, appearance) ->
                     LocalDate.parse(appearance.date, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 }
@@ -169,7 +169,7 @@ fun UpcomingFavoritesScreen(
                         }
                     }
 
-                    if (weekAppearances.isNotEmpty()) {
+                    if (weekAppearances.isNotEmpty() && todayAppearances.isNotEmpty()) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
