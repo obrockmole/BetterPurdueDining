@@ -102,6 +102,8 @@ fun FoodLocationDetailScreen(
     var moreMenuShown by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
 
+    var itemToHighlight by rememberSaveable { mutableStateOf(initialItemName) }
+
     if (showRenameDialog && uiState is MenuUiState.Success) {
         Logger.LogDebug(LOG_TAG, "Showing rename dialog")
         RenameDiningCourtDialog(
@@ -350,7 +352,8 @@ fun FoodLocationDetailScreen(
                                             Logger.LogInfo(LOG_TAG, "Navigating to item: $name ($id)")
                                             onNavigateToItem(name, id)
                                         },
-                                        initialItemName = initialItemName
+                                        itemToHighlight = itemToHighlight,
+                                        onItemHighlighted = { itemToHighlight = null }
                                     )
                                 }
                             } else {
@@ -409,19 +412,20 @@ fun RenameDiningCourtDialog(
 fun MealDetail(
     meal: MealDisplay,
     onNavigateToItem: (String, String) -> Unit,
-    initialItemName: String? = null
+    itemToHighlight: String? = null,
+    onItemHighlighted: () -> Unit = {}
 ) {
     val listState = rememberLazyListState()
 
-    LaunchedEffect(initialItemName) {
-        if (initialItemName != null) {
+    LaunchedEffect(itemToHighlight, meal) {
+        if (itemToHighlight != null) {
             var targetIndex = 0
             var found = false
 
             for (station in meal.stations) {
                 targetIndex++
                 for (item in station.items) {
-                    if (item.originalItem.item.name == initialItemName) {
+                    if (item.originalItem.item.name == itemToHighlight) {
                         found = true
                         break
                     }
@@ -431,7 +435,6 @@ fun MealDetail(
             }
 
             if (found) {
-                delay(100)
                 listState.animateScrollToItem(targetIndex)
             }
         }
@@ -449,9 +452,10 @@ fun MealDetail(
             itemsIndexed(station.items) { index, itemWrapper ->
                 StationItem(
                     itemWrapper = itemWrapper,
-                    isHighlighted = initialItemName != null && itemWrapper.originalItem.item.name == initialItemName,
+                    isHighlighted = itemToHighlight != null && itemWrapper.originalItem.item.name == itemToHighlight,
                     onNavigateToItem = onNavigateToItem,
-                    showDivider = index < station.items.size - 1
+                    showDivider = index < station.items.size - 1,
+                    onItemHighlighted = onItemHighlighted
                 )
             }
         }
@@ -473,18 +477,14 @@ fun StationItem(
     itemWrapper: MenuItemDisplay,
     isHighlighted: Boolean,
     onNavigateToItem: (String, String) -> Unit,
-    showDivider: Boolean
+    showDivider: Boolean,
+    onItemHighlighted: () -> Unit = {}
 ) {
     val backgroundColor = remember { Animatable(Color.Transparent) }
     val highlightColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-    var animationPlayed by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        //FIXME: Highlight animation keeps playing everytime the page is refreshed
-        if (isHighlighted && !animationPlayed) {
-            animationPlayed = true
-            delay(150)
-
+    LaunchedEffect(isHighlighted) {
+        if (isHighlighted) {
             backgroundColor.animateTo(
                 targetValue = highlightColor,
                 animationSpec = tween(durationMillis = 200)
@@ -501,6 +501,8 @@ fun StationItem(
                 targetValue = Color.Transparent,
                 animationSpec = tween(durationMillis = 800)
             )
+
+            onItemHighlighted()
         }
     }
 
