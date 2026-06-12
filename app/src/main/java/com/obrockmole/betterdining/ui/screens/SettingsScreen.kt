@@ -49,6 +49,7 @@ import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 import kotlinx.coroutines.launch
 
 private const val LOG_TAG = "SettingsScreen"
+private const val CURRENT_VERSION = "1.3.0"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -72,6 +73,7 @@ fun SettingsScreen(
     val appTheme by settingsViewModel.appTheme.collectAsState()
     val navStyle by settingsViewModel.navStyle.collectAsState()
     val logLevel by settingsViewModel.logLevel.collectAsState()
+    val latestVersion by settingsViewModel.latestVersion.collectAsState()
 
     var showImportDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
@@ -159,7 +161,7 @@ fun SettingsScreen(
             }
 
             item {
-                InformationSetting(title = "Version", value = "1.3.0")
+                InformationSetting(title = "Version", value = CURRENT_VERSION)
                 HorizontalDivider()
             }
 
@@ -206,7 +208,12 @@ fun SettingsScreen(
         if (showUpdateDialog) {
             AlertDialog(
                 onDismissRequest = { showUpdateDialog = false },
-                title = { Text(text = "No Updates Found") },
+                title = { Text(text = "Check for Updates") },
+                text = {
+                    Text(
+                        text = "Current Version: $CURRENT_VERSION\nLatest Version: $latestVersion" ,
+                    )
+                },
                 confirmButton = {
                     TextButton(onClick = { showUpdateDialog = false }) {
                         Text("Okay.")

@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.database.FavoriteItem
-import com.obrockmole.betterdining.models.GitHubRelease
 import com.obrockmole.betterdining.network.RetrofitInstance.gitHubApi
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.utils.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -49,6 +49,9 @@ class SettingsViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = "Minimal"
         )
+
+    private val _latestVersion = MutableStateFlow<String?>(null)
+    val latestVersion: StateFlow<String?> = _latestVersion
 
     fun setDefaultScreen(defaultScreen: String) {
         viewModelScope.launch {
@@ -116,6 +119,8 @@ class SettingsViewModel(
         viewModelScope.launch {
             try {
                 val latestRelease = gitHubApi.getLatestRelease()
+                _latestVersion.value = latestRelease.tag_name.removePrefix("v")
+
                 Logger.LogDebug("SettingsViewModel", "Latest release: ${latestRelease.tag_name}")
             } catch (e: Exception) {
                 Logger.LogError("SettingsViewModel", "Error fetching latest release", e)
