@@ -77,6 +77,7 @@ fun SettingsScreen(
 
     var showImportDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
+    var checkingForUpdates by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -166,14 +167,29 @@ fun SettingsScreen(
             }
 
             item {
-                ActionSetting(
-                    title = "Check For Updates",
-                    onClick = {
-                        Logger.LogDebug(LOG_TAG, "Check for updates attempt")
-                        settingsViewModel.getLatestRelease()
-                        showUpdateDialog = true
+                if (checkingForUpdates) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
-                )
+                } else {
+                    ActionSetting(
+                        title = "Check For Updates",
+                        onClick = {
+                            Logger.LogDebug(LOG_TAG, "Check for updates attempt")
+                            coroutineScope.launch {
+                                checkingForUpdates = true
+                                settingsViewModel.getLatestRelease()
+                                checkingForUpdates = false
+                                showUpdateDialog = true
+                            }
+                        }
+                    )
+                }
                 HorizontalDivider(thickness = 6.dp)
             }
 

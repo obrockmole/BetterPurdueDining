@@ -115,16 +115,16 @@ class SettingsViewModel(
         }
     }
 
-    fun getLatestRelease() {
-        viewModelScope.launch {
-            try {
-                val latestRelease = gitHubApi.getLatestRelease()
-                _latestVersion.value = latestRelease.tag_name.removePrefix("v")
+    suspend fun getLatestRelease() {
+        _latestVersion.value = null
+        try {
+            val latestRelease = gitHubApi.getLatestRelease()
+            _latestVersion.value = latestRelease.tag_name.removePrefix("v")
 
-                Logger.LogDebug("SettingsViewModel", "Latest release: ${latestRelease.tag_name}")
-            } catch (e: Exception) {
-                Logger.LogError("SettingsViewModel", "Error fetching latest release", e)
-            }
+            Logger.LogDebug("SettingsViewModel", "Latest release: ${latestRelease.tag_name}")
+        } catch (e: Exception) {
+            Logger.LogError("SettingsViewModel", "Error fetching latest release", e)
+            _latestVersion.value = "Error"
         }
     }
 }
