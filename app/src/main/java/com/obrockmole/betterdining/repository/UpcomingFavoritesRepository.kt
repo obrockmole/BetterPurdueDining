@@ -15,7 +15,7 @@ private const val LOG_TAG = "UpcomingFavoritesRepository"
 class UpcomingFavoritesRepository(
     private val favoriteItemDao: FavoriteItemDao,
 ) {
-    private val diningApi: DiningApi = RetrofitInstance.api
+    private val diningApi: DiningApi = RetrofitInstance.diningApi
 
     fun getUpcomingFavoritesFlow(): Flow<Result<List<UpcomingFavorite>>> {
         return favoriteItemDao.getAllWithCustomNames().map { favorites ->

@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.database.FavoriteItem
+import com.obrockmole.betterdining.models.GitHubRelease
+import com.obrockmole.betterdining.network.RetrofitInstance.gitHubApi
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
+import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -106,6 +109,17 @@ class SettingsViewModel(
             Result.success(addedCount)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    fun getLatestRelease() {
+        viewModelScope.launch {
+            try {
+                val latestRelease = gitHubApi.getLatestRelease()
+                Logger.LogDebug("SettingsViewModel", "Latest release: ${latestRelease.tag_name}")
+            } catch (e: Exception) {
+                Logger.LogError("SettingsViewModel", "Error fetching latest release", e)
+            }
         }
     }
 }

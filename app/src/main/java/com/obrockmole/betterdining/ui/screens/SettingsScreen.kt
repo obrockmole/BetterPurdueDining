@@ -168,6 +168,7 @@ fun SettingsScreen(
                     title = "Check For Updates",
                     onClick = {
                         Logger.LogDebug(LOG_TAG, "Check for updates attempt")
+                        settingsViewModel.getLatestRelease()
                         showUpdateDialog = true
                     }
                 )
