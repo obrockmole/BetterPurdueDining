@@ -1,5 +1,6 @@
 package com.obrockmole.betterdining.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +49,7 @@ import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import com.obrockmole.betterdining.viewmodel.SettingsViewModelFactory
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 private const val LOG_TAG = "SettingsScreen"
 private const val CURRENT_VERSION = "1.3.0"
@@ -76,6 +78,7 @@ fun SettingsScreen(
     val navStyle by settingsViewModel.navStyle.collectAsState()
     val logLevel by settingsViewModel.logLevel.collectAsState()
     val latestVersion by settingsViewModel.latestVersion.collectAsState()
+    val latestVersionURL by settingsViewModel.latestVersionURL.collectAsState()
 
     var showImportDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
@@ -224,7 +227,7 @@ fun SettingsScreen(
         }
 
         if (showUpdateDialog) {
-            if (latestVersion == null) {
+            if (latestVersion == null || latestVersionURL == null) {
                 AlertDialog(
                     title = { Text(text = "Error") },
                     text = {
@@ -253,7 +256,12 @@ fun SettingsScreen(
                         }
                     },
                     confirmButton = {
-                        TextButton(onClick = { showUpdateDialog = false }) {
+                        TextButton(onClick = {
+                            showUpdateDialog = false
+                            Logger.LogInfo(LOG_TAG, "Opening latest version download link ($latestVersionURL)")
+                            val intent = Intent(Intent.ACTION_VIEW, latestVersionURL?.toUri())
+                            context.startActivity(intent)
+                        }) {
                             Text("Download")
                         }
                     },

@@ -54,6 +54,9 @@ class SettingsViewModel(
     private val _latestVersion = MutableStateFlow<String?>(null)
     val latestVersion: StateFlow<String?> = _latestVersion
 
+    private val _latestVersionURL = MutableStateFlow<String?>(null)
+    val latestVersionURL: StateFlow<String?> = _latestVersionURL
+
     fun setDefaultScreen(defaultScreen: String) {
         viewModelScope.launch {
             userPreferencesRepository.setDefaultScreen(defaultScreen)
@@ -80,13 +83,16 @@ class SettingsViewModel(
 
     suspend fun getLatestVersion() {
         _latestVersion.value = null
+        _latestVersionURL.value = null
         try {
             val latestRelease: GitHubRelease? = settingsRepository.getLatestRelease()
             if (latestRelease != null) {
                 _latestVersion.value = latestRelease.tag_name.removePrefix("v")
+                _latestVersionURL.value = latestRelease.html_url
             }
         } catch (e: Exception) {
             _latestVersion.value = null
+            _latestVersionURL.value = null
         }
     }
 
