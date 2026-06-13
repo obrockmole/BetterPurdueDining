@@ -33,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -51,13 +50,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.obrockmole.betterdining.R
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.MealDisplay
 import com.obrockmole.betterdining.viewmodel.MenuItemDisplay
 import com.obrockmole.betterdining.viewmodel.MenuUiState
 import com.obrockmole.betterdining.viewmodel.MenuViewModel
 import com.obrockmole.betterdining.viewmodel.StationDisplay
-import com.obrockmole.betterdining.utils.Logger
-import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId

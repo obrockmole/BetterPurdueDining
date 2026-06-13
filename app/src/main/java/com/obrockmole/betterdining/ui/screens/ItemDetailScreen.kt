@@ -55,11 +55,11 @@ import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
 import com.obrockmole.betterdining.viewmodel.ItemViewModelFactory
-import com.obrockmole.betterdining.utils.Logger
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId

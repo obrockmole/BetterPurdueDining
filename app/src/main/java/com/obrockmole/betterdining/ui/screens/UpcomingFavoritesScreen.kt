@@ -32,6 +32,7 @@ import com.obrockmole.betterdining.models.Appearance
 import com.obrockmole.betterdining.models.DiningCourtIdMap
 import com.obrockmole.betterdining.repository.UpcomingFavoritesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.UpcomingFavoritesViewModel
 import com.obrockmole.betterdining.viewmodel.UpcomingFavoritesViewModelFactory
@@ -40,7 +41,6 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import com.obrockmole.betterdining.utils.Logger
 
 private const val LOG_TAG = "UpcomingFavoritesScreen"
 

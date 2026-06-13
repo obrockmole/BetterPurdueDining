@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obrockmole.betterdining.database.FavoriteItem
-import com.obrockmole.betterdining.network.RetrofitInstance.gitHubApi
+import com.obrockmole.betterdining.models.GitHubRelease
 import com.obrockmole.betterdining.repository.FavoritesRepository
+import com.obrockmole.betterdining.repository.SettingsRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
-import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter
 import kotlinx.serialization.json.Json as KotlinJson
 
 class SettingsViewModel(
+    private val settingsRepository: SettingsRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
@@ -77,6 +78,16 @@ class SettingsViewModel(
         }
     }
 
+    suspend fun getLatestVersion() {
+        _latestVersion.value = null
+        try {
+            val latestRelease: GitHubRelease? = settingsRepository.getLatestRelease()
+            _latestVersion.value = latestRelease!!.tag_name.removePrefix("v")
+        } catch (e: Exception) {
+            _latestVersion.value = null
+        }
+    }
+
     suspend fun importFavorites(jsonString: String): Result<Int> {
         return try {
             val json = KotlinJson { ignoreUnknownKeys = true }
@@ -114,19 +125,6 @@ class SettingsViewModel(
             Result.failure(e)
         }
     }
-
-    suspend fun getLatestRelease() {
-        _latestVersion.value = null
-        try {
-            val latestRelease = gitHubApi.getLatestRelease()
-            _latestVersion.value = latestRelease.tag_name.removePrefix("v")
-
-            Logger.LogDebug("SettingsViewModel", "Latest release: ${latestRelease.tag_name}")
-        } catch (e: Exception) {
-            Logger.LogError("SettingsViewModel", "Error fetching latest release", e)
-            _latestVersion.value = "Error"
-        }
-    }
 }
 
 @Serializable
@@ -153,13 +151,14 @@ data class ImportFavoritesData(
 }
 
 class SettingsViewModelFactory(
+    private val settingsRepository: SettingsRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val favoritesRepository: FavoritesRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SettingsViewModel(userPreferencesRepository, favoritesRepository) as T
+            return SettingsViewModel(settingsRepository, userPreferencesRepository, favoritesRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

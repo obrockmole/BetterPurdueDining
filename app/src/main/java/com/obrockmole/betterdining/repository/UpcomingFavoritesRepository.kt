@@ -6,9 +6,9 @@ import com.obrockmole.betterdining.models.UpcomingFavorite
 import com.obrockmole.betterdining.network.DiningApi
 import com.obrockmole.betterdining.network.RetrofitInstance
 import com.obrockmole.betterdining.network.buildMultiItemQuery
+import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import com.obrockmole.betterdining.utils.Logger
 
 private const val LOG_TAG = "UpcomingFavoritesRepository"
 

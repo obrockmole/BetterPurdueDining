@@ -2,9 +2,9 @@ package com.obrockmole.betterdining.repository
 
 import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.database.FavoriteItemDao
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.FavoriteItemDisplay
 import kotlinx.coroutines.flow.Flow
-import com.obrockmole.betterdining.utils.Logger
 
 private const val LOG_TAG = "FavoritesRepository"
 

@@ -44,11 +44,11 @@ import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.repository.StartLocationsRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.SearchResultDisplay
 import com.obrockmole.betterdining.viewmodel.SearchViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModelFactory
-import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.delay
 import java.time.OffsetDateTime
 import java.time.ZoneId

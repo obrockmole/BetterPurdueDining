@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.obrockmole.betterdining.R
 import com.obrockmole.betterdining.database.AppDatabase
 import com.obrockmole.betterdining.repository.FavoritesRepository
+import com.obrockmole.betterdining.repository.SettingsRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.utils.Logger
@@ -65,6 +66,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
+            SettingsRepository(),
             UserPreferencesRepository(context),
             FavoritesRepository(AppDatabase.getDatabase(context).favoriteItemDao())
         )
@@ -183,7 +185,7 @@ fun SettingsScreen(
                             Logger.LogDebug(LOG_TAG, "Check for updates attempt")
                             coroutineScope.launch {
                                 checkingForUpdates = true
-                                settingsViewModel.getLatestRelease()
+                                settingsViewModel.getLatestVersion()
                                 checkingForUpdates = false
                                 showUpdateDialog = true
                             }
