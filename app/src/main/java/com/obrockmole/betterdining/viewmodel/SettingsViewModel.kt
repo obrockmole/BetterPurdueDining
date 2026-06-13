@@ -82,7 +82,9 @@ class SettingsViewModel(
         _latestVersion.value = null
         try {
             val latestRelease: GitHubRelease? = settingsRepository.getLatestRelease()
-            _latestVersion.value = latestRelease!!.tag_name.removePrefix("v")
+            if (latestRelease != null) {
+                _latestVersion.value = latestRelease.tag_name.removePrefix("v")
+            }
         } catch (e: Exception) {
             _latestVersion.value = null
         }

@@ -224,20 +224,57 @@ fun SettingsScreen(
         }
 
         if (showUpdateDialog) {
-            AlertDialog(
-                onDismissRequest = { showUpdateDialog = false },
-                title = { Text(text = "Check for Updates") },
-                text = {
-                    Text(
-                        text = "Current Version: $CURRENT_VERSION\nLatest Version: $latestVersion" ,
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { showUpdateDialog = false }) {
-                        Text("Okay.")
-                    }
-                }
-            )
+            if (latestVersion == null) {
+                AlertDialog(
+                    title = { Text(text = "Error") },
+                    text = {
+                        Text(
+                            text = "Error checking for updates. Please try again later.",
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Close")
+                        }
+                    },
+                    onDismissRequest = { showUpdateDialog = false }
+                )
+            } else if (latestVersion != CURRENT_VERSION) {
+                AlertDialog(
+                    title = { Text(text = "Update Found") },
+                    text = {
+                        Text(
+                            text = "Current Version: $CURRENT_VERSION\nLatest Version: $latestVersion",
+                        )
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Close")
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Download")
+                        }
+                    },
+                    onDismissRequest = { showUpdateDialog = false }
+                )
+            } else {
+                AlertDialog(
+                    title = { Text(text = "Not Updates Found") },
+                    text = {
+                        Text(
+                            text = "You are already on the latest version v$latestVersion",
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Okay")
+                        }
+                    },
+                    onDismissRequest = { showUpdateDialog = false }
+                )
+            }
         }
 
         Box(
