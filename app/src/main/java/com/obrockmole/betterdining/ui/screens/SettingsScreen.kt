@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 
 private const val LOG_TAG = "SettingsScreen"
-private const val CURRENT_VERSION = "1.3.0"
+private const val CURRENT_VERSION = "1.4.1"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
