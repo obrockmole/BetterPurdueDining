@@ -1,10 +1,11 @@
-package com.obrockmole.kmpbetterdining
+package com.obrockmole.kmpbetterdining.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,9 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.obrockmole.kmpbetterdining.utils.Logger
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.app_icon
+import kmpbetterdining.shared.generated.resources.keyboard_arrow_right
 import org.jetbrains.compose.resources.painterResource
+
+private const val LOG_TAG = "SettingsScreen"
+private const val CURRENT_VERSION = "1.4.1"
 
 @Composable
 fun SettingsScreen(
@@ -29,6 +35,8 @@ fun SettingsScreen(
     onNavigateToLicensesScreen: () -> Unit = {},
     onNavigateToLogLevel: () -> Unit = {}
 ) {
+    Logger.LogDebug(LOG_TAG, "Composable loaded")
+
     val defaultScreen by remember { mutableStateOf("Home") }
     val appTheme by remember { mutableStateOf("Dark") }
     val navStyle by remember { mutableStateOf("Bottom") }
@@ -36,6 +44,16 @@ fun SettingsScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
+            if (navStyle == "Bottom") {
+                item {
+                    Text(
+                        text = "Settings",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                        style = MaterialTheme.typography.headlineMediumEmphasized
+                    )
+                }
+            }
+
             item {
                 SettingsSectionHeader(title = "Preferences")
             }
@@ -45,6 +63,7 @@ fun SettingsScreen(
                     title = "Default Screen",
                     value = defaultScreen,
                     onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to default screen settings")
                         onNavigateToDefaultScreen()
                     }
                 )
@@ -56,6 +75,7 @@ fun SettingsScreen(
                     title = "Theme",
                     value = appTheme,
                     onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to theme settings")
                         onNavigateToTheme()
                     }
                 )
@@ -67,6 +87,7 @@ fun SettingsScreen(
                     title = "Navigation Style",
                     value = navStyle,
                     onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to nav style settings")
                         onNavigateToNavStyle()
                     }
                 )
@@ -78,6 +99,7 @@ fun SettingsScreen(
                     title = "Logging",
                     value = logLevel,
                     onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to log level settings")
                         onNavigateToLogLevel()
                     }
                 )
@@ -92,6 +114,7 @@ fun SettingsScreen(
                 NavigationalSetting(
                     title = "Licenses",
                     onClick = {
+                        Logger.LogInfo(LOG_TAG, "Navigating to licenses")
                         onNavigateToLicensesScreen()
                     }
                 )
@@ -99,14 +122,16 @@ fun SettingsScreen(
             }
 
             item {
-                InformationSetting(title = "Version", value = "1.0.0")
+                InformationSetting(title = "Version", value = CURRENT_VERSION)
                 HorizontalDivider()
             }
 
             item {
                 ActionSetting(
                     title = "Check For Updates",
-                    onClick = {}
+                    onClick = {
+                        Logger.LogDebug(LOG_TAG, "Check for updates attempt")
+                    }
                 )
                 HorizontalDivider(thickness = 6.dp)
             }
@@ -114,7 +139,9 @@ fun SettingsScreen(
             item {
                 ActionSetting(
                     title = "Import Favorites",
-                    onClick = {}
+                    onClick = {
+                        Logger.LogDebug(LOG_TAG, "Import favorites attempt")
+                    }
                 )
                 HorizontalDivider()
             }
@@ -159,7 +186,11 @@ fun SettingsSectionHeader(title: String) {
 }
 
 @Composable
-fun NavigationalSetting(title: String, value: String? = null, onClick: () -> Unit) {
+fun NavigationalSetting(
+    title: String,
+    value: String? = null,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,12 +200,20 @@ fun NavigationalSetting(title: String, value: String? = null, onClick: () -> Uni
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
-        if (value != null) {
-            Text(
-                text = value,
-                modifier = Modifier.padding(end = 8.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (value != null) {
+                Text(
+                    text = value,
+                    modifier = Modifier.padding(end = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+            Icon(
+                painter = painterResource(Res.drawable.keyboard_arrow_right),
+                contentDescription = null
             )
         }
     }
