@@ -6,14 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.obrockmole.betterdining.database.RenamedDiningCourt
-import com.obrockmole.betterdining.models.DiningCourtIdMap
-import com.obrockmole.betterdining.repository.MenuRepository
-import com.obrockmole.betterdining.repository.RenamedCourtsRepository
-import com.obrockmole.betterdining.repository.RenamedItemsRepository
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.obrockmole.kmpbetterdining.models.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.repository.MenuRepository
 import kotlinx.coroutines.launch
-import kotlin.collections.get
+import kotlin.reflect.KClass
 
 sealed interface MenuUiState {
     data class Success(val data: DiningCourtMenuDisplay?) : MenuUiState
@@ -48,9 +45,7 @@ class MenuViewModel(
                                         items = station.items.map { item ->
                                             MenuItemDisplay(
                                                 originalItem = item,
-                                                displayName = renamedItemsRepository.getRenamedItem(
-                                                    item.item.itemId
-                                                )?.customName ?: item.specialName ?: item.item.name
+                                                displayName = item.specialName ?: item.item.name
                                             )
                                         }
                                     )
@@ -62,31 +57,10 @@ class MenuViewModel(
                     )
                 }
 
-                val renamedCourt =
-                    renamedCourtsRepository.getRenamedCourt(mappedResult?.courtId ?: "")
-                if (renamedCourt != null) {
-                    isRenamed = true
-                    renamedName = renamedCourt.customName
-                }
-
                 menuUiState = MenuUiState.Success(mappedResult)
 
             } catch (e: Exception) {
                 menuUiState = MenuUiState.Error(e.message ?: "An unknown error occurred")
-            }
-        }
-    }
-
-    fun renameDiningCourt(courtId: String, customName: String) {
-        viewModelScope.launch {
-            if (customName.isEmpty()) {
-                renamedCourtsRepository.delete(RenamedDiningCourt(courtId, renamedName))
-                isRenamed = false
-            } else {
-                val renamedCourt = RenamedDiningCourt(courtId, customName)
-                renamedCourtsRepository.insert(renamedCourt)
-                isRenamed = true
-                renamedName = customName
             }
         }
     }
@@ -95,8 +69,8 @@ class MenuViewModel(
 class MenuViewModelFactory(
     private val menuRepository: MenuRepository
 ) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MenuViewModel::class.java)) {
+    override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
+        if (modelClass == MenuViewModel::class) {
             @Suppress("UNCHECKED_CAST")
             return MenuViewModel(
                 menuRepository

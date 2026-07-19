@@ -16,6 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.obrockmole.kmpbetterdining.repository.MenuRepository
 import com.obrockmole.kmpbetterdining.repository.StartLocationsRepository
 import com.obrockmole.kmpbetterdining.ui.screens.*
 import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
@@ -23,6 +25,8 @@ import com.obrockmole.kmpbetterdining.utils.BackHandler
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModelFactory
+import com.obrockmole.kmpbetterdining.viewmodel.MenuViewModel
+import com.obrockmole.kmpbetterdining.viewmodel.MenuViewModelFactory
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
@@ -34,7 +38,6 @@ private const val LOG_TAG = "MainActivity"
 fun App() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
 
@@ -48,8 +51,8 @@ fun App() {
     )
 
     BetterPurdueDiningTheme {
-        NavHost(navController = navController, startDestination = "main") {
-            composable("main") {
+        NavHost(navController = navController, startDestination = MainRoute) {
+            composable<MainRoute> {
                 BackHandler(enabled = currentDestination != AppDestinations.HOME) {
                     Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to HOME")
                     currentDestination = AppDestinations.HOME
@@ -92,12 +95,15 @@ fun App() {
                                                 onNavigateToFoodLocation = { locationName, locationId ->
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
 
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("locationName", locationName)
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialMealName", homeViewModel.selectedMealName.value)
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialDate", homeViewModel.selectedDate.value)
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialItemName", homeViewModel.selectedItem.value)
-
-                                                    navController.navigate("location/$locationId")
+                                                    navController.navigate(
+                                                        LocationRoute(
+                                                            locationId = locationId,
+                                                            locationName = locationName,
+                                                            initialMealName = homeViewModel.selectedMealName.value,
+                                                            initialDate = homeViewModel.selectedDate.value,
+                                                            initialItemName = homeViewModel.selectedItem.value
+                                                        )
+                                                    )
                                                 },
                                                 viewModel = homeViewModel
                                             )
@@ -114,23 +120,23 @@ fun App() {
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToDefaultScreen = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to default screen settings")
-                                                    navController.navigate("settings/defaultScreen")
+                                                    navController.navigate(DefaultScreenRoute)
                                                 },
                                                 onNavigateToTheme = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to theme settings")
-                                                    navController.navigate("settings/theme")
+                                                    navController.navigate(ThemeRoute)
                                                 },
                                                 onNavigateToNavStyle = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to nav style settings")
-                                                    navController.navigate("settings/navStyle")
+                                                    navController.navigate(NavStyleRoute)
                                                 },
                                                 onNavigateToLicensesScreen = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to licenses")
-                                                    navController.navigate("settings/licenses")
+                                                    navController.navigate(LicensesRoute)
                                                 },
                                                 onNavigateToLogLevel = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to log level settings")
-                                                    navController.navigate("settings/logLevel")
+                                                    navController.navigate(LogLevelRoute)
                                                 }
                                             )
                                         }
@@ -219,12 +225,15 @@ fun App() {
                                                 onNavigateToFoodLocation = { locationName, locationId ->
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
 
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("locationName", locationName)
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialMealName", homeViewModel.selectedMealName.value)
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialDate", homeViewModel.selectedDate.value)
-                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialItemName", homeViewModel.selectedItem.value)
-
-                                                    navController.navigate("location/$locationId")
+                                                    navController.navigate(
+                                                        LocationRoute(
+                                                            locationId = locationId,
+                                                            locationName = locationName,
+                                                            initialMealName = homeViewModel.selectedMealName.value,
+                                                            initialDate = homeViewModel.selectedDate.value,
+                                                            initialItemName = homeViewModel.selectedItem.value
+                                                        )
+                                                    )
                                                 },
                                                 viewModel = homeViewModel
                                             )
@@ -241,23 +250,23 @@ fun App() {
                                                 modifier = Modifier.padding(innerPadding),
                                                 onNavigateToDefaultScreen = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to default screen settings")
-                                                    navController.navigate("settings/defaultScreen")
+                                                    navController.navigate(DefaultScreenRoute)
                                                 },
                                                 onNavigateToTheme = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to theme settings")
-                                                    navController.navigate("settings/theme")
+                                                    navController.navigate(ThemeRoute)
                                                 },
                                                 onNavigateToNavStyle = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to nav style settings")
-                                                    navController.navigate("settings/navStyle")
+                                                    navController.navigate(NavStyleRoute)
                                                 },
                                                 onNavigateToLicensesScreen = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to licenses")
-                                                    navController.navigate("settings/licenses")
+                                                    navController.navigate(LicensesRoute)
                                                 },
                                                 onNavigateToLogLevel = {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to log level settings")
-                                                    navController.navigate("settings/logLevel")
+                                                    navController.navigate(LogLevelRoute)
                                                 }
                                             )
                                         }
@@ -269,55 +278,35 @@ fun App() {
                 }
             }
 
-            composable(
-                "location/{locationId}",
+            composable<LocationRoute>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) { backStackEntry ->
-                val locationId = backStackEntry.arguments?.getString("locationId")
-                Logger.LogDebug(LOG_TAG, "NavHost location: Entered location composable with id $locationId")
-                val locationName =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("locationName")
-                        ?: ""
-                val initialMealName =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialMealName")
-                val initialDate =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialDate")
-                val initialItemName =
-                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialItemName")
-                val context = LocalContext.current
+                val routeData = backStackEntry.toRoute<LocationRoute>()
+                Logger.LogDebug(LOG_TAG, "NavHost location: Entered location composable with id $routeData.locationId")
+
                 val menuViewModel: MenuViewModel = viewModel(
-                    key = locationId,
+                    key = routeData.locationId,
                     factory = MenuViewModelFactory(
-                        MenuRepository(),
-                        RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao()),
-                        RenamedCourtsRepository(
-                            AppDatabase.getDatabase(context).renamedDiningCourtDao()
-                        )
+                        MenuRepository()
                     )
                 )
-                if (locationId != null) {
-                    FoodLocationDetailScreen(
-                        name = locationName,
-                        courtId = locationId,
-                        onNavigateBack = { navController.popBackStack() },
-                        menuViewModel = menuViewModel,
-                        onNavigateToItem = { itemName, itemId ->
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "itemName",
-                                itemName
-                            )
-                            navController.navigate("item/$itemId")
-                        },
-                        initialMealName = initialMealName,
-                        initialDate = initialDate,
-                        initialItemName = initialItemName
-                    )
-                }
+
+                FoodLocationDetailScreen(
+                    name = routeData.locationName,
+                    courtId = routeData.locationId,
+                    onNavigateBack = { navController.popBackStack() },
+                    menuViewModel = menuViewModel,
+                    onNavigateToItem = { itemName, itemId ->
+                        navController.navigate(ItemRoute(itemId = itemId, itemName = itemName))
+                    },
+                    initialMealName = routeData.initialMealName,
+                    initialDate = routeData.initialDate,
+                    initialItemName = routeData.initialItemName
+                )
             }
 
-            composable(
-                "settings/defaultScreen",
+            composable<DefaultScreenRoute>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
@@ -329,8 +318,7 @@ fun App() {
                 )
             }
 
-            composable(
-                "settings/theme",
+            composable<ThemeRoute>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
@@ -342,8 +330,7 @@ fun App() {
                 )
             }
 
-            composable(
-                "settings/navStyle",
+            composable<NavStyleRoute>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
@@ -355,8 +342,7 @@ fun App() {
                 )
             }
 
-            composable(
-                "settings/licenses",
+            composable<LicensesRoute>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
@@ -368,8 +354,7 @@ fun App() {
                 )
             }
 
-            composable(
-                "settings/logLevel",
+            composable<LogLevelRoute>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {

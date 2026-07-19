@@ -3,7 +3,6 @@ package com.obrockmole.kmpbetterdining.repository
 import com.obrockmole.kmpbetterdining.GetStartLocationsQuery
 import com.obrockmole.kmpbetterdining.network.ApolloInstance
 import com.obrockmole.kmpbetterdining.utils.Logger
-import kotlin.text.iterator
 
 private const val LOG_TAG = "StartLocationsRepository"
 

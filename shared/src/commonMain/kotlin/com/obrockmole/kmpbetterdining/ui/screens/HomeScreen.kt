@@ -17,10 +17,7 @@ import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import kmpbetterdining.shared.generated.resources.*
-import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
-import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import kotlin.time.Clock
@@ -34,7 +31,6 @@ val quickBiteOptionsFormal =
 
 private val clock = Clock.System
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -113,19 +109,22 @@ fun HomeScreen(
                         )
                     }
                 }
+
                 items(diningCourtOptions) { diningCourtName ->
-                    val diningCourt =
-                        diningCourts.first { it.name == diningCourtName }
-                    DiningCourtListItem(
-                        diningCourt = diningCourt,
-                        onClicked = {
-                            Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.name}")
-                            onNavigateToFoodLocation(
-                                diningCourt.name,
-                                diningCourt.id
-                            )
-                        }
-                    )
+                    val diningCourt = diningCourts.firstOrNull { it.name == diningCourtName }
+
+                    if (diningCourt != null) {
+                        DiningCourtListItem(
+                            diningCourt = diningCourt,
+                            onClicked = {
+                                Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.name}")
+                                onNavigateToFoodLocation(
+                                    diningCourt.name,
+                                    diningCourt.id
+                                )
+                            }
+                        )
+                    }
                 }
 
                 item {
@@ -142,24 +141,28 @@ fun HomeScreen(
                         )
                     }
                 }
+
                 items(quickBiteOptionsFormal) { quickBiteName ->
-                    val quickBite = quickBites.first { it.name == quickBiteName }
-                    QuickBiteListItem(
-                        quickBite = quickBite,
-                        onClicked = {
-                            val name = when (quickBite.name) {
-                                "1bowl at Meredith Hall" -> "1bowl"
-                                "Pete's Za at Tarkington Hall" -> "Pete's Za"
-                                "Sushi Boss at Meredith Hall" -> "Sushi Boss"
-                                else -> quickBite.name
+                    val quickBite = quickBites.firstOrNull { it.name == quickBiteName }
+
+                    if (quickBite != null) {
+                        QuickBiteListItem(
+                            quickBite = quickBite,
+                            onClicked = {
+                                val name = when (quickBite.name) {
+                                    "1bowl at Meredith Hall" -> "1bowl"
+                                    "Pete's Za at Tarkington Hall" -> "Pete's Za"
+                                    "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+                                    else -> quickBite.name
+                                }
+                                Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
+                                onNavigateToFoodLocation(
+                                    name,
+                                    quickBite.id
+                                )
                             }
-                            Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
-                            onNavigateToFoodLocation(
-                                name,
-                                quickBite.id
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

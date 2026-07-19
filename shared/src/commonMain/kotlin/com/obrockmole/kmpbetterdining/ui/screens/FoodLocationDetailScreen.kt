@@ -4,13 +4,7 @@ import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,19 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.obrockmole.kmpbetterdining.ui.screens.clock
-import com.obrockmole.kmpbetterdining.viewmodel.MenuUiState
-import com.obrockmole.kmpbetterdining.viewmodel.MenuViewModel
 import com.obrockmole.kmpbetterdining.utils.BackHandler
 import com.obrockmole.kmpbetterdining.utils.Logger
-import kmpbetterdining.shared.generated.resources.Res
+import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import org.jetbrains.compose.resources.painterResource
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
 private const val LOG_TAG = "FoodLocationDetailScreen"
@@ -207,7 +195,7 @@ fun FoodLocationDetailScreen(
 
                                             if (index == mealList.lastIndex) {
                                                 selectedMealIndex = 0
-                                                displayedDate = displayedDate.plusDays(1)
+                                                displayedDate = displayedDate.plus(1, DateTimeUnit.DayBased(1))
                                             }
                                         }
                                     }
@@ -224,19 +212,19 @@ fun FoodLocationDetailScreen(
                                 IconButton(
                                     onClick = {
                                         Logger.LogDebug(LOG_TAG, "Previous day clicked")
-                                        displayedDate = displayedDate.minusDays(1)
+                                        displayedDate = displayedDate.minus(1, DateTimeUnit.DayBased(1))
                                     },
                                     modifier = Modifier.padding(start = 48.dp)
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.keyboard_arrow_left),
+                                        painter = painterResource(Res.drawable.keyboard_arrow_left),
                                         contentDescription = "Previous day."
                                     )
                                 }
 
-                                val today = LocalDate.now()
-                                val tomorrow = today.plusDays(1)
-                                val yesterday = today.minusDays(1)
+                                val today = clock.now().toLocalDateTime(TimeZone.of("America/New_York")).date
+                                val tomorrow = today.plus(1, DateTimeUnit.DayBased(1))
+                                val yesterday = today.minus(1, DateTimeUnit.DayBased(1))
 
                                 val dateText = when (displayedDate) {
                                     today -> "Today"
@@ -253,12 +241,12 @@ fun FoodLocationDetailScreen(
                                 IconButton(
                                     onClick = {
                                         Logger.LogDebug(LOG_TAG, "Next day clicked")
-                                        displayedDate = displayedDate + 1.days
+                                        displayedDate = displayedDate.plus(1, DateTimeUnit.DayBased(1))
                                     },
                                     modifier = Modifier.padding(end = 48.dp)
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.keyboard_arrow_right),
+                                        painter = painterResource(Res.drawable.keyboard_arrow_right),
                                         contentDescription = "Next day."
                                     )
                                 }
@@ -472,7 +460,7 @@ fun StationItem(
             ) {
                 if (itemWrapper.originalItem.hasComponents) {
                     Icon(
-                        painter = painterResource(id = R.drawable.stacks),
+                        painter = painterResource(Res.drawable.stacks),
                         modifier = Modifier.padding(end = 8.dp),
                         contentDescription = ""
                     )
