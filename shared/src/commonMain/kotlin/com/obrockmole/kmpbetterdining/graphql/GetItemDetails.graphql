@@ -1,0 +1,35 @@
+query GetItemDetails($id: Guid!) {
+    itemByItemId(itemId: $id) {
+        name
+        itemId
+        ingredients
+        isNutritionReady
+        nutritionFacts {
+            name
+            value
+            label
+            dailyValueLabel
+        }
+        traits {
+            name
+            type
+        }
+        appearances {
+            mealName
+            locationName
+            stationName
+            date
+        }
+        components {
+            name
+            itemId
+            isFlaggedForCurrentUser
+            isHiddenForCurrentUser
+            isNutritionReady
+            traits {
+                name
+                type
+            }
+        }
+    }
+}

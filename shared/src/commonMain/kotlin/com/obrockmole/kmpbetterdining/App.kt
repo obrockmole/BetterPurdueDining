@@ -11,14 +11,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.obrockmole.kmpbetterdining.repository.StartLocationsRepository
 import com.obrockmole.kmpbetterdining.ui.screens.*
 import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.kmpbetterdining.utils.BackHandler
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
+import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModelFactory
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
@@ -34,9 +38,14 @@ fun App() {
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
 
-
     val defaultScreen by remember { mutableStateOf("Home") }
     val navStyle by remember { mutableStateOf("Bottom") }
+
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(
+            StartLocationsRepository()
+        )
+    )
 
     BetterPurdueDiningTheme {
         NavHost(navController = navController, startDestination = "main") {
@@ -79,7 +88,18 @@ fun App() {
                                     when (currentDestination) {
                                         AppDestinations.HOME -> {
                                             HomeScreen(
-                                                modifier = Modifier.padding(innerPadding)
+                                                modifier = Modifier.padding(innerPadding),
+                                                onNavigateToFoodLocation = { locationName, locationId ->
+                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
+
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("locationName", locationName)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialMealName", homeViewModel.selectedMealName.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialDate", homeViewModel.selectedDate.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialItemName", homeViewModel.selectedItem.value)
+
+                                                    navController.navigate("location/$locationId")
+                                                },
+                                                viewModel = homeViewModel
                                             )
                                         }
 
@@ -195,7 +215,18 @@ fun App() {
                                     when (currentDestination) {
                                         AppDestinations.HOME -> {
                                             HomeScreen(
-                                                modifier = Modifier.padding(innerPadding)
+                                                modifier = Modifier.padding(innerPadding),
+                                                onNavigateToFoodLocation = { locationName, locationId ->
+                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to location $locationName ($locationId)")
+
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("locationName", locationName)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialMealName", homeViewModel.selectedMealName.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialDate", homeViewModel.selectedDate.value)
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set("initialItemName", homeViewModel.selectedItem.value)
+
+                                                    navController.navigate("location/$locationId")
+                                                },
+                                                viewModel = homeViewModel
                                             )
                                         }
 
@@ -235,6 +266,53 @@ fun App() {
                             }
                         }
                     }
+                }
+            }
+
+            composable(
+                "location/{locationId}",
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) { backStackEntry ->
+                val locationId = backStackEntry.arguments?.getString("locationId")
+                Logger.LogDebug(LOG_TAG, "NavHost location: Entered location composable with id $locationId")
+                val locationName =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("locationName")
+                        ?: ""
+                val initialMealName =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialMealName")
+                val initialDate =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialDate")
+                val initialItemName =
+                    navController.previousBackStackEntry?.savedStateHandle?.get<String>("initialItemName")
+                val context = LocalContext.current
+                val menuViewModel: MenuViewModel = viewModel(
+                    key = locationId,
+                    factory = MenuViewModelFactory(
+                        MenuRepository(),
+                        RenamedItemsRepository(AppDatabase.getDatabase(context).renamedItemDao()),
+                        RenamedCourtsRepository(
+                            AppDatabase.getDatabase(context).renamedDiningCourtDao()
+                        )
+                    )
+                )
+                if (locationId != null) {
+                    FoodLocationDetailScreen(
+                        name = locationName,
+                        courtId = locationId,
+                        onNavigateBack = { navController.popBackStack() },
+                        menuViewModel = menuViewModel,
+                        onNavigateToItem = { itemName, itemId ->
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "itemName",
+                                itemName
+                            )
+                            navController.navigate("item/$itemId")
+                        },
+                        initialMealName = initialMealName,
+                        initialDate = initialDate,
+                        initialItemName = initialItemName
+                    )
                 }
             }
 
