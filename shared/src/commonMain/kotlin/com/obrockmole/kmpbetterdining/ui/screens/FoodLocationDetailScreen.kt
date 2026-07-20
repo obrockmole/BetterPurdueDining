@@ -16,17 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.obrockmole.kmpbetterdining.utils.BackHandler
+import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.datetime.*
 import org.jetbrains.compose.resources.painterResource
-import kotlin.time.Clock
-import kotlin.time.Instant
 
 private const val LOG_TAG = "FoodLocationDetailScreen"
-
-private val clock = Clock.System
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -49,7 +46,7 @@ fun FoodLocationDetailScreen(
         mutableStateOf(
             initialDate?.let {
                 LocalDate.parse(it)
-            } ?: clock.now().toLocalDateTime(TimeZone.of("America/New_York")).date
+            } ?: DateTime.getDate()
         )
     }
 
@@ -175,7 +172,7 @@ fun FoodLocationDetailScreen(
                                         selectedMealIndex = index
                                     }
                                 } else {
-                                    val currentHour = clock.now().toLocalDateTime(TimeZone.of("America/New_York")).hour
+                                    val currentHour = DateTime.getTime().hour
                                     meals?.let { mealList ->
                                         for ((index, meal) in mealList.withIndex()) {
                                             if (meal.startTime == null || meal.endTime == null) continue
@@ -222,7 +219,7 @@ fun FoodLocationDetailScreen(
                                     )
                                 }
 
-                                val today = clock.now().toLocalDateTime(TimeZone.of("America/New_York")).date
+                                val today = DateTime.getDate()
                                 val tomorrow = today.plus(1, DateTimeUnit.DayBased(1))
                                 val yesterday = today.minus(1, DateTimeUnit.DayBased(1))
 

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.obrockmole.kmpbetterdining.GetStartLocationsQuery
 import com.obrockmole.kmpbetterdining.type.MealStatus
+import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
@@ -20,7 +21,6 @@ import kmpbetterdining.shared.generated.resources.*
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
-import kotlin.time.Clock
 import kotlin.time.Instant
 
 private const val LOG_TAG = "HomeScreen"
@@ -28,8 +28,6 @@ private const val LOG_TAG = "HomeScreen"
 val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Windsor")
 val quickBiteOptionsFormal =
     listOf("1bowl at Meredith Hall", "Pete's Za at Tarkington Hall", "Sushi Boss at Meredith Hall")
-
-private val clock = Clock.System
 
 @Composable
 fun HomeScreen(
@@ -52,7 +50,7 @@ fun HomeScreen(
             viewModel.clearNavigation()
         }
 
-        val date = clock.now().toLocalDateTime(TimeZone.of("America/New_York")).date
+        val date = DateTime.getDate()
         Logger.LogDebug(LOG_TAG, "Getting locations for date: $date")
         viewModel.getLocations(date.toString())
     }
@@ -186,7 +184,7 @@ fun DiningCourtListItem(
 
     val dailyMenu = diningCourt.dailyMenu!!
     var currentMealIndex = -1
-    val currentHour = clock.now().toLocalDateTime(TimeZone.of("America/New_York")).time.hour
+    val currentHour = DateTime.getTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
         if (meal.status == MealStatus.OPEN) {
             val startTime = meal.startTime?.let { kotlin.time.Instant.parse(it) }
@@ -279,7 +277,7 @@ fun QuickBiteListItem(
 
     val dailyMenu = quickBite.dailyMenu!!
     var currentMealIndex = -1
-    val currentHour = clock.now().toLocalDateTime(TimeZone.of("America/New_York")).time.hour
+    val currentHour = DateTime.getTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
         if (meal.status == MealStatus.OPEN) {
             val startTime = meal.startTime?.let { kotlin.time.Instant.parse(it) }

@@ -17,7 +17,6 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "DefaultScreenSelectionScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DefaultScreenSelectionScreen(
     onNavigateBack: () -> Unit,
