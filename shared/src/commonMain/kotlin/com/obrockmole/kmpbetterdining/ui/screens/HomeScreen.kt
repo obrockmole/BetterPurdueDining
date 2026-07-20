@@ -27,7 +27,7 @@ private const val LOG_TAG = "HomeScreen"
 
 val diningCourtOptions = listOf("Earhart", "Ford", "Hillenbrand", "Wiley", "Windsor")
 val quickBiteOptionsFormal =
-    listOf("1bowl at Meredith Hall", "Pete's Za at Tarkington Hall", "Sushi Boss at Meredith Hall")
+    listOf("1bowl at Meredith Hall", "Pete's Za at Tarkington Hall", "Sushi Boss at South Hall")
 
 @Composable
 fun HomeScreen(
@@ -150,7 +150,7 @@ fun HomeScreen(
                                 val name = when (quickBite.name) {
                                     "1bowl at Meredith Hall" -> "1bowl"
                                     "Pete's Za at Tarkington Hall" -> "Pete's Za"
-                                    "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+                                    "Sushi Boss at South Hall" -> "Sushi Boss"
                                     else -> quickBite.name
                                 }
                                 Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
@@ -264,7 +264,7 @@ fun QuickBiteListItem(
     val name = when (quickBite.name) {
         "1bowl at Meredith Hall" -> "1bowl"
         "Pete's Za at Tarkington Hall" -> "Pete's Za"
-        "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+        "Sushi Boss at South Hall" -> "Sushi Boss"
         else -> quickBite.name
     }
 
