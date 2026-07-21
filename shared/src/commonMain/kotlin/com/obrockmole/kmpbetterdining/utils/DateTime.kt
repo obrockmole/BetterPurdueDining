@@ -26,4 +26,8 @@ object DateTime {
     fun getTime(): LocalTime {
         return Clock.System.now().toLocalDateTime(timeZone).time
     }
+
+    fun parseTime(time: String): LocalTime {
+        return Instant.parse(time).toLocalDateTime(timeZone).time
+    }
 }

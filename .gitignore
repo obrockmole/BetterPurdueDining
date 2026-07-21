@@ -87,3 +87,5 @@ lint/tmp/
 app/src/androidTest/
 
 .DS_Store
+
+*.db

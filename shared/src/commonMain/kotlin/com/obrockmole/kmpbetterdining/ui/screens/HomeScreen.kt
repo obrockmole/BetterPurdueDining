@@ -15,6 +15,7 @@ import com.obrockmole.kmpbetterdining.GetStartLocationsQuery
 import com.obrockmole.kmpbetterdining.type.MealStatus
 import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import kmpbetterdining.shared.generated.resources.*
@@ -77,10 +78,8 @@ fun HomeScreen(
         is HomeUiState.Success -> {
             Logger.LogDebug(LOG_TAG, "UI loaded successfully")
             LazyColumn(modifier = modifier.fillMaxSize()) {
-                val diningCourts =
-                    uiState.data!!.first { it.first == "Dining Courts" }.second
-                val quickBites =
-                    uiState.data.first { it.first == "Quick Bites" }.second
+                val diningCourts = uiState.data!!.first { it.first == "Dining Courts" }.second
+                val quickBites = uiState.data.first { it.first == "Quick Bites" }.second
 
                 item {
                     Row(
@@ -109,20 +108,18 @@ fun HomeScreen(
                 }
 
                 items(diningCourtOptions) { diningCourtName ->
-                    val diningCourt = diningCourts.firstOrNull { it.name == diningCourtName }
+                    val diningCourt = diningCourts.first { it.diningCourt.name == diningCourtName }
 
-                    if (diningCourt != null) {
-                        DiningCourtListItem(
-                            diningCourt = diningCourt,
-                            onClicked = {
-                                Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.name}")
-                                onNavigateToFoodLocation(
-                                    diningCourt.name,
-                                    diningCourt.id
-                                )
-                            }
-                        )
-                    }
+                    DiningCourtListItem(
+                        diningCourt = diningCourt,
+                        onClicked = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
+                            onNavigateToFoodLocation(
+                                diningCourt.diningCourt.name,
+                                diningCourt.diningCourt.id
+                            )
+                        }
+                    )
                 }
 
                 item {
@@ -141,26 +138,24 @@ fun HomeScreen(
                 }
 
                 items(quickBiteOptionsFormal) { quickBiteName ->
-                    val quickBite = quickBites.firstOrNull { it.name == quickBiteName }
+                    val quickBite = quickBites.first { it.diningCourt.name == quickBiteName }
 
-                    if (quickBite != null) {
-                        QuickBiteListItem(
-                            quickBite = quickBite,
-                            onClicked = {
-                                val name = when (quickBite.name) {
-                                    "1bowl at Meredith Hall" -> "1bowl"
-                                    "Pete's Za at Tarkington Hall" -> "Pete's Za"
-                                    "Sushi Boss at South Hall" -> "Sushi Boss"
-                                    else -> quickBite.name
-                                }
-                                Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
-                                onNavigateToFoodLocation(
-                                    name,
-                                    quickBite.id
-                                )
+                    QuickBiteListItem(
+                        quickBite = quickBite,
+                        onClicked = {
+                            val name = when (quickBite.diningCourt.name) {
+                                "1bowl at Meredith Hall" -> "1bowl"
+                                "Pete's Za at Tarkington Hall" -> "Pete's Za"
+                                "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+                                else -> quickBite.diningCourt.name
                             }
-                        )
-                    }
+                            Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
+                            onNavigateToFoodLocation(
+                                name,
+                                quickBite.diningCourt.id
+                            )
+                        }
+                    )
                 }
             }
         }
@@ -169,11 +164,11 @@ fun HomeScreen(
 
 @Composable
 fun DiningCourtListItem(
-    diningCourt: GetStartLocationsQuery.DiningCourt,
+    diningCourt: DiningCourtWithCustomName,
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val diningCourtIcon = when (diningCourt.name.lowercase()) {
+    val diningCourtIcon = when (diningCourt.diningCourt.name.lowercase()) {
         "earhart" -> Res.drawable.earhart_icon
         "ford" -> Res.drawable.ford_icon
         "hillenbrand" -> Res.drawable.hillenbrand_icon
@@ -182,26 +177,24 @@ fun DiningCourtListItem(
         else -> Res.drawable.app_icon
     }
 
-    val dailyMenu = diningCourt.dailyMenu!!
+    val dailyMenu = diningCourt.diningCourt.dailyMenu!!
     var currentMealIndex = -1
     val currentHour = DateTime.getTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
         if (meal.status == MealStatus.OPEN) {
-            val startTime = meal.startTime?.let { kotlin.time.Instant.parse(it) }
-                ?.toLocalDateTime(TimeZone.of("America/New_York"))!!.time.hour
-            val endTime = meal.endTime?.let { Instant.parse(it) }
-                ?.toLocalDateTime(TimeZone.of("America/New_York"))!!.time.hour
+            val startTime = DateTime.parseTime(meal.startTime!!).hour
+            val endTime = DateTime.parseTime(meal.endTime!!).hour
 
             if (currentHour in startTime until endTime) {
                 currentMealIndex = index
-                Logger.LogDebug(LOG_TAG, "DiningCourtListItem: ${diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
+                Logger.LogDebug(LOG_TAG, "DiningCourtListItem: ${diningCourt.diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
                 return@forEachIndexed
             }
         }
     }
 
     if (currentMealIndex == -1) {
-        Logger.LogDebug(LOG_TAG, "DiningCourtListItem: ${diningCourt.name} CLOSED")
+        Logger.LogDebug(LOG_TAG, "DiningCourtListItem: ${diningCourt.diningCourt.name} CLOSED")
     }
 
     Row(
@@ -223,7 +216,7 @@ fun DiningCourtListItem(
 
             Column {
                 Text(
-                    text = diningCourt.name,
+                    text = diningCourt.customName ?: diningCourt.diningCourt.name,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 16.dp)
                 )
@@ -257,15 +250,15 @@ fun DiningCourtListItem(
 
 @Composable
 fun QuickBiteListItem(
-    quickBite: GetStartLocationsQuery.DiningCourt,
+    quickBite: DiningCourtWithCustomName,
     onClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val name = when (quickBite.name) {
+    val name = when (quickBite.diningCourt.name) {
         "1bowl at Meredith Hall" -> "1bowl"
         "Pete's Za at Tarkington Hall" -> "Pete's Za"
         "Sushi Boss at South Hall" -> "Sushi Boss"
-        else -> quickBite.name
+        else -> quickBite.diningCourt.name
     }
 
     val quickBiteIcon = when (name.lowercase()) {
@@ -275,26 +268,24 @@ fun QuickBiteListItem(
         else -> Res.drawable.app_icon
     }
 
-    val dailyMenu = quickBite.dailyMenu!!
+    val dailyMenu = quickBite.diningCourt.dailyMenu!!
     var currentMealIndex = -1
     val currentHour = DateTime.getTime().hour
     dailyMenu.meals.forEachIndexed { index, meal ->
         if (meal.status == MealStatus.OPEN) {
-            val startTime = meal.startTime?.let { kotlin.time.Instant.parse(it) }
-                ?.toLocalDateTime(TimeZone.of("America/New_York"))!!.time.hour
-            val endTime = meal.endTime?.let { Instant.parse(it) }
-                ?.toLocalDateTime(TimeZone.of("America/New_York"))!!.time.hour
+            val startTime = DateTime.parseTime(meal.startTime!!).hour
+            val endTime = DateTime.parseTime(meal.endTime!!).hour
 
             if (currentHour in startTime until endTime) {
                 currentMealIndex = index
-                Logger.LogDebug(LOG_TAG, "QuickBiteListItem: ${quickBite.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
+                Logger.LogDebug(LOG_TAG, "QuickBiteListItem: ${quickBite.diningCourt.name} OPEN. Current meal ${meal.name} ($currentMealIndex)")
                 return@forEachIndexed
             }
         }
     }
 
     if (currentMealIndex == -1) {
-        Logger.LogDebug(LOG_TAG, "QuickBiteListItem: ${quickBite.name} CLOSED")
+        Logger.LogDebug(LOG_TAG, "QuickBiteListItem: ${quickBite.diningCourt.name} CLOSED")
     }
 
     Row(
@@ -316,7 +307,7 @@ fun QuickBiteListItem(
 
             Column {
                 Text(
-                    text = quickBite.name,
+                    text = quickBite.customName ?: name,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 16.dp)
                 )

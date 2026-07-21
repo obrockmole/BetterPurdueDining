@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.obrockmole.kmpbetterdining.database.RenamedDiningCourt
 import com.obrockmole.kmpbetterdining.models.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.repository.MenuRepository
+import com.obrockmole.kmpbetterdining.repository.RenamedCourtsRepository
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -19,9 +21,16 @@ sealed interface MenuUiState {
 }
 
 class MenuViewModel(
-    private val menuRepository: MenuRepository
+    private val menuRepository: MenuRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModel() {
     var menuUiState: MenuUiState by mutableStateOf(MenuUiState.Loading)
+        private set
+
+    var isRenamed by mutableStateOf(false)
+        private set
+
+    var renamedName by mutableStateOf("")
         private set
 
     fun getMenu(name: String?, courtId: String?, date: String) {
@@ -57,6 +66,12 @@ class MenuViewModel(
                     )
                 }
 
+                val renamedCourt = renamedCourtsRepository.getRenamedCourt(mappedResult.courtId)
+                if (renamedCourt != null) {
+                    isRenamed = true
+                    renamedName = renamedCourt.customName
+                }
+
                 menuUiState = MenuUiState.Success(mappedResult)
 
             } catch (e: Exception) {
@@ -64,18 +79,35 @@ class MenuViewModel(
             }
         }
     }
+
+    fun renameDiningCourt(courtId: String, customName: String) {
+        viewModelScope.launch {
+            val renamedCourt = RenamedDiningCourt(courtId, customName)
+            if (customName.isEmpty()) {
+                renamedCourtsRepository.delete(renamedCourt)
+                isRenamed = false
+            } else {
+                renamedCourtsRepository.insert(renamedCourt)
+                isRenamed = true
+                renamedName = customName
+            }
+        }
+    }
 }
 
 class MenuViewModelFactory(
-    private val menuRepository: MenuRepository
+    private val menuRepository: MenuRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
         if (modelClass == MenuViewModel::class) {
             @Suppress("UNCHECKED_CAST")
             return MenuViewModel(
-                menuRepository
+                menuRepository,
+                renamedCourtsRepository
             ) as T
         }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS RenamedDiningCourt (
+    courtId TEXT NOT NULL PRIMARY KEY,
+    customName TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO RenamedDiningCourt(courtId, customName)
+VALUES (?, ?);
+
+delete:
+DELETE FROM RenamedDiningCourt WHERE courtId = ?;
+
+getRenamedCourt:
+SELECT * FROM RenamedDiningCourt WHERE courtId = ?;
+
+isRenamed:
+SELECT EXISTS(SELECT 1 FROM RenamedDiningCourt WHERE courtId = ?);

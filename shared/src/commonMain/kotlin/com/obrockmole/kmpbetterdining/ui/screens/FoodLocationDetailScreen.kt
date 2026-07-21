@@ -60,14 +60,36 @@ fun FoodLocationDetailScreen(
     val uiState = menuViewModel.menuUiState
     var selectedMealIndex by rememberSaveable { mutableIntStateOf(0) }
     var moreMenuShown by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
 
     var itemToHighlight by rememberSaveable { mutableStateOf(initialItemName) }
+
+    if (showRenameDialog && uiState is MenuUiState.Success) {
+        Logger.LogDebug(LOG_TAG, "Showing rename dialog")
+        RenameDiningCourtDialog(
+            onDismiss = {
+                Logger.LogDebug(LOG_TAG, "Rename dialog dismissed")
+                showRenameDialog = false
+            },
+            onRename = { newName ->
+                Logger.LogInfo(LOG_TAG, "Renaming dining court '$name' to '$newName'")
+                menuViewModel.renameDiningCourt(uiState.data!!.courtId, newName)
+                showRenameDialog = false
+            },
+            currentName = if (menuViewModel.isRenamed) menuViewModel.renamedName else name,
+            officialName = name
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = name)
+                    if (menuViewModel.isRenamed) {
+                        Text(text = menuViewModel.renamedName)
+                    } else {
+                        Text(text = name)
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -113,6 +135,8 @@ fun FoodLocationDetailScreen(
                                 },
                                 onClick = {
                                     Logger.LogDebug(LOG_TAG, "Rename option clicked")
+                                    moreMenuShown = false
+                                    showRenameDialog = true
                                 },
                                 selected = false,
                                 shapes = MenuItemShapes(
@@ -177,10 +201,8 @@ fun FoodLocationDetailScreen(
                                         for ((index, meal) in mealList.withIndex()) {
                                             if (meal.startTime == null || meal.endTime == null) continue
 
-                                            val startTime = meal.startTime?.let { kotlin.time.Instant.parse(it) }
-                                                ?.toLocalDateTime(TimeZone.of("America/New_York"))!!.time.hour
-                                            val endTime = meal.endTime?.let { Instant.parse(it) }
-                                                ?.toLocalDateTime(TimeZone.of("America/New_York"))!!.time.hour
+                                            val startTime = DateTime.parseTime(meal.startTime).hour
+                                            val endTime = DateTime.parseTime(meal.endTime).hour
 
                                             if (currentHour in startTime..<endTime) {
                                                 selectedMealIndex = index

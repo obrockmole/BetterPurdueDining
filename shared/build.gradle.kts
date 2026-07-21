@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -30,9 +31,11 @@ kotlin {
        compilerOptions {
            jvmTarget = JvmTarget.JVM_11
        }
+
        androidResources {
            enable = true
        }
+
        withHostTest {
            isIncludeAndroidResources = true
        }
@@ -41,7 +44,17 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.sqldelight.android)
         }
+
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native)
+        }
+
+        jvmMain.dependencies {
+            implementation(libs.sqldelight.sqlite)
+        }
+
         commonMain.dependencies {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
@@ -56,9 +69,8 @@ kotlin {
             implementation(libs.jetbrains.navigation.compose)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
-        }
-        commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.sqldelight.coroutines)
         }
     }
 }
@@ -85,5 +97,13 @@ apollo {
         mapScalar("TimeOnly", "kotlin.String")
         mapScalar("DateTime", "kotlin.String")
         mapScalar("Decimal", "kotlin.String")
+    }
+}
+
+sqldelight {
+    databases {
+        create("BetterDiningDatabase") {
+            packageName.set("com.obrockmole.kmpbetterdining.database")
+        }
     }
 }

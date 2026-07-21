@@ -3,7 +3,7 @@ package com.obrockmole.kmpbetterdining.utils
 expect fun writePlatformLog(logLevel: LogLevel, tag: String, message: String)
 
 object Logger {
-    var logAmount = LogAmount.MINIMAL
+    var logAmount = LogAmount.FULL
 
     fun LogInfo(tag: String, message: String) {
         if (logAmount == LogAmount.MINIMAL || logAmount == LogAmount.FULL) {

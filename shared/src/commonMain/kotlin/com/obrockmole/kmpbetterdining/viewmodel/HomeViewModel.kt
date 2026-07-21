@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.obrockmole.kmpbetterdining.GetStartLocationsQuery
+import com.obrockmole.kmpbetterdining.repository.RenamedCourtsRepository
 import com.obrockmole.kmpbetterdining.repository.StartLocationsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,13 +21,14 @@ data class DiningCourtWithCustomName(
 )
 
 sealed interface HomeUiState {
-    data class Success(val data: List<Pair<String, List<GetStartLocationsQuery.DiningCourt>>>?) : HomeUiState
+    data class Success(val data: List<Pair<String, List<DiningCourtWithCustomName>>>?) : HomeUiState
     data class Error(val message: String) : HomeUiState
     data object Loading : HomeUiState
 }
 
 class HomeViewModel(
-    private val startLocationsRepository: StartLocationsRepository
+    private val startLocationsRepository: StartLocationsRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModel() {
     private val _selectedDiningCourt = MutableStateFlow<Pair<String?, String?>>(Pair(null, null))
     val selectedDiningCourt: StateFlow<Pair<String?, String?>> = _selectedDiningCourt
@@ -69,7 +71,12 @@ class HomeViewModel(
             try {
                 val startLocations = startLocationsRepository.getStartLocations(date)
                 val result = startLocations?.map { category ->
-                    Pair(category.name, category.diningCourts)
+                    val courtsWithCustomNames = category.diningCourts.map { court ->
+                        val customName =
+                            renamedCourtsRepository.getRenamedCourt(court.id)?.customName
+                        DiningCourtWithCustomName(court, customName)
+                    }
+                    Pair(category.name, courtsWithCustomNames)
                 }
                 homeUiState = HomeUiState.Success(result)
             } catch (e: Exception) {
@@ -80,13 +87,15 @@ class HomeViewModel(
 }
 
 class HomeViewModelFactory(
-    private val startLocationsRepository: StartLocationsRepository
+    private val startLocationsRepository: StartLocationsRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
         if (modelClass == HomeViewModel::class) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(startLocationsRepository) as T
+            return HomeViewModel(startLocationsRepository, renamedCourtsRepository) as T
         }
+
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -31,11 +31,18 @@ import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import com.obrockmole.kmpbetterdining.database.BetterDiningDatabase
+import com.obrockmole.kmpbetterdining.database.DriverFactory
+import com.obrockmole.kmpbetterdining.repository.RenamedCourtsRepository
 
 private const val LOG_TAG = "MainActivity"
 
 @Composable
-fun App() {
+fun App(driverFactory: DriverFactory) {
+    val database = remember {
+        BetterDiningDatabase(driverFactory.createDriver())
+    }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -46,7 +53,8 @@ fun App() {
 
     val homeViewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
-            StartLocationsRepository()
+            StartLocationsRepository(),
+            RenamedCourtsRepository(database.renamedDiningCourtQueries)
         )
     )
 
@@ -288,7 +296,8 @@ fun App() {
                 val menuViewModel: MenuViewModel = viewModel(
                     key = routeData.locationId,
                     factory = MenuViewModelFactory(
-                        MenuRepository()
+                        MenuRepository(),
+                        RenamedCourtsRepository(database.renamedDiningCourtQueries)
                     )
                 )
 
