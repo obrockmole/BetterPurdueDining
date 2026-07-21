@@ -115,7 +115,7 @@ fun HomeScreen(
                         onClicked = {
                             Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
                             onNavigateToFoodLocation(
-                                diningCourt.diningCourt.name,
+                                diningCourt.customName ?: diningCourt.diningCourt.name,
                                 diningCourt.diningCourt.id
                             )
                         }
@@ -151,7 +151,7 @@ fun HomeScreen(
                             }
                             Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
                             onNavigateToFoodLocation(
-                                name,
+                                quickBite.customName ?: name,
                                 quickBite.diningCourt.id
                             )
                         }
