@@ -114,7 +114,17 @@ fun App(driverFactory: DriverFactory) {
 
                                         AppDestinations.FAVORITES -> {
                                             FavoritesScreen(
-                                                modifier = Modifier.padding(innerPadding)
+                                                modifier = Modifier.padding(innerPadding),
+                                                onNavigateToItem = { itemName, itemId ->
+                                                    navController.navigate(ItemRoute(itemId = itemId, itemName = itemName))
+                                                },
+                                                favoritesViewModel = viewModel(
+                                                    factory = FavoritesViewModelFactory(
+                                                        FavoritesRepository(database.favoriteItemQueries)
+                                                    )
+                                                ),
+                                                homeViewModel = homeViewModel,
+                                                showHeader = true
                                             )
                                         }
 
@@ -244,7 +254,17 @@ fun App(driverFactory: DriverFactory) {
 
                                         AppDestinations.FAVORITES -> {
                                             FavoritesScreen(
-                                                modifier = Modifier.padding(innerPadding)
+                                                modifier = Modifier.padding(innerPadding),
+                                                onNavigateToItem = { itemName, itemId ->
+                                                    navController.navigate(ItemRoute(itemId = itemId, itemName = itemName))
+                                                },
+                                                favoritesViewModel = viewModel(
+                                                    factory = FavoritesViewModelFactory(
+                                                        FavoritesRepository(database.favoriteItemQueries)
+                                                    )
+                                                ),
+                                                homeViewModel = homeViewModel,
+                                                showHeader = false
                                             )
                                         }
 

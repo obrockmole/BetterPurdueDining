@@ -19,3 +19,8 @@ SELECT EXISTS(SELECT 1 FROM FavoriteItem WHERE itemId = ?);
 
 getAll:
 SELECT * FROM FavoriteItem;
+
+getAllWithCustomNames:
+SELECT f.itemId, COALESCE(r.customName, f.name) AS name, f.dateAdded
+FROM FavoriteItem AS f
+LEFT JOIN RenamedItem AS r ON f.itemId = r.itemId;

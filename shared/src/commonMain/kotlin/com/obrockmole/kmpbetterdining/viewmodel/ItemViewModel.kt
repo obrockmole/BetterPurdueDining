@@ -76,7 +76,7 @@ class ItemViewModel(
     fun toggleFavorite(item: GetItemDetailsQuery.ItemByItemId) {
         viewModelScope.launch {
             val date = DateTime.getLocalDateTime()
-            val favoriteItem = FavoriteItem(item.name, item.itemId, date.toString())
+            val favoriteItem = FavoriteItem(item.itemId, item.name, date.toString())
 
             if (isFavorite) {
                 favoritesRepository.removeFavorite(favoriteItem)

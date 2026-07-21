@@ -1,8 +1,14 @@
 package com.obrockmole.kmpbetterdining.repository
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.obrockmole.kmpbetterdining.database.FavoriteItem
 import com.obrockmole.kmpbetterdining.database.FavoriteItemQueries
+import com.obrockmole.kmpbetterdining.database.GetAllWithCustomNames
 import com.obrockmole.kmpbetterdining.utils.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.Flow
 
 private const val LOG_TAG = "FavoritesRepository"
 
@@ -25,7 +31,11 @@ class FavoritesRepository(private val favoriteItemQueries: FavoriteItemQueries) 
         return favoriteItemQueries.isFavorite(itemId).executeAsOne()
     }
 
-    fun getAll(): List<FavoriteItem> {
-        return favoriteItemQueries.getAll().executeAsList()
+    fun getAll(): Flow<List<FavoriteItem>> {
+        return favoriteItemQueries.getAll().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    fun getAllWithCustomNames(): Flow<List<GetAllWithCustomNames>> {
+        return favoriteItemQueries.getAllWithCustomNames().asFlow().mapToList(Dispatchers.IO)
     }
 }

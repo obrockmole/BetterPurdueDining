@@ -9,7 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.FavoritesViewModel
+import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import kmpbetterdining.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
@@ -18,7 +21,11 @@ private const val LOG_TAG = "FavoritesScreen"
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FavoritesScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToItem: (String, String) -> Unit,
+    homeViewModel: HomeViewModel,
+    favoritesViewModel: FavoritesViewModel,
+    showHeader: Boolean
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
     var tabIndex by remember { mutableStateOf(0) }
@@ -26,7 +33,6 @@ fun FavoritesScreen(
     var selectedSort by remember { mutableIntStateOf(0) }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        val showHeader = true
         if (showHeader) {
             Row(
                 modifier = Modifier
@@ -45,13 +51,11 @@ fun FavoritesScreen(
                     var sortMenuShown by remember { mutableStateOf(false) }
 
                     Box(
-                        modifier = Modifier
-                            .padding(16.dp)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Icon(
                             painter = painterResource(Res.drawable.sort),
-                            modifier = Modifier
-                                .clickable(onClick = { sortMenuShown = true }),
+                            modifier = Modifier.clickable(onClick = { sortMenuShown = true }),
                             contentDescription = "Sort favorites."
                         )
 
@@ -102,7 +106,7 @@ fun FavoritesScreen(
                                 )
 
                                 HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+                                    modifier = Modifier.padding(horizontal = 12.dp)
                                 )
 
                                 DropdownMenuItem(
@@ -165,38 +169,56 @@ fun FavoritesScreen(
 
         when (tabIndex) {
             0 -> UpcomingFavoritesScreen()
-            1 -> AllFavoritesList()
+            1 -> AllFavoritesList(onNavigateToItem = onNavigateToItem, favoritesViewModel = favoritesViewModel, selectedSort = selectedSort)
         }
     }
 }
 
 @Composable
 fun AllFavoritesList(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToItem: (String, String) -> Unit,
+    favoritesViewModel: FavoritesViewModel,
+    selectedSort: Int
 ) {
-    val favorites = emptyList<String>()
+    val favorites by favoritesViewModel.favorites.collectAsState()
+    var sortedFavorites = favorites.sortedBy { it.name }
+    if (selectedSort == 1) {
+        sortedFavorites = sortedFavorites.reversed()
+    } else if (selectedSort == 2 || selectedSort == 3) {
+        sortedFavorites = sortedFavorites.sortedBy {
+            DateTime.parseDateTime(it.dateAdded)
+        }
+
+        if (selectedSort == 3) {
+            sortedFavorites = sortedFavorites.reversed()
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
-        if (favorites.isEmpty()) {
+        if (sortedFavorites.isEmpty()) {
             Text(
                 text = "No items favorited.",
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(favorites) { favoriteItem ->
+                items(sortedFavorites) { favoriteItem ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable(onClick = {
-//                                Logger.LogInfo(LOG_TAG, "Navigating to item ${favoriteItem.name} (${favoriteItem.itemId})")
+                                Logger.LogInfo(LOG_TAG, "Navigating to item ${favoriteItem.name} (${favoriteItem.itemId})")
+                                onNavigateToItem(
+                                    favoriteItem.name,
+                                    favoriteItem.itemId
+                                )
                             })
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-//                        Text(text = favoriteItem.name)
-                        Text(text = "Banana")
+                        Text(text = favoriteItem.name)
                         Icon(
                             painter = painterResource(Res.drawable.keyboard_arrow_right),
                             contentDescription = "Go to item."
