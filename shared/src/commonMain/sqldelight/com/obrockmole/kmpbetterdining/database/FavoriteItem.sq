@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS FavoriteItem (
+    itemId TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    dateAdded TEXT NOT NULL
+);
+
+addFavorite:
+INSERT OR REPLACE INTO FavoriteItem(itemId, name, dateAdded)
+VALUES (?, ?, ?);
+
+removeFavorite:
+DELETE FROM FavoriteItem WHERE itemId = ?;
+
+getFavorite:
+SELECT * FROM FavoriteItem WHERE itemId = ?;
+
+isFavorite:
+SELECT EXISTS(SELECT 1 FROM FavoriteItem WHERE itemId = ?);
+
+getAll:
+SELECT * FROM FavoriteItem;

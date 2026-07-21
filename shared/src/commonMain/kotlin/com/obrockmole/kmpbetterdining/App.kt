@@ -17,23 +17,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.obrockmole.kmpbetterdining.repository.MenuRepository
-import com.obrockmole.kmpbetterdining.repository.StartLocationsRepository
+import com.obrockmole.kmpbetterdining.database.BetterDiningDatabase
+import com.obrockmole.kmpbetterdining.database.DriverFactory
+import com.obrockmole.kmpbetterdining.repository.*
 import com.obrockmole.kmpbetterdining.ui.screens.*
 import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.kmpbetterdining.utils.BackHandler
 import com.obrockmole.kmpbetterdining.utils.Logger
-import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
-import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModelFactory
-import com.obrockmole.kmpbetterdining.viewmodel.MenuViewModel
-import com.obrockmole.kmpbetterdining.viewmodel.MenuViewModelFactory
+import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import com.obrockmole.kmpbetterdining.database.BetterDiningDatabase
-import com.obrockmole.kmpbetterdining.database.DriverFactory
-import com.obrockmole.kmpbetterdining.repository.RenamedCourtsRepository
 
 private const val LOG_TAG = "MainActivity"
 
@@ -297,6 +292,7 @@ fun App(driverFactory: DriverFactory) {
                     key = routeData.locationId,
                     factory = MenuViewModelFactory(
                         MenuRepository(),
+                        RenamedItemsRepository(database.renamedItemQueries),
                         RenamedCourtsRepository(database.renamedDiningCourtQueries)
                     )
                 )
@@ -312,6 +308,30 @@ fun App(driverFactory: DriverFactory) {
                     initialMealName = routeData.initialMealName,
                     initialDate = routeData.initialDate,
                     initialItemName = routeData.initialItemName
+                )
+            }
+
+            composable<ItemRoute>(
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) { backStackEntry ->
+                val routeData = backStackEntry.toRoute<ItemRoute>()
+                Logger.LogDebug(LOG_TAG, "NavHost item: Entered item composable with id ${routeData.itemId}")
+
+                val itemViewModel: ItemViewModel = viewModel(
+                    factory = ItemViewModelFactory(
+                        MenuRepository(),
+                        FavoritesRepository(database.favoriteItemQueries),
+                        RenamedItemsRepository(database.renamedItemQueries)
+                    )
+                )
+
+                ItemDetailScreen(
+                    itemName = routeData.itemName,
+                    itemId = routeData.itemId,
+                    onNavigateBack = { navController.popBackStack() },
+                    homeViewModel = homeViewModel,
+                    itemViewModel = itemViewModel
                 )
             }
 

@@ -11,6 +11,7 @@ import com.obrockmole.kmpbetterdining.database.RenamedDiningCourt
 import com.obrockmole.kmpbetterdining.models.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.repository.MenuRepository
 import com.obrockmole.kmpbetterdining.repository.RenamedCourtsRepository
+import com.obrockmole.kmpbetterdining.repository.RenamedItemsRepository
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -22,6 +23,7 @@ sealed interface MenuUiState {
 
 class MenuViewModel(
     private val menuRepository: MenuRepository,
+    private val renamedItemsRepository: RenamedItemsRepository,
     private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModel() {
     var menuUiState: MenuUiState by mutableStateOf(MenuUiState.Loading)
@@ -54,7 +56,9 @@ class MenuViewModel(
                                         items = station.items.map { item ->
                                             MenuItemDisplay(
                                                 originalItem = item,
-                                                displayName = item.specialName ?: item.item.name
+                                                displayName = renamedItemsRepository.getRenamedItem(
+                                                    item.item.itemId
+                                                )?.customName ?: item.specialName ?: item.item.name
                                             )
                                         }
                                     )
@@ -83,6 +87,7 @@ class MenuViewModel(
     fun renameDiningCourt(courtId: String, customName: String) {
         viewModelScope.launch {
             val renamedCourt = RenamedDiningCourt(courtId, customName)
+
             if (customName.isEmpty()) {
                 renamedCourtsRepository.delete(renamedCourt)
                 isRenamed = false
@@ -97,6 +102,7 @@ class MenuViewModel(
 
 class MenuViewModelFactory(
     private val menuRepository: MenuRepository,
+    private val renamedItemsRepository: RenamedItemsRepository,
     private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
@@ -104,6 +110,7 @@ class MenuViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return MenuViewModel(
                 menuRepository,
+                renamedItemsRepository,
                 renamedCourtsRepository
             ) as T
         }

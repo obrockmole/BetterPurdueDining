@@ -11,7 +11,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.obrockmole.kmpbetterdining.GetStartLocationsQuery
 import com.obrockmole.kmpbetterdining.type.MealStatus
 import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
@@ -20,6 +19,7 @@ import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import kotlin.time.Instant
@@ -231,7 +231,7 @@ fun DiningCourtListItem(
                     val localTime = endTimeInstant!!.toLocalDateTime(TimeZone.currentSystemDefault()).time
 
                     Text(
-                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + localTime,
+                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + localTime.format(DateTime.longTimeFormat),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp)
@@ -322,7 +322,7 @@ fun QuickBiteListItem(
                     val localTime = endTimeInstant!!.toLocalDateTime(TimeZone.currentSystemDefault()).time
 
                     Text(
-                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + localTime,
+                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + localTime.format(DateTime.longTimeFormat),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp)

@@ -249,7 +249,7 @@ fun FoodLocationDetailScreen(
                                     today -> "Today"
                                     tomorrow -> "Tomorrow"
                                     yesterday -> "Yesterday"
-                                    else -> displayedDate.toString()
+                                    else -> displayedDate.format(DateTime.monthDayFormat)
                                 }
 
                                 Text(
@@ -465,7 +465,7 @@ fun StationItem(
                 .clickable(onClick = {
                     Logger.LogDebug(LOG_TAG, "Navigating to ${itemWrapper.displayName}")
                     onNavigateToItem(
-                        itemWrapper.originalItem.item.name,
+                        itemWrapper.displayName,
                         itemWrapper.originalItem.item.itemId
                     )
                 })

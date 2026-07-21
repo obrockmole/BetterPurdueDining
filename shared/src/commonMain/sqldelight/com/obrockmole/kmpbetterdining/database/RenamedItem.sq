@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS RenamedItem (
+    itemId TEXT NOT NULL PRIMARY KEY,
+    customName TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO RenamedItem(itemId, customName)
+VALUES (?, ?);
+
+delete:
+DELETE FROM RenamedItem WHERE itemId = ?;
+
+getRenamedItem:
+SELECT * FROM RenamedItem WHERE itemId = ?;
+
+isRenamed:
+SELECT EXISTS(SELECT 1 FROM RenamedItem WHERE itemId = ?);
