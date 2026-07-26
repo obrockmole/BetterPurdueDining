@@ -10,14 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.obrockmole.kmpbetterdining.repository.SettingsRepository
-import com.obrockmole.kmpbetterdining.repository.UserPreferencesRepository
 import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.FavoritesViewModel
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
-import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModelFactory
-import com.obrockmole.kmpbetterdining.viewmodel.UpcomingFavoritesViewModel
 import com.obrockmole.kmpbetterdining.viewmodel.UpcomingFavoritesViewModelFactory
 import kmpbetterdining.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource

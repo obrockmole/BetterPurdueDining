@@ -9,7 +9,8 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 object DateTime {
-    val timeZone = TimeZone.of("America/New_York")
+    val purdueTimeZone = TimeZone.of("America/New_York")
+    val systemTimeZone = TimeZone.currentSystemDefault()
 
     val dayOfWeekFormat = LocalDate.Format {
         dayOfWeek(DayOfWeekNames.ENGLISH_FULL)
@@ -39,27 +40,27 @@ object DateTime {
         return Clock.System.now()
     }
 
-    fun getLocalDateTime(): LocalDateTime {
-        return Clock.System.now().toLocalDateTime(timeZone)
+    fun getLocalDateTime(timezone: TimeZone = purdueTimeZone): LocalDateTime {
+        return Clock.System.now().toLocalDateTime(timezone)
     }
 
-    fun getDate(): LocalDate {
-        return Clock.System.now().toLocalDateTime(timeZone).date
+    fun getDate(timezone: TimeZone = purdueTimeZone): LocalDate {
+        return Clock.System.now().toLocalDateTime(timezone).date
     }
 
-    fun getTime(): LocalTime {
-        return Clock.System.now().toLocalDateTime(timeZone).time
+    fun getTime(timezone: TimeZone = purdueTimeZone): LocalTime {
+        return Clock.System.now().toLocalDateTime(timezone).time
     }
 
-    fun parseTime(time: String): LocalTime {
-        return Instant.parse(time).toLocalDateTime(timeZone).time
+    fun parseTime(time: String, timezone: TimeZone = purdueTimeZone): LocalTime {
+        return Instant.parse(time).toLocalDateTime(timezone).time
     }
 
-    fun parseDate(time: String): LocalDate {
-        return Instant.parse(time).toLocalDateTime(timeZone).date
+    fun parseDate(date: String, timezone: TimeZone = purdueTimeZone): LocalDate {
+        return Instant.parse(date).toLocalDateTime(timezone).date
     }
 
-    fun parseDateTime(time: String): LocalDateTime {
-        return Instant.parse(time).toLocalDateTime(timeZone)
+    fun parseDateTime(dateTime: String, timezone: TimeZone = purdueTimeZone): LocalDateTime {
+        return Instant.parse(dateTime).toLocalDateTime(timezone)
     }
 }

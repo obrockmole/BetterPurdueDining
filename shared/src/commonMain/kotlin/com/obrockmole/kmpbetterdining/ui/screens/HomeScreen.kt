@@ -18,11 +18,8 @@ import com.obrockmole.kmpbetterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import kmpbetterdining.shared.generated.resources.*
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
-import kotlin.time.Instant
 
 private const val LOG_TAG = "HomeScreen"
 
@@ -227,11 +224,10 @@ fun DiningCourtListItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 if (currentMealIndex >= 0) {
-                    val endTimeInstant = dailyMenu.meals[currentMealIndex].endTime?.let { Instant.parse(it) }
-                    val localTime = endTimeInstant!!.toLocalDateTime(TimeZone.currentSystemDefault()).time
+                    val endTime = DateTime.parseTime(dailyMenu.meals[currentMealIndex].endTime!!, DateTime.systemTimeZone)
 
                     Text(
-                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + localTime.format(DateTime.longTimeFormat),
+                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + endTime.format(DateTime.longTimeFormat),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp)
@@ -318,11 +314,10 @@ fun QuickBiteListItem(
                     modifier = Modifier.padding(start = 16.dp)
                 )
                 if (currentMealIndex >= 0) {
-                    val endTimeInstant = dailyMenu.meals[currentMealIndex].endTime?.let { Instant.parse(it) }
-                    val localTime = endTimeInstant!!.toLocalDateTime(TimeZone.currentSystemDefault()).time
+                    val endTime = DateTime.parseTime(dailyMenu.meals[currentMealIndex].endTime!!, DateTime.systemTimeZone)
 
                     Text(
-                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + localTime.format(DateTime.longTimeFormat),
+                        text = "Serving " + dailyMenu.meals[currentMealIndex].name + " until " + endTime.format(DateTime.longTimeFormat),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 16.dp)

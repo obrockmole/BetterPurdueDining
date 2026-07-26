@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 data class ItemDetails(
     val name: String,
     val itemId: String,
-    val ingredients: String?,
-    val nutritionFacts: List<NutritionFact>,
-    val traits: List<Trait>,
-    val components: List<Component>,
+    val ingredients: String? = null,
+    val nutritionFacts: List<NutritionFact>? = null,
+    val traits: List<Trait>? = null,
+    val components: List<Component>? = null,
     val appearances: List<Appearance>
 )
 
@@ -42,7 +42,7 @@ data class Component(
 @Serializable
 data class Appearance(
     val locationName: String,
-    val stationName: String,
+    val stationName: String? = null,
     val mealName: String,
     val date: String
 )

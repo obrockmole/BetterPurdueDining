@@ -4,8 +4,7 @@ import com.obrockmole.kmpbetterdining.models.GraphQLRequest
 import com.obrockmole.kmpbetterdining.models.MultiItemResponse
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import io.ktor.http.*
 
 object DiningApi {
     private const val BASE_URL = "https://api.hfs.purdue.edu/"

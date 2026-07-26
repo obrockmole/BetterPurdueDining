@@ -27,7 +27,7 @@ private const val LOG_TAG = "ItemDetailScreen"
 
 val itemDetails = listOf("Nutrition", "Traits", "Component", "Schedule")
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ItemDetailScreen(
     itemName: String,
@@ -519,7 +519,7 @@ fun AppearanceItem(
             ) {
                 Text(text = appearance.stationName)
                 Text(
-                    text = DateTime.parseTime(appearance.date).format(DateTime.longTimeFormat),
+                    text = DateTime.parseTime(appearance.date, DateTime.systemTimeZone).format(DateTime.longTimeFormat),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

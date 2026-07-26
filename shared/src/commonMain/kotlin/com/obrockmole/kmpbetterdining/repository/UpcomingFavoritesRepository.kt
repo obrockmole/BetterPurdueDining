@@ -9,7 +9,6 @@ import com.obrockmole.kmpbetterdining.utils.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.json.JsonElement
 
 private const val LOG_TAG = "UpcomingFavoritesRepository"
 
@@ -23,7 +22,7 @@ class UpcomingFavoritesRepository(private val favorites: StateFlow<List<GetAllWi
                 val favoriteIds = favorites.map { it.itemId }
 
                 val query = buildMultiItemQuery(favoriteIds)
-                val request = GraphQLRequest(query = query, variables = emptyMap<String, JsonElement>())
+                val request = GraphQLRequest(query = query, variables = emptyMap())
                 val response = DiningApi.getMultipleItems(request)
 
                 val upcomingFavorites =

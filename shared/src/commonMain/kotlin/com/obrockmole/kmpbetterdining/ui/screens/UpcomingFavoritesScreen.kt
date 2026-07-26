@@ -19,8 +19,6 @@ import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import com.obrockmole.kmpbetterdining.viewmodel.UpcomingFavoritesViewModel
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.plus
 
@@ -52,7 +50,7 @@ fun UpcomingFavoritesScreen(
             val allAppearances = upcomingFavorites.flatMap { favorite ->
                 favorite.appearances.map { appearance -> favorite.name to appearance }
             }.distinctBy { (name, appearance) ->
-                Triple(name, appearance.mealName, appearance.locationName)
+                Triple(name, appearance.locationName, appearance.date)
             }.sortedBy { (_, appearance) ->
                 DateTime.parseDateTime(appearance.date)
             }
@@ -63,7 +61,7 @@ fun UpcomingFavoritesScreen(
 
             val weekAppearances = allAppearances.filter { (_, appearance) ->
                 val date = DateTime.parseDate(appearance.date)
-                date > (today) && date < today.plus(7, DateTimeUnit.DayBased(1))
+                (date > today) && (date < today.plus(7, DateTimeUnit.DayBased(1)))
             }
 
             val groupedAppearances = if (showMore || todayAppearances.isEmpty()) {
@@ -96,7 +94,11 @@ fun UpcomingFavoritesScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth(),
-                            contentPadding = PaddingValues(0.dp)
+                            contentPadding = if (weekAppearances.isNotEmpty()) {
+                                PaddingValues(bottom = 72.dp)
+                            } else {
+                                PaddingValues(0.dp)
+                            }
                         ) {
                             groupedAppearances.forEach { (date, appearances) ->
                                 item {
@@ -196,7 +198,7 @@ fun UpcomingFavoriteItem(
             }
 
             Text(
-                text = "${appearance.mealName} at ${appearance.date}",
+                text = "${appearance.mealName} at ${DateTime.parseTime(appearance.date, DateTime.systemTimeZone).format(DateTime.shortTimeFormat)}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

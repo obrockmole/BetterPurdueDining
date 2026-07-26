@@ -20,7 +20,10 @@ import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
-import kotlinx.datetime.*
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.format
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "FoodLocationDetailScreen"
@@ -45,7 +48,7 @@ fun FoodLocationDetailScreen(
     var displayedDate by remember {
         mutableStateOf(
             initialDate?.let {
-                LocalDate.parse(it)
+                DateTime.parseDate(it)
             } ?: DateTime.getDate()
         )
     }
