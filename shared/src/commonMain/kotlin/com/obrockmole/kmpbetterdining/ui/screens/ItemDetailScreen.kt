@@ -25,7 +25,7 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "ItemDetailScreen"
 
-val itemDetails = listOf("Nutrition", "Traits", "Component", "Schedule")
+val itemDetails = listOf("Nutrition", "Traits", "Components", "Schedule")
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
