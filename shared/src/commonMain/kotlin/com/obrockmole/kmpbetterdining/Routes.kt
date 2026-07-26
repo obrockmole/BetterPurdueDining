@@ -18,7 +18,7 @@ data object NavStyleRoute
 data object LicensesRoute
 
 @Serializable
-data object LogLevelRoute
+data object LogAmountRoute
 
 @Serializable
 data class LocationRoute(

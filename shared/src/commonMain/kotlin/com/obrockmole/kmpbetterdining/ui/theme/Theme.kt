@@ -84,9 +84,10 @@ private fun rainbowColorScheme(): ColorScheme {
 @Composable
 fun BetterPurdueDiningTheme(
     theme: String = "Material",
+    key: Any? = null,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = remember(theme) {
+    val colorScheme = remember(theme, key) {
         when (theme) {
             "Light" -> LightColorScheme
             "Dark" -> DarkColorScheme

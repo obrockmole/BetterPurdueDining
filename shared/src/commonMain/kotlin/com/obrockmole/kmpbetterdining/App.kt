@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.obrockmole.kmpbetterdining.database.BetterDiningDatabase
+import com.obrockmole.kmpbetterdining.database.DataStoreFactory
 import com.obrockmole.kmpbetterdining.database.DriverFactory
 import com.obrockmole.kmpbetterdining.repository.*
 import com.obrockmole.kmpbetterdining.ui.screens.*
@@ -33,18 +34,14 @@ import org.jetbrains.compose.resources.painterResource
 private const val LOG_TAG = "MainActivity"
 
 @Composable
-fun App(driverFactory: DriverFactory) {
+fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
     val database = remember {
         BetterDiningDatabase(driverFactory.createDriver())
     }
 
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
-
-    val defaultScreen by remember { mutableStateOf("Home") }
-    val navStyle by remember { mutableStateOf("Bottom") }
+    val dataStore = remember {
+        dataStoreFactory.createDataStore()
+    }
 
     val homeViewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
@@ -53,7 +50,43 @@ fun App(driverFactory: DriverFactory) {
         )
     )
 
-    BetterPurdueDiningTheme {
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(
+            SettingsRepository(),
+            UserPreferencesRepository(dataStore)
+        )
+    )
+
+    val appTheme by settingsViewModel.appTheme.collectAsState(initial = "Material")
+    val logAmount by settingsViewModel.logAmount.collectAsState(initial = "Minimal")
+    Logger.setLogAmount(logAmount)
+
+    val navController = rememberNavController()
+    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    var isInitialScreenSet by rememberSaveable { mutableStateOf(false) }
+
+    BetterPurdueDiningTheme(theme = appTheme, key = currentDestination) {
+        val defaultScreen by settingsViewModel.defaultScreen.collectAsState(initial = null)
+        Logger.LogDebug(LOG_TAG, "Default screen: $defaultScreen")
+        val navStyle by settingsViewModel.navStyle.collectAsState(initial = null)
+        Logger.LogDebug(LOG_TAG, "Nav style: $navStyle")
+
+        if (defaultScreen != null && !isInitialScreenSet) {
+            currentDestination = when (defaultScreen) {
+                "Favorites" -> AppDestinations.FAVORITES
+                "Home" -> AppDestinations.HOME
+                else -> AppDestinations.HOME
+            }
+            Logger.LogDebug(LOG_TAG, "Set initial screen to: $currentDestination")
+            isInitialScreenSet = true
+        }
+
+        val navigatedFromFavorites by homeViewModel.selectedDiningCourt.collectAsState()
+        LaunchedEffect(navigatedFromFavorites) {
+            Logger.LogInfo(LOG_TAG, "Navigated from favorites")
+            currentDestination = AppDestinations.HOME
+        }
+
         NavHost(navController = navController, startDestination = MainRoute) {
             composable<MainRoute> {
                 BackHandler(enabled = currentDestination != AppDestinations.HOME) {
@@ -147,10 +180,11 @@ fun App(driverFactory: DriverFactory) {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to licenses")
                                                     navController.navigate(LicensesRoute)
                                                 },
-                                                onNavigateToLogLevel = {
-                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to log level settings")
-                                                    navController.navigate(LogLevelRoute)
-                                                }
+                                                onNavigateToLogAmount = {
+                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to log amount settings")
+                                                    navController.navigate(LogAmountRoute)
+                                                },
+                                                settingsViewModel = settingsViewModel
                                             )
                                         }
                                     }
@@ -287,10 +321,11 @@ fun App(driverFactory: DriverFactory) {
                                                     Logger.LogInfo(LOG_TAG, "NavHost main drawer: Navigating to licenses")
                                                     navController.navigate(LicensesRoute)
                                                 },
-                                                onNavigateToLogLevel = {
-                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to log level settings")
-                                                    navController.navigate(LogLevelRoute)
-                                                }
+                                                onNavigateToLogAmount = {
+                                                    Logger.LogInfo(LOG_TAG, "NavHost main suit: Navigating to log amount settings")
+                                                    navController.navigate(LogAmountRoute)
+                                                },
+                                                settingsViewModel = settingsViewModel
                                             )
                                         }
                                     }
@@ -363,7 +398,8 @@ fun App(driverFactory: DriverFactory) {
                     onNavigateBack = {
                         Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from DefaultScreenSelectionScreen")
                         navController.popBackStack()
-                    }
+                    },
+                    settingsViewModel = settingsViewModel
                 )
             }
 
@@ -375,7 +411,8 @@ fun App(driverFactory: DriverFactory) {
                     onNavigateBack = {
                         Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from ThemeSelectionScreen")
                         navController.popBackStack()
-                    }
+                    },
+                    settingsViewModel = settingsViewModel
                 )
             }
 
@@ -387,7 +424,21 @@ fun App(driverFactory: DriverFactory) {
                     onNavigateBack = {
                         Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from NavStyleSelectionScreen")
                         navController.popBackStack()
-                    }
+                    },
+                    settingsViewModel = settingsViewModel
+                )
+            }
+
+            composable<LogAmountRoute>(
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
+                LogAmountSelectionScreen(
+                    onNavigateBack = {
+                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from LogAmountSelectionScreen")
+                        navController.popBackStack()
+                    },
+                    settingsViewModel = settingsViewModel
                 )
             }
 
@@ -398,18 +449,6 @@ fun App(driverFactory: DriverFactory) {
                 LicensesScreen(
                     onNavigateBack = {
                         Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from LicensesScreen")
-                        navController.popBackStack()
-                    }
-                )
-            }
-
-            composable<LogLevelRoute>(
-                enterTransition = { EnterTransition.None },
-                exitTransition = { ExitTransition.None }
-            ) {
-                LogLevelSelectionScreen(
-                    onNavigateBack = {
-                        Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from LogLevelSelectionScreen")
                         navController.popBackStack()
                     }
                 )

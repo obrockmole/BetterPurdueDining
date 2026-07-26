@@ -11,11 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.obrockmole.kmpbetterdining.repository.SettingsRepository
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
-import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModelFactory
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.app_icon
 import kmpbetterdining.shared.generated.resources.keyboard_arrow_right
@@ -32,21 +29,16 @@ fun SettingsScreen(
     onNavigateToTheme: () -> Unit = {},
     onNavigateToNavStyle: () -> Unit = {},
     onNavigateToLicensesScreen: () -> Unit = {},
-    onNavigateToLogLevel: () -> Unit = {}
+    onNavigateToLogAmount: () -> Unit = {},
+    settingsViewModel: SettingsViewModel,
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
 
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(
-            SettingsRepository()
-        )
-    )
+    val defaultScreen by settingsViewModel.defaultScreen.collectAsState()
+    val appTheme by settingsViewModel.appTheme.collectAsState()
+    val navStyle by settingsViewModel.navStyle.collectAsState()
+    val logAmount by settingsViewModel.logAmount.collectAsState()
 
-    val defaultScreen by remember { mutableStateOf("Home") }
-    val appTheme by remember { mutableStateOf("Dark") }
-    val navStyle by remember { mutableStateOf("Bottom") }
-    val logLevel by remember { mutableStateOf("Minimal") }
-    
     val latestVersion by settingsViewModel.latestVersion.collectAsState()
     val latestVersionURL by settingsViewModel.latestVersionURL.collectAsState()
 
@@ -109,10 +101,10 @@ fun SettingsScreen(
             item {
                 NavigationalSetting(
                     title = "Logging",
-                    value = logLevel,
+                    value = logAmount,
                     onClick = {
-                        Logger.LogInfo(LOG_TAG, "Navigating to log level settings")
-                        onNavigateToLogLevel()
+                        Logger.LogInfo(LOG_TAG, "Navigating to log amount settings")
+                        onNavigateToLogAmount()
                     }
                 )
             }

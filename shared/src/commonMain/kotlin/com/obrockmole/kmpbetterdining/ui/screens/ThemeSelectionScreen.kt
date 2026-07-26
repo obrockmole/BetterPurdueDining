@@ -7,27 +7,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.arrow_back
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "ThemeSelectionScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeSelectionScreen(
+    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    settingsViewModel: SettingsViewModel,
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
 
-    val themeOptions = listOf("Material", "Dark", "Light", "Rainbow")
-    val appTheme by remember { mutableStateOf("Dark") }
+    val appTheme by settingsViewModel.appTheme.collectAsState()
 
+    val themeOptions = listOf("Material", "Dark", "Light", "Rainbow")
     var loading by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -66,6 +65,7 @@ fun ThemeSelectionScreen(
                                     loading = true
                                     onNavigateBack()
                                     Logger.LogInfo(LOG_TAG, "Changed app theme from $appTheme to $theme")
+                                    settingsViewModel.setAppTheme(theme)
                                 }
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -84,6 +84,7 @@ fun ThemeSelectionScreen(
                                     loading = true
                                     onNavigateBack()
                                     Logger.LogInfo(LOG_TAG, "Changed app theme from $appTheme to $theme")
+                                    settingsViewModel.setAppTheme(theme)
                                 }
                             }
                         )
@@ -98,15 +99,5 @@ fun ThemeSelectionScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ThemeSelectionScreenPreview() {
-    BetterPurdueDiningTheme(
-        theme = "Dark"
-    ) {
-        ThemeSelectionScreen(onNavigateBack = {})
     }
 }

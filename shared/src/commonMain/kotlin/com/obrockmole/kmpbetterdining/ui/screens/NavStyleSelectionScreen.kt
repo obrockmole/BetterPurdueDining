@@ -7,27 +7,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.arrow_back
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "NavStyleSelectionScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavStyleSelectionScreen(
+    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    settingsViewModel: SettingsViewModel,
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
 
-    val styleOptions = listOf("Bottom", "Side")
-    val navStyle by remember { mutableStateOf("Bottom") }
+    val navStyle by settingsViewModel.navStyle.collectAsState()
 
+    val styleOptions = listOf("Bottom", "Side")
     var loading by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -66,6 +65,7 @@ fun NavStyleSelectionScreen(
                                     loading = true
                                     onNavigateBack()
                                     Logger.LogInfo(LOG_TAG, "Changed nav style from $navStyle to $style")
+                                    settingsViewModel.setNavStyle(style)
                                 }
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -84,6 +84,7 @@ fun NavStyleSelectionScreen(
                                     loading = true
                                     onNavigateBack()
                                     Logger.LogInfo(LOG_TAG, "Changed nav style from $navStyle to $style")
+                                    settingsViewModel.setNavStyle(style)
                                 }
                             }
                         )
@@ -98,15 +99,5 @@ fun NavStyleSelectionScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun NavStyleSelectionScreenPreview() {
-    BetterPurdueDiningTheme(
-        theme = "Dark"
-    ) {
-        NavStyleSelectionScreen(onNavigateBack = {})
     }
 }

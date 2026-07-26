@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.obrockmole.kmpbetterdining.database.DataStoreFactory
 import com.obrockmole.kmpbetterdining.database.DriverFactory
 
 class MainActivity : ComponentActivity() {
@@ -12,7 +13,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App(driverFactory = DriverFactory(applicationContext))
+            App(
+                driverFactory = DriverFactory(applicationContext),
+                dataStoreFactory = DataStoreFactory(applicationContext)
+            )
         }
     }
 }

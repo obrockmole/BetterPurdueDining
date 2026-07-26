@@ -7,10 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.arrow_back
 import org.jetbrains.compose.resources.painterResource
@@ -19,14 +18,15 @@ private const val LOG_TAG = "DefaultScreenSelectionScreen"
 
 @Composable
 fun DefaultScreenSelectionScreen(
+    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    settingsViewModel: SettingsViewModel,
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
 
-    val screenOptions = listOf("Home", "Favorites")
-    val defaultScreen by remember { mutableStateOf("Home") }
+    val defaultScreen by settingsViewModel.defaultScreen.collectAsState()
 
+    val screenOptions = listOf("Home", "Favorites")
     var loading by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -65,6 +65,7 @@ fun DefaultScreenSelectionScreen(
                                     loading = true
                                     onNavigateBack()
                                     Logger.LogInfo(LOG_TAG, "Changed default screen from $defaultScreen to $screen")
+                                    settingsViewModel.setDefaultScreen(screen)
                                 }
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -83,6 +84,7 @@ fun DefaultScreenSelectionScreen(
                                     loading = true
                                     onNavigateBack()
                                     Logger.LogInfo(LOG_TAG, "Changed default screen from $defaultScreen to $screen")
+                                    settingsViewModel.setDefaultScreen(screen)
                                 }
                             }
                         )
@@ -97,15 +99,5 @@ fun DefaultScreenSelectionScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultScreenSelectionScreenPreview() {
-    BetterPurdueDiningTheme(
-        theme = "Dark"
-    ) {
-        DefaultScreenSelectionScreen(onNavigateBack = {})
     }
 }

@@ -89,3 +89,4 @@ app/src/androidTest/
 .DS_Store
 
 *.db
+*.preferences_pb

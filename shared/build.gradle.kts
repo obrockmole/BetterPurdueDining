@@ -68,6 +68,7 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.datastore.preferences.core)
             implementation(libs.jetbrains.material3.adaptive.navigation.suite)
             implementation(libs.jetbrains.navigation.compose)
             implementation(libs.kotlinx.datetime)
@@ -76,6 +77,7 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.okio)
             implementation(libs.sqldelight.coroutines)
         }
     }

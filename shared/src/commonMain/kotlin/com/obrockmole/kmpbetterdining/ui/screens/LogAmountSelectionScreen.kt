@@ -7,27 +7,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.arrow_back
 import org.jetbrains.compose.resources.painterResource
 
-private const val LOG_TAG = "LogLevelSelectionScreen"
+private const val LOG_TAG = "LogAmountSelectionScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogLevelSelectionScreen(
+fun LogAmountSelectionScreen(
+    modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    settingsViewModel: SettingsViewModel,
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
 
-    val levelOptions = listOf("Full", "Minimal", "Off")
-    val logLevel by remember { mutableStateOf("Minimal") }
+    val logAmount by settingsViewModel.logAmount.collectAsState()
 
+    val amountOptions = listOf("Full", "Minimal", "Off")
     var loading by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -57,15 +56,16 @@ fun LogLevelSelectionScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                levelOptions.forEachIndexed { index, level ->
+                amountOptions.forEachIndexed { index, amount ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                if (logLevel != level) {
+                                if (logAmount != amount) {
                                     loading = true
                                     onNavigateBack()
-                                    Logger.LogInfo(LOG_TAG, "Changed log level from $logLevel to $level")
+                                    Logger.LogInfo(LOG_TAG, "Changed log amount from $logAmount to $amount")
+                                    settingsViewModel.setLogAmount(amount)
                                 }
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -73,23 +73,24 @@ fun LogLevelSelectionScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = level,
+                            text = amount,
                             style = MaterialTheme.typography.bodyLarge
                         )
 
                         RadioButton(
-                            selected = logLevel == level,
+                            selected = logAmount == amount,
                             onClick = {
-                                if (logLevel != level) {
+                                if (logAmount != amount) {
                                     loading = true
                                     onNavigateBack()
-                                    Logger.LogInfo(LOG_TAG, "Changed log level from $logLevel to $level")
+                                    Logger.LogInfo(LOG_TAG, "Changed log amount from $logAmount to $amount")
+                                    settingsViewModel.setLogAmount(amount)
                                 }
                             }
                         )
                     }
 
-                    if (index < levelOptions.size - 1) {
+                    if (index < amountOptions.size - 1) {
                         HorizontalDivider(
                             color = Color(0xFF2F2F2F),
                             modifier = Modifier.padding(horizontal = 16.dp)
@@ -98,15 +99,5 @@ fun LogLevelSelectionScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LogLevelSelectionScreenPreview() {
-    BetterPurdueDiningTheme(
-        theme = "Dark"
-    ) {
-        LogLevelSelectionScreen(onNavigateBack = {})
     }
 }

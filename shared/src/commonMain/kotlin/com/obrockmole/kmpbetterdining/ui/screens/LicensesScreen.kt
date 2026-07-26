@@ -18,7 +18,6 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "LicensesScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LicensesScreen(
     onNavigateBack: () -> Unit,
