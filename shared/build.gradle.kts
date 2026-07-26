@@ -44,14 +44,17 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.ktor.client.android)
             implementation(libs.sqldelight.android)
         }
 
         iosMain.dependencies {
+            implementation(libs.ktor.client.ios)
             implementation(libs.sqldelight.native)
         }
 
         jvmMain.dependencies {
+            implementation(libs.ktor.client.desktop)
             implementation(libs.sqldelight.sqlite)
         }
 
@@ -70,6 +73,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlin.test)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.sqldelight.coroutines)
         }
     }

@@ -4,27 +4,26 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.kmpbetterdining.repository.SettingsRepository
 import com.obrockmole.kmpbetterdining.utils.Logger
+import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
+import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModelFactory
 import kmpbetterdining.shared.generated.resources.Res
 import kmpbetterdining.shared.generated.resources.app_icon
 import kmpbetterdining.shared.generated.resources.keyboard_arrow_right
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "SettingsScreen"
-private const val CURRENT_VERSION = "1.4.1"
+private const val CURRENT_VERSION = "0.0.1"
 
 @Composable
 fun SettingsScreen(
@@ -37,10 +36,23 @@ fun SettingsScreen(
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
 
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(
+            SettingsRepository()
+        )
+    )
+
     val defaultScreen by remember { mutableStateOf("Home") }
     val appTheme by remember { mutableStateOf("Dark") }
     val navStyle by remember { mutableStateOf("Bottom") }
     val logLevel by remember { mutableStateOf("Minimal") }
+    
+    val latestVersion by settingsViewModel.latestVersion.collectAsState()
+    val latestVersionURL by settingsViewModel.latestVersionURL.collectAsState()
+
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    var checkingForUpdates by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -127,23 +139,89 @@ fun SettingsScreen(
             }
 
             item {
-                ActionSetting(
-                    title = "Check For Updates",
-                    onClick = {
-                        Logger.LogDebug(LOG_TAG, "Check for updates attempt")
+                if (checkingForUpdates) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
-                )
+                } else {
+                    ActionSetting(
+                        title = "Check For Updates",
+                        onClick = {
+                            Logger.LogDebug(LOG_TAG, "Check for updates attempt")
+                            coroutineScope.launch {
+                                checkingForUpdates = true
+                                settingsViewModel.getLatestVersion()
+                                checkingForUpdates = false
+                                showUpdateDialog = true
+                            }
+                        }
+                    )
+                }
                 HorizontalDivider(thickness = 6.dp)
             }
+        }
 
-            item {
-                ActionSetting(
-                    title = "Import Favorites",
-                    onClick = {
-                        Logger.LogDebug(LOG_TAG, "Import favorites attempt")
-                    }
+        if (showUpdateDialog) {
+            if (latestVersion == null || latestVersionURL == null) {
+                AlertDialog(
+                    title = { Text(text = "Error") },
+                    text = {
+                        Text(
+                            text = "Error checking for updates. Please try again later.",
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Close")
+                        }
+                    },
+                    onDismissRequest = { showUpdateDialog = false }
                 )
-                HorizontalDivider()
+            } else if (latestVersion != CURRENT_VERSION) {
+                AlertDialog(
+                    title = { Text(text = "Update Found") },
+                    text = {
+                        Text(
+                            text = "Current Version: $CURRENT_VERSION\nLatest Version: $latestVersion",
+                        )
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Close")
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showUpdateDialog = false
+                            Logger.LogInfo(LOG_TAG, "Opening latest version download link ($latestVersionURL)")
+//                            val intent = Intent(Intent.ACTION_VIEW, latestVersionURL?.toUri())
+//                            context.startActivity(intent)
+                        }) {
+                            Text("Download")
+                        }
+                    },
+                    onDismissRequest = { showUpdateDialog = false }
+                )
+            } else {
+                AlertDialog(
+                    title = { Text(text = "Not Updates Found") },
+                    text = {
+                        Text(
+                            text = "You are already on the latest version v$latestVersion",
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showUpdateDialog = false }) {
+                            Text("Okay")
+                        }
+                    },
+                    onDismissRequest = { showUpdateDialog = false }
+                )
             }
         }
 
