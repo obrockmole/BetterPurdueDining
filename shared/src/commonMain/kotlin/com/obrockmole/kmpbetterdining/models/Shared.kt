@@ -1,7 +1,11 @@
 package com.obrockmole.kmpbetterdining.models
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+
+@Serializable
 data class GraphQLRequest(
     val operationName: String? = null,
-    val variables: Any,
+    val variables: Map<String, JsonElement>,
     val query: String
 )

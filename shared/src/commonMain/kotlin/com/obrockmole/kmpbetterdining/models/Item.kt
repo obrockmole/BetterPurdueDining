@@ -1,5 +1,8 @@
 package com.obrockmole.kmpbetterdining.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ItemDetails(
     val name: String,
     val itemId: String,
@@ -10,6 +13,7 @@ data class ItemDetails(
     val appearances: List<Appearance>
 )
 
+@Serializable
 data class NutritionFact(
     val name: String,
     val value: Double,
@@ -17,6 +21,7 @@ data class NutritionFact(
     val dailyValueLabel: String?
 )
 
+@Serializable
 data class Trait(
     val name: String,
     val type: String? = null,
@@ -24,6 +29,7 @@ data class Trait(
     val svgIconWithoutBackground: String?
 )
 
+@Serializable
 data class Component(
     val name: String,
     val itemId: String,
@@ -33,6 +39,7 @@ data class Component(
     val isNutritionReady: Boolean? = null
 )
 
+@Serializable
 data class Appearance(
     val locationName: String,
     val stationName: String,
