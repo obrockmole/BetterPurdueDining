@@ -8,6 +8,6 @@ object GitHubApi {
     private const val BASE_URL = "https://api.github.com/"
 
     suspend fun getLatestRelease(): GitHubRelease {
-        return httpClient.get("${BASE_URL}repos/obrockmole/betterpurduedining/releases/latest").body()
+        return httpClient.get("${BASE_URL}repos/obrockmole/kmpbetterdining/releases/latest").body()
     }
 }

@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "SettingsScreen"
-private const val CURRENT_VERSION = "0.0.1"
+private const val CURRENT_VERSION = "0.1.0"
 
 @Composable
 fun SettingsScreen(

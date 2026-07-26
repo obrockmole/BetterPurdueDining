@@ -22,7 +22,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Deb, TargetFormat.Dmg, TargetFormat.Msi)
             packageName = "com.obrockmole.kmpbetterdining"
-            packageVersion = "0.0.1"
+            packageVersion = "0.1.0"
         }
 
         buildTypes.release.proguard {
