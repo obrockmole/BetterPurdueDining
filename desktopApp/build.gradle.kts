@@ -20,9 +20,20 @@ compose.desktop {
         mainClass = "com.obrockmole.kmpbetterdining.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Deb, TargetFormat.Dmg, TargetFormat.Msi)
+            macOS {
+                targetFormats(TargetFormat.Dmg)
+            }
+            windows {
+                targetFormats(TargetFormat.Msi, TargetFormat.Exe)
+            }
+            linux {
+                targetFormats(TargetFormat.Deb, TargetFormat.AppImage)
+            }
+
+            modules("java.sql", "jdk.unsupported")
+
             packageName = "com.obrockmole.kmpbetterdining"
-            packageVersion = "0.1.0"
+            packageVersion = "0.1.1"
         }
 
         buildTypes.release.proguard {
