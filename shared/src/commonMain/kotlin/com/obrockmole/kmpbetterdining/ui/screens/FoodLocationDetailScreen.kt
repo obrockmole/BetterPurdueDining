@@ -404,10 +404,10 @@ fun MealDetail(
                 StationHeader(station = station)
             }
 
-            itemsIndexed(station.items) { index, itemWrapper ->
+            itemsIndexed(station.items) { index, itemDisplay ->
                 StationItem(
-                    itemWrapper = itemWrapper,
-                    isHighlighted = itemToHighlight != null && itemWrapper.originalItem.item.name == itemToHighlight,
+                    itemDisplay = itemDisplay,
+                    isHighlighted = itemToHighlight != null && itemDisplay.originalItem.item.name == itemToHighlight,
                     onNavigateToItem = onNavigateToItem,
                     showDivider = index < station.items.size - 1,
                     onItemHighlighted = onItemHighlighted
@@ -429,7 +429,7 @@ fun StationHeader(station: StationDisplay) {
 
 @Composable
 fun StationItem(
-    itemWrapper: MenuItemDisplay,
+    itemDisplay: ItemDisplay,
     isHighlighted: Boolean,
     onNavigateToItem: (String, String) -> Unit,
     showDivider: Boolean,
@@ -466,10 +466,10 @@ fun StationItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = {
-                    Logger.LogDebug(LOG_TAG, "Navigating to ${itemWrapper.displayName}")
+                    Logger.LogDebug(LOG_TAG, "Navigating to ${itemDisplay.displayName}")
                     onNavigateToItem(
-                        itemWrapper.displayName,
-                        itemWrapper.originalItem.item.itemId
+                        itemDisplay.displayName,
+                        itemDisplay.originalItem.item.itemId
                     )
                 })
                 .background(backgroundColor.value)
@@ -480,7 +480,7 @@ fun StationItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (itemWrapper.originalItem.hasComponents) {
+                if (itemDisplay.originalItem.hasComponents) {
                     Icon(
                         painter = painterResource(Res.drawable.stacks),
                         modifier = Modifier.padding(end = 8.dp),
@@ -488,7 +488,7 @@ fun StationItem(
                     )
                 }
 
-                Text(text = itemWrapper.displayName)
+                Text(text = itemDisplay.displayName)
             }
         }
 

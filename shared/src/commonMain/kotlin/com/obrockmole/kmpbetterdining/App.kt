@@ -140,7 +140,13 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                                                         )
                                                     )
                                                 },
-                                                viewModel = homeViewModel
+                                                viewModel = homeViewModel,
+                                                searchViewModel = viewModel(
+                                                    factory = SearchViewModelFactory(
+                                                        SearchRepository(),
+                                                        RenamedItemsRepository(database.renamedItemQueries)
+                                                    )
+                                                )
                                             )
                                         }
 
@@ -281,7 +287,13 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                                                         )
                                                     )
                                                 },
-                                                viewModel = homeViewModel
+                                                viewModel = homeViewModel,
+                                                searchViewModel = viewModel(
+                                                    factory = SearchViewModelFactory(
+                                                        SearchRepository(),
+                                                        RenamedItemsRepository(database.renamedItemQueries)
+                                                    )
+                                                )
                                             )
                                         }
 

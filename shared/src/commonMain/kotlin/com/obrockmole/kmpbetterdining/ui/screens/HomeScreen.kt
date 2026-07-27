@@ -17,6 +17,7 @@ import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
+import com.obrockmole.kmpbetterdining.viewmodel.SearchViewModel
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.datetime.format
 import org.jetbrains.compose.resources.painterResource
@@ -31,7 +32,8 @@ val quickBiteOptionsFormal =
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToFoodLocation: (String, String) -> Unit,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    searchViewModel: SearchViewModel
 ) {
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
     Logger.LogDebug(LOG_TAG, "selectedDiningCourtFromFav: ${selectedDiningCourtFromFav.first}")
@@ -53,106 +55,119 @@ fun HomeScreen(
         viewModel.getLocations(date.toString())
     }
 
-    when (val uiState = viewModel.homeUiState) {
-        is HomeUiState.Loading -> {
-            Logger.LogDebug(LOG_TAG, "UI loading")
-            Box(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    if (isSearchActive) {
+        Logger.LogDebug(LOG_TAG, "Activated search")
+        SearchScreen(
+            onBack = {
+                Logger.LogDebug(LOG_TAG, "Exited search")
+                isSearchActive = false
+            },
+            homeViewModel = viewModel,
+            searchViewModel = searchViewModel
+        )
+
+    } else {
+        when (val uiState = viewModel.homeUiState) {
+            is HomeUiState.Loading -> {
+                Logger.LogDebug(LOG_TAG, "UI loading")
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
             }
-        }
 
-        is HomeUiState.Error -> {
-            Logger.LogError(LOG_TAG, "Failed to load UI: ${uiState.message}")
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(
-                    text = "Error loading locations.",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+            is HomeUiState.Error -> {
+                Logger.LogError(LOG_TAG, "Failed to load UI: ${uiState.message}")
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = "Error loading locations.",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
-        }
 
-        is HomeUiState.Success -> {
-            Logger.LogDebug(LOG_TAG, "UI loaded successfully")
-            LazyColumn(modifier = modifier.fillMaxSize()) {
-                val diningCourts = uiState.data!!.first { it.first == "Dining Courts" }.second
-                val quickBites = uiState.data.first { it.first == "Quick Bites" }.second
+            is HomeUiState.Success -> {
+                Logger.LogDebug(LOG_TAG, "UI loaded successfully")
+                LazyColumn(modifier = modifier.fillMaxSize()) {
+                    val diningCourts = uiState.data!!.first { it.first == "Dining Courts" }.second
+                    val quickBites = uiState.data.first { it.first == "Quick Bites" }.second
 
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Dining Courts",
-                            style = MaterialTheme.typography.headlineMediumEmphasized
-                        )
-
-                        Icon(
-                            painter = painterResource(Res.drawable.search),
+                    item {
+                        Row(
                             modifier = Modifier
-                                .clickable(onClick = {
-                                    Logger.LogDebug(LOG_TAG, "Activating search attempt")
-                                    isSearchActive = true
-                                })
-                                .padding(16.dp),
-                            contentDescription = "Search for item."
-                        )
-                    }
-                }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Dining Courts",
+                                style = MaterialTheme.typography.headlineMediumEmphasized
+                            )
 
-                items(diningCourtOptions) { diningCourtName ->
-                    val diningCourt = diningCourts.first { it.diningCourt.name == diningCourtName }
-
-                    DiningCourtListItem(
-                        diningCourt = diningCourt,
-                        onClicked = {
-                            Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
-                            onNavigateToFoodLocation(
-                                diningCourt.customName ?: diningCourt.diningCourt.name,
-                                diningCourt.diningCourt.id
+                            Icon(
+                                painter = painterResource(Res.drawable.search),
+                                modifier = Modifier
+                                    .clickable(onClick = {
+                                        Logger.LogDebug(LOG_TAG, "Activating search attempt")
+                                        isSearchActive = true
+                                    })
+                                    .padding(16.dp),
+                                contentDescription = "Search for item."
                             )
                         }
-                    )
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Quick Bites",
-                            style = MaterialTheme.typography.headlineMediumEmphasized
-                        )
                     }
-                }
 
-                items(quickBiteOptionsFormal) { quickBiteName ->
-                    val quickBite = quickBites.first { it.diningCourt.name == quickBiteName }
+                    items(diningCourtOptions) { diningCourtName ->
+                        val diningCourt = diningCourts.first { it.diningCourt.name == diningCourtName }
 
-                    QuickBiteListItem(
-                        quickBite = quickBite,
-                        onClicked = {
-                            val name = when (quickBite.diningCourt.name) {
-                                "1bowl at Meredith Hall" -> "1bowl"
-                                "Pete's Za at Tarkington Hall" -> "Pete's Za"
-                                "Sushi Boss at Meredith Hall" -> "Sushi Boss"
-                                else -> quickBite.diningCourt.name
+                        DiningCourtListItem(
+                            diningCourt = diningCourt,
+                            onClicked = {
+                                Logger.LogInfo(LOG_TAG, "Navigating to dining court: ${diningCourt.diningCourt.name}")
+                                onNavigateToFoodLocation(
+                                    diningCourt.customName ?: diningCourt.diningCourt.name,
+                                    diningCourt.diningCourt.id
+                                )
                             }
-                            Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
-                            onNavigateToFoodLocation(
-                                quickBite.customName ?: name,
-                                quickBite.diningCourt.id
+                        )
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Quick Bites",
+                                style = MaterialTheme.typography.headlineMediumEmphasized
                             )
                         }
-                    )
+                    }
+
+                    items(quickBiteOptionsFormal) { quickBiteName ->
+                        val quickBite = quickBites.first { it.diningCourt.name == quickBiteName }
+
+                        QuickBiteListItem(
+                            quickBite = quickBite,
+                            onClicked = {
+                                val name = when (quickBite.diningCourt.name) {
+                                    "1bowl at Meredith Hall" -> "1bowl"
+                                    "Pete's Za at Tarkington Hall" -> "Pete's Za"
+                                    "Sushi Boss at Meredith Hall" -> "Sushi Boss"
+                                    else -> quickBite.diningCourt.name
+                                }
+                                Logger.LogInfo(LOG_TAG, "Navigating to quick bite: $name")
+                                onNavigateToFoodLocation(
+                                    quickBite.customName ?: name,
+                                    quickBite.diningCourt.id
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -8,10 +8,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.obrockmole.kmpbetterdining.database.RenamedDiningCourt
-import com.obrockmole.kmpbetterdining.models.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.repository.MenuRepository
 import com.obrockmole.kmpbetterdining.repository.RenamedCourtsRepository
 import com.obrockmole.kmpbetterdining.repository.RenamedItemsRepository
+import com.obrockmole.kmpbetterdining.utils.DiningCourtIdMap
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -54,7 +54,7 @@ class MenuViewModel(
                                     StationDisplay(
                                         name = station.name,
                                         items = station.items.map { item ->
-                                            MenuItemDisplay(
+                                            ItemDisplay(
                                                 originalItem = item,
                                                 displayName = renamedItemsRepository.getRenamedItem(
                                                     item.item.itemId

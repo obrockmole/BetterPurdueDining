@@ -16,6 +16,14 @@ object DateTime {
         dayOfWeek(DayOfWeekNames.ENGLISH_FULL)
     }
 
+    val dayOfWeekFormatLong = LocalDate.Format {
+        dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
+        chars(", ")
+        monthName(MonthNames.ENGLISH_ABBREVIATED)
+        char(' ')
+        day()
+    }
+
     val monthDayFormat = LocalDate.Format {
         monthName(MonthNames.ENGLISH_ABBREVIATED)
         char(' ')

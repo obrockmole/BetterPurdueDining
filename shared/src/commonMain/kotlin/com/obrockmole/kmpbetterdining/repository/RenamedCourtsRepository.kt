@@ -2,7 +2,7 @@ package com.obrockmole.kmpbetterdining.repository
 
 import com.obrockmole.kmpbetterdining.database.RenamedDiningCourt
 import com.obrockmole.kmpbetterdining.database.RenamedDiningCourtQueries
-import com.obrockmole.kmpbetterdining.models.DiningCourtIdMap
+import com.obrockmole.kmpbetterdining.utils.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.utils.Logger
 
 private const val LOG_TAG = "RenamedCourtsRepository"

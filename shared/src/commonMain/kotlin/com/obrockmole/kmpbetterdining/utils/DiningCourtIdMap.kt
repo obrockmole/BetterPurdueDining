@@ -1,4 +1,4 @@
-package com.obrockmole.kmpbetterdining.models
+package com.obrockmole.kmpbetterdining.utils
 
 class DiningCourtIdMap {
     companion object {

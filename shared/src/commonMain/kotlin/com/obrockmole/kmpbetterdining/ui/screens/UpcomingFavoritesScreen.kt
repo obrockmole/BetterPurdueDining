@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.obrockmole.kmpbetterdining.models.Appearance
-import com.obrockmole.kmpbetterdining.models.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.utils.DateTime
+import com.obrockmole.kmpbetterdining.utils.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import com.obrockmole.kmpbetterdining.viewmodel.UpcomingFavoritesViewModel
