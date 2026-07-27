@@ -28,12 +28,15 @@ compose.desktop {
             }
             linux {
                 targetFormats(TargetFormat.Deb, TargetFormat.AppImage)
+                iconFile.set(project.file("src/main/resources/icon.png"))
+                menuGroup = "Utility"
             }
 
             modules("java.sql", "jdk.unsupported")
 
-            packageName = "com.obrockmole.kmpbetterdining"
+            packageName = "KMP Better Dining"
             packageVersion = "0.1.1"
+            vendor = "obrockmole"
         }
 
         buildTypes.release.proguard {
