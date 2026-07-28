@@ -26,9 +26,4 @@ data class ItemDisplay(
     val displayName: String
 )
 
-data class SearchItemDisplay(
-    val originalItem: ItemSearchQuery.ItemSearch,
-    val displayName: String
-)
-
 

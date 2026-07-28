@@ -26,7 +26,7 @@ object Logger {
         }
     }
 
-    fun LogWarn(tag: String, message: String) {
+    fun LogWarning(tag: String, message: String) {
         if (logAmount == LogAmount.MINIMAL || logAmount == LogAmount.FULL) {
             writePlatformLog(LogLevel.WARN, tag, message)
         }

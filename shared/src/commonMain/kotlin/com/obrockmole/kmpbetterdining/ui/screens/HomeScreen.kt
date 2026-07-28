@@ -32,8 +32,7 @@ val quickBiteOptionsFormal =
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToFoodLocation: (String, String) -> Unit,
-    viewModel: HomeViewModel,
-    searchViewModel: SearchViewModel
+    viewModel: HomeViewModel
 ) {
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
     Logger.LogDebug(LOG_TAG, "selectedDiningCourtFromFav: ${selectedDiningCourtFromFav.first}")
@@ -62,8 +61,7 @@ fun HomeScreen(
                 Logger.LogDebug(LOG_TAG, "Exited search")
                 isSearchActive = false
             },
-            homeViewModel = viewModel,
-            searchViewModel = searchViewModel
+            homeViewModel = viewModel
         )
 
     } else {
