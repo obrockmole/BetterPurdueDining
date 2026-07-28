@@ -33,7 +33,7 @@ There are two ways to install the Better Purdue Dining app:
 
 1. Clone the repo
     ```sh
-    git clone [https://github.com/obrockmole/BetterPurdueDining.git](https://github.com/obrockmole/BetterPurdueDining.git)
+    git clone https://github.com/obrockmole/BetterPurdueDining.git
     ```
 2. To build the Android app, open the project in Android Studio and navigate to Build > Generate App Bundles or APKs > Generate APKs.
 3. To build the Desktop app, run the Gradle packaging commands in your terminal depending on operating system.
