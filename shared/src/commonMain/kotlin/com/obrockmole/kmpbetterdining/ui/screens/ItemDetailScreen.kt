@@ -234,7 +234,7 @@ fun ItemDetailScreen(
                                     ScheduleDetails(
                                         item,
                                         homeViewModel,
-                                        onBack = onNavigateBack
+                                        onNavigateBack = onNavigateBack
                                     )
                                 }
                             }
@@ -421,7 +421,7 @@ fun ComponentsDetails(
 fun ScheduleDetails(
     item: GetItemDetailsQuery.ItemByItemId,
     homeViewModel: HomeViewModel,
-    onBack: () -> Unit
+    onNavigateBack: () -> Unit
 ) {
     if (item.appearances.isEmpty()) {
         Text(
@@ -476,7 +476,7 @@ fun ScheduleDetails(
                                 date = appearance.date,
                                 item = item.name
                             )
-                            onBack()
+                            onNavigateBack()
                         }
                     )
 

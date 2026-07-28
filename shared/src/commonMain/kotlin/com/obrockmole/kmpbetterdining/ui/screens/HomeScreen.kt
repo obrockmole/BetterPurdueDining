@@ -17,7 +17,6 @@ import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.kmpbetterdining.viewmodel.HomeUiState
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
-import com.obrockmole.kmpbetterdining.viewmodel.SearchViewModel
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.datetime.format
 import org.jetbrains.compose.resources.painterResource
@@ -57,7 +56,7 @@ fun HomeScreen(
     if (isSearchActive) {
         Logger.LogDebug(LOG_TAG, "Activated search")
         SearchScreen(
-            onBack = {
+            onNavigateBack = {
                 Logger.LogDebug(LOG_TAG, "Exited search")
                 isSearchActive = false
             },

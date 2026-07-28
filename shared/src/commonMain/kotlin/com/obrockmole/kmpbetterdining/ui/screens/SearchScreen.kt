@@ -15,6 +15,7 @@ import com.obrockmole.kmpbetterdining.ItemSearchQuery
 import com.obrockmole.kmpbetterdining.repository.SearchRepository
 import com.obrockmole.kmpbetterdining.utils.BackHandler
 import com.obrockmole.kmpbetterdining.utils.DateTime
+import com.obrockmole.kmpbetterdining.utils.DiningCourtIdMap
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.HomeViewModel
 import com.obrockmole.kmpbetterdining.viewmodel.SearchViewModel
@@ -29,7 +30,7 @@ private const val LOG_TAG = "SearchScreen"
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit,
+    onNavigateBack: () -> Unit,
     homeViewModel: HomeViewModel
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
@@ -47,7 +48,7 @@ fun SearchScreen(
     var expandedItemId by remember { mutableStateOf<String?>(null) }
 
     BackHandler {
-        onBack()
+        onNavigateBack()
     }
 
     LaunchedEffect(query) {
@@ -79,7 +80,7 @@ fun SearchScreen(
                 navigationIcon = {
                     IconButton(onClick = {
                         Logger.LogDebug(LOG_TAG, "Back navigation clicked")
-                        onBack()
+                        onNavigateBack()
                     }) {
                         Icon(
                             painter = painterResource(Res.drawable.arrow_back),
@@ -149,7 +150,7 @@ fun SearchScreen(
                         SearchResultsList(
                             results = searchResults,
                             homeViewModel = homeViewModel,
-                            onBack = onBack,
+                            onNavigateBack = onNavigateBack,
                             expandedItemId = expandedItemId,
                             onItemClick = { itemId ->
                                 expandedItemId = if (expandedItemId == itemId) null else itemId
@@ -165,12 +166,12 @@ fun SearchScreen(
 
 @Composable
 fun SearchResultsList(
+    modifier: Modifier = Modifier,
     results: List<ItemSearchQuery.ItemSearch>,
-    homeViewModel: HomeViewModel,
-    onBack: () -> Unit,
     expandedItemId: String?,
+    onNavigateBack: () -> Unit,
     onItemClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    homeViewModel: HomeViewModel
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         results.forEach { groupedResult ->
@@ -183,12 +184,12 @@ fun SearchResultsList(
                         Logger.LogInfo(LOG_TAG, "Navigating to search result: ${groupedResult.name} at ${appearance.locationName} on ${appearance.date}")
                         homeViewModel.navigateToMenu(
                             diningCourt = appearance.locationName,
-                            diningCourtId = null,
+                            diningCourtId = DiningCourtIdMap.diningCourtIdMap[appearance.locationName],
                             mealName = appearance.mealName,
                             date = appearance.date,
                             item = groupedResult.name
                         )
-                        onBack()
+                        onNavigateBack()
                     }
                 )
             }
@@ -198,11 +199,11 @@ fun SearchResultsList(
 
 @Composable
 fun ExpandableSearchResultItem(
+    modifier: Modifier = Modifier,
     groupedResult: ItemSearchQuery.ItemSearch,
     isExpanded: Boolean,
     onHeaderClick: () -> Unit,
-    onAppearanceClick: (ItemSearchQuery.Appearance) -> Unit,
-    modifier: Modifier = Modifier
+    onAppearanceClick: (ItemSearchQuery.Appearance) -> Unit
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -244,7 +245,7 @@ fun ExpandableSearchResultItem(
             groupedResult.appearances.forEach { appearance ->
                 AppearanceListItem(
                     appearance = appearance,
-                    onClick = { onAppearanceClick(appearance) }
+                    onAppearanceClick = onAppearanceClick
                 )
             }
 
@@ -276,14 +277,14 @@ fun ExpandableSearchResultItem(
 
 @Composable
 fun AppearanceListItem(
+    modifier: Modifier = Modifier,
     appearance: ItemSearchQuery.Appearance,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onAppearanceClick: (ItemSearchQuery.Appearance) -> Unit
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = { onAppearanceClick(appearance) })
             .padding(horizontal = 32.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -1,7 +1,6 @@
 package com.obrockmole.kmpbetterdining.viewmodel
 
 import com.obrockmole.kmpbetterdining.GetLocationMenuQuery
-import com.obrockmole.kmpbetterdining.ItemSearchQuery
 
 data class DiningCourtMenuDisplay(
     val name: String,
