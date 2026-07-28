@@ -193,7 +193,7 @@ fun ItemDetailScreen(
                                 when (detail) {
                                     "Nutrition" -> item.isNutritionReady || item.nutritionFacts != null
                                     "Traits" -> !item.traits.isNullOrEmpty()
-                                    "Component" -> !item.components.isNullOrEmpty()
+                                    "Components" -> !item.components.isNullOrEmpty()
                                     else -> true
                                 }
                             }
