@@ -8,7 +8,7 @@ import com.obrockmole.kmpbetterdining.database.DriverFactory
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "KMP Better Dining",
+        title = "Better Purdue Dining",
     ) {
         App(driverFactory = DriverFactory(), dataStoreFactory = DataStoreFactory())
     }
