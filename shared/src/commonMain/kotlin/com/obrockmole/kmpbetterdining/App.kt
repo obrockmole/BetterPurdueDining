@@ -448,7 +448,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     ItemDetailScreen(
                         itemName = routeData.itemName,
                         itemId = routeData.itemId,
-                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateBack = { navController.popBackStack(MainRoute, inclusive = false) },
                         homeViewModel = homeViewModel,
                         itemViewModel = itemViewModel
                     )
