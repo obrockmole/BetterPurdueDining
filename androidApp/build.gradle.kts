@@ -26,13 +26,13 @@ dependencies {
 }
 
 android {
-    namespace = "com.obrockmole.kmpbetterdining"
+    namespace = "com.obrockmole.betterdining"
     compileSdk {
         version = release(libs.versions.android.compileSdk.get().toInt())
     }
 
     defaultConfig {
-        applicationId = "com.obrockmole.kmpbetterdining"
+        applicationId = "com.obrockmole.betterdining"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

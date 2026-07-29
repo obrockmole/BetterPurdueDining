@@ -19,7 +19,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "com.obrockmole.kmpbetterdining.MainKt"
+        mainClass = "com.obrockmole.betterdining.MainKt"
 
         nativeDistributions {
             macOS {

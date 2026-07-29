@@ -1,4 +1,4 @@
-rootProject.name = "KMPBetterDining"
+rootProject.name = "BetterPurdueDining"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

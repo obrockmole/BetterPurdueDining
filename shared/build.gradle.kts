@@ -24,7 +24,7 @@ kotlin {
     jvm()
     
     android {
-       namespace = "com.obrockmole.kmpbetterdining.shared"
+       namespace = "com.obrockmole.betterdining.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     
@@ -89,12 +89,12 @@ dependencies {
 
 apollo {
     service("service") {
-        packageName.set("com.obrockmole.kmpbetterdining")
+        packageName.set("com.obrockmole.betterdining")
         introspection {
             endpointUrl.set("https://api.hfs.purdue.edu/menus/v3/GraphQL")
-            schemaFile.set(file("src/commonMain/kotlin/com/obrockmole/kmpbetterdining/graphql/schema.graphqls"))
+            schemaFile.set(file("src/commonMain/kotlin/com/obrockmole/betterdining/graphql/schema.graphqls"))
         }
-        srcDir("src/commonMain/kotlin/com/obrockmole/kmpbetterdining/graphql")
+        srcDir("src/commonMain/kotlin/com/obrockmole/betterdining/graphql")
         mapScalar("ID", "kotlin.String")
         mapScalar("Guid", "kotlin.String")
         mapScalar("TimeOnly", "kotlin.String")
@@ -111,7 +111,7 @@ apollo {
 sqldelight {
     databases {
         create("BetterDiningDatabase") {
-            packageName.set("com.obrockmole.kmpbetterdining.database")
+            packageName.set("com.obrockmole.betterdining.database")
         }
     }
 }

@@ -21,9 +21,9 @@
 -keep class androidx.datastore.** { *; }
 -dontwarn sun.misc.Unsafe
 
--keep class com.obrockmole.kmpbetterdining.models.** { *; }
--keep class com.obrockmole.kmpbetterdining.network.** { *; }
--keep class com.obrockmole.kmpbetterdining.repository.** { *; }
+-keep class com.obrockmole.betterdining.models.** { *; }
+-keep class com.obrockmole.betterdining.network.** { *; }
+-keep class com.obrockmole.betterdining.repository.** { *; }
 
 -keep class okhttp3.** { *; }
 -dontwarn okhttp3.**
