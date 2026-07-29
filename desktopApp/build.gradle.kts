@@ -1,5 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+private val currentVersion = "1.4.1"
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.composeMultiplatform)
@@ -21,21 +23,21 @@ compose.desktop {
 
         nativeDistributions {
             macOS {
-                targetFormats(TargetFormat.Dmg)
+                iconFile.set(project.file("src/main/resources/icon.icns"))
             }
             windows {
-                targetFormats(TargetFormat.Msi, TargetFormat.Exe)
+                iconFile.set(project.file("src/main/resources/icon.ico"))
             }
             linux {
-                targetFormats(TargetFormat.Deb, TargetFormat.AppImage)
                 iconFile.set(project.file("src/main/resources/icon.png"))
                 menuGroup = "Utility"
             }
 
+            targetFormats(TargetFormat.Deb, TargetFormat.AppImage, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Dmg)
             modules("java.sql", "jdk.unsupported")
 
-            packageName = "KMP Better Dining"
-            packageVersion = "0.1.1"
+            packageName = "BetterPurdueDining"
+            packageVersion = currentVersion
             vendor = "obrockmole"
         }
 
