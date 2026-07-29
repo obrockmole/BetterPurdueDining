@@ -28,6 +28,8 @@ import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.*
 import betterpurduedining.shared.generated.resources.*
+import com.obrockmole.betterdining.utils.Platform
+import com.obrockmole.betterdining.utils.currentPlatform
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
@@ -57,7 +59,9 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
         )
     )
 
-    val appTheme by settingsViewModel.appTheme.collectAsState(initial = "Material")
+    val appTheme by settingsViewModel.appTheme.collectAsState(
+        initial = if (currentPlatform == Platform.ANDROID) "Material" else "Dark"
+    )
     val logAmount by settingsViewModel.logAmount.collectAsState(initial = "Minimal")
     Logger.setLogAmount(logAmount)
 

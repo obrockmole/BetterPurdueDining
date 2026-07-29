@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import betterpurduedining.shared.generated.resources.*
+import com.obrockmole.betterdining.utils.Platform
+import com.obrockmole.betterdining.utils.currentPlatform
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "ThemeSelectionScreen"
@@ -25,7 +27,13 @@ fun ThemeSelectionScreen(
 
     val appTheme by settingsViewModel.appTheme.collectAsState()
 
-    val themeOptions = listOf("Material", "Dark", "Light", "Rainbow")
+    val themeOptions = remember {
+        if (currentPlatform == Platform.ANDROID) {
+            listOf("Material", "Dark", "Light", "Rainbow")
+        } else {
+            listOf("Dark", "Light", "Rainbow")
+        }
+    }
     var loading by remember { mutableStateOf(false) }
 
     Scaffold(

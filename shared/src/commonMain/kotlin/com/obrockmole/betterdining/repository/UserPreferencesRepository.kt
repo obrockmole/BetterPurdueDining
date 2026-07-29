@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.obrockmole.betterdining.utils.Logger
+import com.obrockmole.betterdining.utils.Platform
+import com.obrockmole.betterdining.utils.currentPlatform
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,7 +27,7 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
 
     val appTheme: Flow<String> = dataStore.data
         .map { preferences ->
-            preferences[PreferencesKeys.APP_THEME] ?: "Material"
+            preferences[PreferencesKeys.APP_THEME] ?: if (currentPlatform == Platform.ANDROID) "Material" else "Dark"
         }
 
     val navStyle: Flow<String> = dataStore.data

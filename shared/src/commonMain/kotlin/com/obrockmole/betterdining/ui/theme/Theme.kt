@@ -87,7 +87,7 @@ private fun rainbowColorScheme(): ColorScheme {
 
 @Composable
 fun BetterPurdueDiningTheme(
-    theme: String = "Material",
+    theme: String,
     key: Any? = null,
     content: @Composable () -> Unit
 ) {
