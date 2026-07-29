@@ -221,14 +221,17 @@ fun ItemDetailScreen(
                                     Logger.LogDebug(LOG_TAG, "Displaying NutritionDetails")
                                     NutritionDetails(item)
                                 }
+
                                 "Traits" -> {
                                     Logger.LogDebug(LOG_TAG, "Displaying TraitsDetails")
                                     TraitsDetails(item)
                                 }
+
                                 "Components" -> {
                                     Logger.LogDebug(LOG_TAG, "Displaying ComponentsDetails")
                                     ComponentsDetails(item)
                                 }
+
                                 "Schedule" -> {
                                     Logger.LogDebug(LOG_TAG, "Displaying ScheduleDetails")
                                     ScheduleDetails(

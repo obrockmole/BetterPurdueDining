@@ -9,8 +9,8 @@ object Logger {
         try {
             logAmount = LogAmount.valueOf(amount.uppercase())
         } catch (e: IllegalArgumentException) {
-            writePlatformLog(LogLevel.ERROR, "Logger", "Invalid log level: " + amount + ". " + e.message);
-            logAmount = LogAmount.MINIMAL;
+            writePlatformLog(LogLevel.ERROR, "Logger", "Invalid log level: " + amount + ". " + e.message)
+            logAmount = LogAmount.MINIMAL
         }
     }
 

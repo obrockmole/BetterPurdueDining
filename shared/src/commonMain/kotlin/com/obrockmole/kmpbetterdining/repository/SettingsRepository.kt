@@ -8,7 +8,7 @@ private const val LOG_TAG = "SettingsRepository"
 
 class SettingsRepository {
     suspend fun getLatestRelease(): GitHubRelease? {
-        var latestRelease: GitHubRelease? = null;
+        var latestRelease: GitHubRelease? = null
 
         try {
             latestRelease = GitHubApi.getLatestRelease()

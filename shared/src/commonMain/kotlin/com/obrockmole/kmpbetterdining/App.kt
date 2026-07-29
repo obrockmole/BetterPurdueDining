@@ -3,14 +3,12 @@ package com.obrockmole.kmpbetterdining
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -32,7 +30,6 @@ import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
-import kotlin.math.exp
 
 private const val LOG_TAG = "MainActivity"
 
@@ -101,7 +98,15 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to HOME")
                     HomeScreen(
                         onNavigateToFoodLocation = { name, id ->
-                            navController.navigate(LocationRoute(id, name, homeViewModel.selectedMealName.value, homeViewModel.selectedDate.value, homeViewModel.selectedItem.value))
+                            navController.navigate(
+                                LocationRoute(
+                                    id,
+                                    name,
+                                    homeViewModel.selectedMealName.value,
+                                    homeViewModel.selectedDate.value,
+                                    homeViewModel.selectedItem.value
+                                )
+                            )
                         },
                         onNavigateToSearch = {
                             navController.navigate(SearchRoute)
@@ -199,7 +204,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     ItemDetailScreen(
                         itemName = routeData.itemName,
                         itemId = routeData.itemId,
-                        onNavigateBack= {
+                        onNavigateBack = {
                             navController.navigate(HomeRoute) {
                                 popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
                             }
@@ -327,8 +332,15 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                 drawerContent = {
                     ModalDrawerSheet {
                         Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
-                                Image(painter = painterResource(Res.drawable.app_icon), modifier = Modifier.size(48.dp), contentDescription = "App Icon")
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(Res.drawable.app_icon),
+                                    modifier = Modifier.size(48.dp),
+                                    contentDescription = "App Icon"
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(text = "Better Purdue Dining", style = MaterialTheme.typography.headlineMedium)
                             }

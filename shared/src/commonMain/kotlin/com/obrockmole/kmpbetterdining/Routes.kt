@@ -2,11 +2,14 @@ package com.obrockmole.kmpbetterdining
 
 import kotlinx.serialization.Serializable
 
-@Serializable object HomeRoute
+@Serializable
+data object HomeRoute
 
-@Serializable object FavoritesRoute
+@Serializable
+data object FavoritesRoute
 
-@Serializable object SettingsRoute
+@Serializable
+data object SettingsRoute
 
 @Serializable
 data class LocationRoute(

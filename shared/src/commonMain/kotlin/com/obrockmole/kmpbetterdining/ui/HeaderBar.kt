@@ -2,14 +2,10 @@ package com.obrockmole.kmpbetterdining.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import kmpbetterdining.shared.generated.resources.*
+import kmpbetterdining.shared.generated.resources.Res
+import kmpbetterdining.shared.generated.resources.menu
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -20,7 +16,7 @@ fun HeaderBar(
 ) {
     Column {
         TopAppBar(
-            title = { Text(text = title, style= MaterialTheme.typography.headlineLargeEmphasized) },
+            title = { Text(text = title, style = MaterialTheme.typography.headlineLargeEmphasized) },
             navigationIcon = {
                 if (onOpenDrawer != null) {
                     IconButton(onClick = onOpenDrawer) {
