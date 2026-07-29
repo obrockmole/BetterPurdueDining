@@ -1,5 +1,6 @@
 package com.obrockmole.betterdining.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -7,6 +8,9 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+
+@Composable
+expect fun getDynamicColorScheme(darkTheme: Boolean): ColorScheme?
 
 private val DarkColorScheme = darkColorScheme(
     primary = PurdueGold,
@@ -87,17 +91,21 @@ fun BetterPurdueDiningTheme(
     key: Any? = null,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = isSystemInDarkTheme()
+    val dynamicColorScheme = getDynamicColorScheme(darkTheme)
+
     val colorScheme = remember(theme, key) {
         when (theme) {
+            "Material" -> dynamicColorScheme
             "Light" -> LightColorScheme
             "Dark" -> DarkColorScheme
             "Rainbow" -> rainbowColorScheme()
-            else -> DarkColorScheme
+            else -> if (darkTheme) DarkColorScheme else LightColorScheme
         }
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = colorScheme!!,
         typography = getTypography(),
         content = content
     )
