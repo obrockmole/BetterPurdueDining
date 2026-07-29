@@ -105,7 +105,7 @@ fun UpcomingFavoritesScreen(
                                     val dayLabel = when (date) {
                                         today -> "Today"
                                         today.plus(1, DateTimeUnit.DayBased(1)) -> "Tomorrow"
-                                        else -> date.format(DateTime.dayOfWeekFormat)
+                                        else -> date.format(DateTime.dayOfWeekFormatLong)
                                     }
                                     Text(
                                         text = dayLabel,
