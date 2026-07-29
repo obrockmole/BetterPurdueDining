@@ -225,7 +225,7 @@ fun ItemDetailScreen(
                                     Logger.LogDebug(LOG_TAG, "Displaying TraitsDetails")
                                     TraitsDetails(item)
                                 }
-                                "Component" -> {
+                                "Components" -> {
                                     Logger.LogDebug(LOG_TAG, "Displaying ComponentsDetails")
                                     ComponentsDetails(item)
                                 }
@@ -449,7 +449,7 @@ fun ScheduleDetails(
                     val dayLabel = when (date) {
                         today -> "Today"
                         today.plus(1, DateTimeUnit.DayBased(1)) -> "Tomorrow"
-                        else -> date.format(DateTime.dayOfWeekFormat)
+                        else -> date.format(DateTime.dayOfWeekFormatLong)
                     }
 
                     Text(
