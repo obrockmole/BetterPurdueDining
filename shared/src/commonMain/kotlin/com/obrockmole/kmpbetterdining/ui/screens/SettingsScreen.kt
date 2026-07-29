@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.obrockmole.kmpbetterdining.utils.Logger
@@ -45,6 +46,9 @@ fun SettingsScreen(
     var showUpdateDialog by remember { mutableStateOf(false) }
     var checkingForUpdates by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+
+
+    val uriHandler = LocalUriHandler.current
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -190,9 +194,9 @@ fun SettingsScreen(
                     confirmButton = {
                         TextButton(onClick = {
                             showUpdateDialog = false
-                            Logger.LogInfo(LOG_TAG, "Opening latest version download link ($latestVersionURL)")
-//                            val intent = Intent(Intent.ACTION_VIEW, latestVersionURL?.toUri())
-//                            context.startActivity(intent)
+                            val downloadUrl = if (latestVersionURL != "") latestVersionURL!! else "https://github.com/obrockmole/KMPBetterDining/releases"
+                            Logger.LogInfo(LOG_TAG, "Opening latest version download link ($downloadUrl)")
+                            uriHandler.openUri(downloadUrl)
                         }) {
                             Text("Download")
                         }
