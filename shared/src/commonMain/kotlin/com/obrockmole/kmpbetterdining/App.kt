@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -23,12 +25,10 @@ import com.obrockmole.kmpbetterdining.database.DriverFactory
 import com.obrockmole.kmpbetterdining.repository.*
 import com.obrockmole.kmpbetterdining.ui.screens.*
 import com.obrockmole.kmpbetterdining.ui.theme.BetterPurdueDiningTheme
-import com.obrockmole.kmpbetterdining.utils.BackHandler
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "MainActivity"
@@ -61,340 +61,72 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
     val logAmount by settingsViewModel.logAmount.collectAsState(initial = "Minimal")
     Logger.setLogAmount(logAmount)
 
+    val defaultScreen by settingsViewModel.defaultScreen.collectAsState(initial = null)
+    val navStyle by settingsViewModel.navStyle.collectAsState(initial = null)
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
     val currentRoute = navBackStackEntry?.destination?.route
 
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
-    var isInitialScreenSet by rememberSaveable { mutableStateOf(false) }
-
     BetterPurdueDiningTheme(theme = appTheme, key = currentRoute to currentDestination) {
-        val defaultScreen by settingsViewModel.defaultScreen.collectAsState(initial = null)
         Logger.LogDebug(LOG_TAG, "Default screen: $defaultScreen")
-        val navStyle by settingsViewModel.navStyle.collectAsState(initial = null)
         Logger.LogDebug(LOG_TAG, "Nav style: $navStyle")
 
-        if (defaultScreen != null && !isInitialScreenSet) {
-            currentDestination = when (defaultScreen) {
-                "Favorites" -> AppDestinations.FAVORITES
-                "Home" -> AppDestinations.HOME
-                else -> AppDestinations.HOME
-            }
-            Logger.LogDebug(LOG_TAG, "Set initial screen to: $currentDestination")
-            isInitialScreenSet = true
-        }
-
-        val navigatedFromFavorites by homeViewModel.selectedDiningCourt.collectAsState()
-        LaunchedEffect(navigatedFromFavorites) {
-            Logger.LogInfo(LOG_TAG, "Navigated from favorites")
-            currentDestination = AppDestinations.HOME
-        }
-
-
-        if (defaultScreen == null) {
+        if (defaultScreen == null || navStyle == null) {
             Box(modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-        } else {
-            NavHost(navController = navController, startDestination = MainRoute) {
-                composable<MainRoute> {
-                    BackHandler(enabled = currentDestination != AppDestinations.HOME) {
-                        Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to HOME")
-                        currentDestination = AppDestinations.HOME
-                    }
+            return@BetterPurdueDiningTheme
+        }
 
-                    if (navStyle == null) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-                    } else {
-                        when (navStyle) {
-                            "Bottom" -> {
-                                NavigationSuiteScaffold(
-                                    navigationSuiteItems = {
-                                        AppDestinations.entries.forEach {
-                                            item(
-                                                icon = {
-                                                    Icon(
-                                                        painter = painterResource(it.resource),
-                                                        contentDescription = it.label
-                                                    )
-                                                },
-                                                label = { Text(it.label) },
-                                                selected = it == currentDestination,
-                                                onClick = {
-                                                    Logger.LogInfo(
-                                                        LOG_TAG,
-                                                        "NavHost main suit: Navigating to ${it.label}"
-                                                    )
-                                                    currentDestination = it
-                                                }
-                                            )
-                                        }
-                                    }
-                                ) {
-                                    Scaffold(
-                                        modifier = Modifier.fillMaxSize()
-                                    ) { innerPadding ->
-                                        when (currentDestination) {
-                                            AppDestinations.HOME -> {
-                                                HomeScreen(
-                                                    modifier = Modifier.padding(innerPadding),
-                                                    onNavigateToFoodLocation = { locationName, locationId ->
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to location $locationName ($locationId)"
-                                                        )
+        val atRoot = currentDestination?.hierarchy?.any {
+            it.hasRoute<HomeRoute>() || it.hasRoute<FavoritesRoute>() || it.hasRoute<SettingsRoute>()
+        } == true
 
-                                                        navController.navigate(
-                                                            LocationRoute(
-                                                                locationId = locationId,
-                                                                locationName = locationName,
-                                                                initialMealName = homeViewModel.selectedMealName.value,
-                                                                initialDate = homeViewModel.selectedDate.value,
-                                                                initialItemName = homeViewModel.selectedItem.value
-                                                            )
-                                                        )
-                                                    },
-                                                    viewModel = homeViewModel
-                                                )
-                                            }
+        val startDestination = if (defaultScreen?.equals("Favorites") == true) FavoritesRoute else HomeRoute
+        val navHost = @Composable { paddingValues: PaddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = startDestination,
+                modifier = Modifier.padding(paddingValues)
+            ) {
+                composable<HomeRoute>(
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
+                ) {
+                    HomeScreen(
+                        onNavigateToFoodLocation = { name, id ->
+                            navController.navigate(LocationRoute(id, name, homeViewModel.selectedMealName.value, homeViewModel.selectedDate.value, homeViewModel.selectedItem.value))
+                        },
+                        viewModel = homeViewModel
+                    )
+                }
 
-                                            AppDestinations.FAVORITES -> {
-                                                FavoritesScreen(
-                                                    modifier = Modifier.padding(innerPadding),
-                                                    onNavigateToItem = { itemName, itemId ->
-                                                        navController.navigate(
-                                                            ItemRoute(
-                                                                itemId = itemId,
-                                                                itemName = itemName
-                                                            )
-                                                        )
-                                                    },
-                                                    favoritesViewModel = viewModel(
-                                                        factory = FavoritesViewModelFactory(
-                                                            FavoritesRepository(database.favoriteItemQueries)
-                                                        )
-                                                    ),
-                                                    homeViewModel = homeViewModel,
-                                                    showHeader = true
-                                                )
-                                            }
+                composable<FavoritesRoute>(
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
+                ) {
+                    FavoritesScreen(
+                        onNavigateToItem = { name, id -> navController.navigate(ItemRoute(id, name)) },
+                        favoritesViewModel = viewModel(factory = FavoritesViewModelFactory(FavoritesRepository(database.favoriteItemQueries))),
+                        homeViewModel = homeViewModel,
+                        showHeader = navStyle == "Bottom"
+                    )
+                }
 
-                                            AppDestinations.SETTINGS -> {
-                                                SettingsScreen(
-                                                    modifier = Modifier.padding(innerPadding),
-                                                    onNavigateToDefaultScreen = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to default screen settings"
-                                                        )
-                                                        navController.navigate(DefaultScreenRoute)
-                                                    },
-                                                    onNavigateToTheme = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to theme settings"
-                                                        )
-                                                        navController.navigate(ThemeRoute)
-                                                    },
-                                                    onNavigateToNavStyle = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to nav style settings"
-                                                        )
-                                                        navController.navigate(NavStyleRoute)
-                                                    },
-                                                    onNavigateToLicensesScreen = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to licenses"
-                                                        )
-                                                        navController.navigate(LicensesRoute)
-                                                    },
-                                                    onNavigateToLogAmount = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to log amount settings"
-                                                        )
-                                                        navController.navigate(LogAmountRoute)
-                                                    },
-                                                    settingsViewModel = settingsViewModel
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            "Side" -> {
-                                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                                val scope = rememberCoroutineScope()
-
-                                ModalNavigationDrawer(
-                                    drawerState = drawerState,
-                                    drawerContent = {
-                                        ModalDrawerSheet {
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(16.dp)
-                                            ) {
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    modifier = Modifier.padding(vertical = 8.dp)
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(Res.drawable.app_icon),
-                                                        modifier = Modifier.size(48.dp),
-                                                        contentDescription = "App Icon"
-                                                    )
-                                                    Spacer(modifier = Modifier.width(16.dp))
-                                                    Text(
-                                                        text = "Better Purdue Dining",
-                                                        style = MaterialTheme.typography.headlineMedium
-                                                    )
-                                                }
-                                            }
-
-                                            AppDestinations.entries.forEach { destination ->
-                                                NavigationDrawerItem(
-                                                    icon = {
-                                                        Icon(
-                                                            painter = painterResource(destination.resource),
-                                                            contentDescription = destination.label
-                                                        )
-                                                    },
-                                                    label = { Text(destination.label) },
-                                                    selected = destination == currentDestination,
-                                                    onClick = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main drawer: Navigating to ${destination.label}"
-                                                        )
-                                                        currentDestination = destination
-                                                        scope.launch {
-                                                            drawerState.close()
-                                                        }
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-                                ) {
-                                    Scaffold(
-                                        modifier = Modifier.fillMaxSize(),
-                                        topBar = {
-                                            TopAppBar(
-                                                title = { Text(currentDestination.label) },
-                                                navigationIcon = {
-                                                    IconButton(onClick = {
-                                                        scope.launch {
-                                                            Logger.LogDebug(LOG_TAG, "NavHost main drawer: Opening")
-                                                            drawerState.open()
-                                                        }
-                                                    }) {
-                                                        Icon(
-                                                            painter = painterResource(Res.drawable.menu),
-                                                            contentDescription = "Menu"
-                                                        )
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    ) { innerPadding ->
-                                        when (currentDestination) {
-                                            AppDestinations.HOME -> {
-                                                HomeScreen(
-                                                    modifier = Modifier.padding(innerPadding),
-                                                    onNavigateToFoodLocation = { locationName, locationId ->
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to location $locationName ($locationId)"
-                                                        )
-
-                                                        navController.navigate(
-                                                            LocationRoute(
-                                                                locationId = locationId,
-                                                                locationName = locationName,
-                                                                initialMealName = homeViewModel.selectedMealName.value,
-                                                                initialDate = homeViewModel.selectedDate.value,
-                                                                initialItemName = homeViewModel.selectedItem.value
-                                                            )
-                                                        )
-                                                    },
-                                                    viewModel = homeViewModel
-                                                )
-                                            }
-
-                                            AppDestinations.FAVORITES -> {
-                                                FavoritesScreen(
-                                                    modifier = Modifier.padding(innerPadding),
-                                                    onNavigateToItem = { itemName, itemId ->
-                                                        navController.navigate(
-                                                            ItemRoute(
-                                                                itemId = itemId,
-                                                                itemName = itemName
-                                                            )
-                                                        )
-                                                    },
-                                                    favoritesViewModel = viewModel(
-                                                        factory = FavoritesViewModelFactory(
-                                                            FavoritesRepository(database.favoriteItemQueries)
-                                                        )
-                                                    ),
-                                                    homeViewModel = homeViewModel,
-                                                    showHeader = false
-                                                )
-                                            }
-
-                                            AppDestinations.SETTINGS -> {
-                                                SettingsScreen(
-                                                    modifier = Modifier.padding(innerPadding),
-                                                    onNavigateToDefaultScreen = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main drawer: Navigating to default screen settings"
-                                                        )
-                                                        navController.navigate(DefaultScreenRoute)
-                                                    },
-                                                    onNavigateToTheme = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main drawer: Navigating to theme settings"
-                                                        )
-                                                        navController.navigate(ThemeRoute)
-                                                    },
-                                                    onNavigateToNavStyle = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main drawer: Navigating to nav style settings"
-                                                        )
-                                                        navController.navigate(NavStyleRoute)
-                                                    },
-                                                    onNavigateToLicensesScreen = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main drawer: Navigating to licenses"
-                                                        )
-                                                        navController.navigate(LicensesRoute)
-                                                    },
-                                                    onNavigateToLogAmount = {
-                                                        Logger.LogInfo(
-                                                            LOG_TAG,
-                                                            "NavHost main suit: Navigating to log amount settings"
-                                                        )
-                                                        navController.navigate(LogAmountRoute)
-                                                    },
-                                                    settingsViewModel = settingsViewModel
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                composable<SettingsRoute>(
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
+                ) {
+                    SettingsScreen(
+                        onNavigateToDefaultScreen = { navController.navigate(DefaultScreenRoute) },
+                        onNavigateToTheme = { navController.navigate(ThemeRoute) },
+                        onNavigateToNavStyle = { navController.navigate(NavStyleRoute) },
+                        onNavigateToLicensesScreen = { navController.navigate(LicensesRoute) },
+                        onNavigateToLogAmount = { navController.navigate(LogAmountRoute) },
+                        settingsViewModel = settingsViewModel
+                    )
                 }
 
                 composable<LocationRoute>(
@@ -402,10 +134,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     exitTransition = { ExitTransition.None }
                 ) { backStackEntry ->
                     val routeData = backStackEntry.toRoute<LocationRoute>()
-                    Logger.LogDebug(
-                        LOG_TAG,
-                        "NavHost location: Entered location composable with id $routeData.locationId"
-                    )
+                    Logger.LogDebug(LOG_TAG, "NavHost location: Entered location composable with id $routeData.locationId")
 
                     val menuViewModel: MenuViewModel = viewModel(
                         key = routeData.locationId,
@@ -422,7 +151,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                         onNavigateBack = { navController.popBackStack() },
                         menuViewModel = menuViewModel,
                         onNavigateToItem = { itemName, itemId ->
-                            navController.navigate(ItemRoute(itemId = itemId, itemName = itemName))
+                            navController.navigate(ItemRoute(itemId, itemName))
                         },
                         initialMealName = routeData.initialMealName,
                         initialDate = routeData.initialDate,
@@ -448,7 +177,11 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     ItemDetailScreen(
                         itemName = routeData.itemName,
                         itemId = routeData.itemId,
-                        onNavigateBack = { navController.popBackStack(MainRoute, inclusive = false) },
+                        onNavigateBack= {
+                            navController.navigate(HomeRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
+                            }
+                        },
                         homeViewModel = homeViewModel,
                         itemViewModel = itemViewModel
                     )
@@ -522,14 +255,133 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                 }
             }
         }
-    }
-}
 
-enum class AppDestinations(
-    val label: String,
-    val resource: DrawableResource,
-) {
-    HOME("Home", Res.drawable.home),
-    FAVORITES("Favorites", Res.drawable.favorite),
-    SETTINGS("Settings", Res.drawable.settings)
+        if (atRoot && navStyle == "Bottom") {
+            NavigationSuiteScaffold(
+                navigationSuiteItems = {
+                    item(
+                        icon = { Icon(painterResource(Res.drawable.home), "Home") },
+                        label = { Text("Home") },
+                        selected = currentDestination.hasRoute<HomeRoute>(),
+                        onClick = {
+                            navController.navigate(HomeRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                    item(
+                        icon = { Icon(painterResource(Res.drawable.favorite), "Favorites") },
+                        label = { Text("Favorites") },
+                        selected = currentDestination.hasRoute<FavoritesRoute>(),
+                        onClick = {
+                            navController.navigate(FavoritesRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                    item(
+                        icon = { Icon(painterResource(Res.drawable.settings), "Settings") },
+                        label = { Text("Settings") },
+                        selected = currentDestination.hasRoute<SettingsRoute>(),
+                        onClick = {
+                            navController.navigate(SettingsRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            ) {
+                navHost(PaddingValues(0.dp))
+            }
+        } else if (atRoot && navStyle == "Side") {
+            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            val scope = rememberCoroutineScope()
+
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
+                                Image(painter = painterResource(Res.drawable.app_icon), modifier = Modifier.size(48.dp), contentDescription = "App Icon")
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text(text = "Better Purdue Dining", style = MaterialTheme.typography.headlineMedium)
+                            }
+                        }
+                        NavigationDrawerItem(
+                            icon = { Icon(painterResource(Res.drawable.home), "Home") },
+                            label = { Text("Home") },
+                            selected = currentDestination.hasRoute<HomeRoute>(),
+                            onClick = {
+                                navController.navigate(HomeRoute) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                                scope.launch { drawerState.close() }
+                            }
+                        )
+                        NavigationDrawerItem(
+                            icon = { Icon(painterResource(Res.drawable.favorite), "Favorites") },
+                            label = { Text("Favorites") },
+                            selected = currentDestination.hasRoute<FavoritesRoute>(),
+                            onClick = {
+                                navController.navigate(FavoritesRoute) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                                scope.launch { drawerState.close() }
+                            }
+                        )
+                        NavigationDrawerItem(
+                            icon = { Icon(painterResource(Res.drawable.settings), "Settings") },
+                            label = { Text("Settings") },
+                            selected = currentDestination.hasRoute<SettingsRoute>(),
+                            onClick = {
+                                navController.navigate(SettingsRoute) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                                scope.launch { drawerState.close() }
+                            }
+                        )
+                    }
+                }
+            ) {
+                val header = when {
+                    currentDestination.hasRoute<HomeRoute>() -> "Home"
+                    currentDestination.hasRoute<FavoritesRoute>() -> "Favorites"
+                    currentDestination.hasRoute<SettingsRoute>() -> "Settings"
+                    else -> "Better Purdue Dining"
+                }
+
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(header) },
+                            navigationIcon = {
+                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                    Icon(painterResource(Res.drawable.menu), "Menu")
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    navHost(innerPadding)
+                }
+            }
+        } else {
+            Scaffold { innerPadding ->
+                navHost(innerPadding)
+            }
+        }
+    }
 }
