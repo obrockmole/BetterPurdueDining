@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.obrockmole.kmpbetterdining.ui.HeaderBar
 import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.FavoritesViewModel
@@ -25,41 +26,33 @@ private const val LOG_TAG = "FavoritesScreen"
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
     onNavigateToItem: (String, String) -> Unit,
+    onOpenDrawer: (() -> Unit)?,
     homeViewModel: HomeViewModel,
-    favoritesViewModel: FavoritesViewModel,
-    showHeader: Boolean
+    favoritesViewModel: FavoritesViewModel
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
     var tabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Upcoming", "All Favorites")
     var selectedSort by remember { mutableIntStateOf(0) }
 
-    Column(modifier = modifier.fillMaxWidth()) {
-        if (showHeader) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Favorites",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                    style = MaterialTheme.typography.headlineMediumEmphasized
-                )
+    Scaffold(
+        topBar = {
+            HeaderBar(
+                title = "Favorites",
+                onOpenDrawer = onOpenDrawer,
+                actions = {
+                    if (tabIndex == 1) {
+                        var sortMenuShown by remember { mutableStateOf(false) }
 
-                if (tabIndex == 1) {
-                    var sortMenuShown by remember { mutableStateOf(false) }
-
-                    Box(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.sort),
-                            modifier = Modifier.clickable(onClick = { sortMenuShown = true }),
-                            contentDescription = "Sort favorites."
-                        )
+                        IconButton(
+                            modifier = Modifier.padding(16.dp),
+                            onClick = { sortMenuShown = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.sort),
+                                contentDescription = "Sort favorites."
+                            )
+                        }
 
                         DropdownMenuPopup(
                             expanded = sortMenuShown,
@@ -153,29 +146,42 @@ fun FavoritesScreen(
                         }
                     }
                 }
-            }
+            )
         }
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(innerPadding)
+        ) {
+            SecondaryTabRow(selectedTabIndex = tabIndex) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = tabIndex == index,
+                        onClick = {
+                            Logger.LogDebug(LOG_TAG, "Switched to $title")
+                            tabIndex = index
+                        }
+                    )
+                }
+            }
 
-        SecondaryTabRow(selectedTabIndex = tabIndex) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title) },
-                    selected = tabIndex == index,
-                    onClick = {
-                        Logger.LogDebug(LOG_TAG, "Switched to $title")
-                        tabIndex = index
-                    }
+            when (tabIndex) {
+                0 -> UpcomingFavoritesScreen(
+                    homeViewModel = homeViewModel, upcomingFavoritesViewModel = viewModel(
+                        factory = UpcomingFavoritesViewModelFactory(
+                            favoritesViewModel.favorites
+                        )
+                    )
+                )
+
+                1 -> AllFavoritesList(
+                    onNavigateToItem = onNavigateToItem,
+                    favoritesViewModel = favoritesViewModel,
+                    selectedSort = selectedSort
                 )
             }
-        }
-
-        when (tabIndex) {
-            0 -> UpcomingFavoritesScreen(homeViewModel = homeViewModel, upcomingFavoritesViewModel = viewModel(
-                factory = UpcomingFavoritesViewModelFactory(
-                    favoritesViewModel.favorites
-                )
-            ))
-            1 -> AllFavoritesList(onNavigateToItem = onNavigateToItem, favoritesViewModel = favoritesViewModel, selectedSort = selectedSort)
         }
     }
 }

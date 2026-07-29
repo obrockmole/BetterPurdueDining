@@ -88,20 +88,25 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
         } == true
 
         val startDestination = if (defaultScreen?.equals("Favorites") == true) FavoritesRoute else HomeRoute
-        val navHost = @Composable { paddingValues: PaddingValues ->
+        val navHost = @Composable { paddingValues: PaddingValues, onOpenDrawer: (() -> Unit)? ->
             NavHost(
+                modifier = Modifier.padding(paddingValues),
                 navController = navController,
-                startDestination = startDestination,
-                modifier = Modifier.padding(paddingValues)
+                startDestination = startDestination
             ) {
                 composable<HomeRoute>(
                     enterTransition = { EnterTransition.None },
                     exitTransition = { ExitTransition.None }
                 ) {
+                    Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to HOME")
                     HomeScreen(
                         onNavigateToFoodLocation = { name, id ->
                             navController.navigate(LocationRoute(id, name, homeViewModel.selectedMealName.value, homeViewModel.selectedDate.value, homeViewModel.selectedItem.value))
                         },
+                        onNavigateToSearch = {
+                            navController.navigate(SearchRoute)
+                        },
+                        onOpenDrawer = onOpenDrawer,
                         viewModel = homeViewModel
                     )
                 }
@@ -110,6 +115,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     enterTransition = { EnterTransition.None },
                     exitTransition = { ExitTransition.None }
                 ) {
+                    Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to SEARCH")
                     SearchScreen(
                         onNavigateBack = { navController.popBackStack() },
                         homeViewModel = homeViewModel
@@ -120,11 +126,12 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     enterTransition = { EnterTransition.None },
                     exitTransition = { ExitTransition.None }
                 ) {
+                    Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to FAVORITES")
                     FavoritesScreen(
                         onNavigateToItem = { name, id -> navController.navigate(ItemRoute(id, name)) },
+                        onOpenDrawer = onOpenDrawer,
                         favoritesViewModel = viewModel(factory = FavoritesViewModelFactory(FavoritesRepository(database.favoriteItemQueries))),
-                        homeViewModel = homeViewModel,
-                        showHeader = navStyle == "Bottom"
+                        homeViewModel = homeViewModel
                     )
                 }
 
@@ -132,12 +139,14 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     enterTransition = { EnterTransition.None },
                     exitTransition = { ExitTransition.None }
                 ) {
+                    Logger.LogInfo(LOG_TAG, "NavHost main: Navigating to SETTINGS")
                     SettingsScreen(
                         onNavigateToDefaultScreen = { navController.navigate(DefaultScreenRoute) },
                         onNavigateToTheme = { navController.navigate(ThemeRoute) },
                         onNavigateToNavStyle = { navController.navigate(NavStyleRoute) },
                         onNavigateToLicensesScreen = { navController.navigate(LicensesRoute) },
                         onNavigateToLogAmount = { navController.navigate(LogAmountRoute) },
+                        onOpenDrawer = onOpenDrawer,
                         settingsViewModel = settingsViewModel
                     )
                 }
@@ -206,10 +215,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                 ) {
                     DefaultScreenSelectionScreen(
                         onNavigateBack = {
-                            Logger.LogDebug(
-                                LOG_TAG,
-                                "NavHost settings: Navigating back from DefaultScreenSelectionScreen"
-                            )
+                            Logger.LogDebug(LOG_TAG, "NavHost settings: Navigating back from DefaultScreenSelectionScreen")
                             navController.popBackStack()
                         },
                         settingsViewModel = settingsViewModel
@@ -269,12 +275,6 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
             }
         }
 
-        val header = when {
-            currentDestination?.hasRoute<FavoritesRoute>() == true -> "Favorites"
-            currentDestination?.hasRoute<SettingsRoute>() == true -> "Settings"
-            else -> "Better Purdue Dining"
-        }
-
         if (atRoot && navStyle == "Bottom") {
             NavigationSuiteScaffold(
                 navigationSuiteItems = {
@@ -316,30 +316,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     )
                 }
             ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(text = header, style = MaterialTheme.typography.headlineMediumEmphasized) },
-                            actions = {
-                                if (currentDestination.hasRoute<HomeRoute>()) {
-                                    IconButton(
-                                        modifier = Modifier.padding(16.dp),
-                                        onClick = {
-                                            navController.navigate(SearchRoute)
-                                        }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(Res.drawable.search),
-                                            contentDescription = "Search for item."
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    }
-                ) { innerPadding ->
-                    navHost(innerPadding)
-                }
+                navHost(PaddingValues(0.dp), null)
             }
         } else if (atRoot && navStyle == "Side") {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -398,39 +375,13 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     }
                 }
             ) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(text = header, style = MaterialTheme.typography.headlineMediumEmphasized) },
-                            navigationIcon = {
-                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                    Icon(painterResource(Res.drawable.menu), "Menu")
-                                }
-                            },
-                            actions = {
-                                if (currentDestination.hasRoute<HomeRoute>()) {
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(SearchRoute)
-                                        }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(Res.drawable.search),
-                                            modifier = Modifier.padding(16.dp),
-                                            contentDescription = "Search for item."
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    }
-                ) { innerPadding ->
-                    navHost(innerPadding)
+                Scaffold {
+                    navHost(PaddingValues(0.dp)) { scope.launch { drawerState.open() } }
                 }
             }
         } else {
-            Scaffold { innerPadding ->
-                navHost(innerPadding)
+            Scaffold {
+                navHost(PaddingValues(0.dp), null)
             }
         }
     }

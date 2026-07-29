@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.obrockmole.kmpbetterdining.SearchRoute
 import com.obrockmole.kmpbetterdining.type.MealStatus
+import com.obrockmole.kmpbetterdining.ui.HeaderBar
 import com.obrockmole.kmpbetterdining.utils.DateTime
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.DiningCourtWithCustomName
@@ -31,12 +35,12 @@ val quickBiteOptionsFormal =
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToFoodLocation: (String, String) -> Unit,
+    onNavigateToSearch: () -> Unit,
+    onOpenDrawer: (() -> Unit)?,
     viewModel: HomeViewModel
 ) {
     val selectedDiningCourtFromFav by viewModel.selectedDiningCourt.collectAsState()
     Logger.LogDebug(LOG_TAG, "selectedDiningCourtFromFav: ${selectedDiningCourtFromFav.first}")
-
-    var isSearchActive by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedDiningCourtFromFav) {
         if (selectedDiningCourtFromFav.first != null && selectedDiningCourtFromFav.second != null) {
@@ -53,28 +57,44 @@ fun HomeScreen(
         viewModel.getLocations(date.toString())
     }
 
-    if (isSearchActive) {
-        Logger.LogDebug(LOG_TAG, "Activated search")
-        SearchScreen(
-            onNavigateBack = {
-                Logger.LogDebug(LOG_TAG, "Exited search")
-                isSearchActive = false
-            },
-            homeViewModel = viewModel
-        )
-
-    } else {
+    Scaffold(
+        topBar = {
+            HeaderBar(
+                title = "Better Purdue Dining",
+                onOpenDrawer = onOpenDrawer,
+                actions = {
+                    IconButton(
+                        modifier = Modifier.padding(16.dp),
+                        onClick = onNavigateToSearch
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.search),
+                            contentDescription = "Search for item."
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
         when (val uiState = viewModel.homeUiState) {
             is HomeUiState.Loading -> {
                 Logger.LogDebug(LOG_TAG, "UI loading")
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
 
             is HomeUiState.Error -> {
                 Logger.LogError(LOG_TAG, "Failed to load UI: ${uiState.message}")
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
                     Text(
                         text = "Error loading locations.",
                         color = MaterialTheme.colorScheme.error,
@@ -85,7 +105,10 @@ fun HomeScreen(
 
             is HomeUiState.Success -> {
                 Logger.LogDebug(LOG_TAG, "UI loaded successfully")
-                LazyColumn(modifier = modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = innerPadding
+                ) {
                     val diningCourts = uiState.data!!.first { it.first == "Dining Courts" }.second
                     val quickBites = uiState.data.first { it.first == "Quick Bites" }.second
 
@@ -99,18 +122,7 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = "Dining Courts",
-                                style = MaterialTheme.typography.headlineMediumEmphasized
-                            )
-
-                            Icon(
-                                painter = painterResource(Res.drawable.search),
-                                modifier = Modifier
-                                    .clickable(onClick = {
-                                        Logger.LogDebug(LOG_TAG, "Activating search attempt")
-                                        isSearchActive = true
-                                    })
-                                    .padding(16.dp),
-                                contentDescription = "Search for item."
+                                style = MaterialTheme.typography.headlineMedium
                             )
                         }
                     }
@@ -140,7 +152,7 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = "Quick Bites",
-                                style = MaterialTheme.typography.headlineMediumEmphasized
+                                style = MaterialTheme.typography.headlineMedium
                             )
                         }
                     }

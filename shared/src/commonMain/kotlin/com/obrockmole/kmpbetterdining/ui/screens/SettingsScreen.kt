@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.obrockmole.kmpbetterdining.ui.HeaderBar
 import com.obrockmole.kmpbetterdining.utils.Logger
 import com.obrockmole.kmpbetterdining.viewmodel.SettingsViewModel
 import kmpbetterdining.shared.generated.resources.Res
@@ -31,6 +32,7 @@ fun SettingsScreen(
     onNavigateToNavStyle: () -> Unit = {},
     onNavigateToLicensesScreen: () -> Unit = {},
     onNavigateToLogAmount: () -> Unit = {},
+    onOpenDrawer: (() -> Unit)?,
     settingsViewModel: SettingsViewModel,
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded")
@@ -47,203 +49,206 @@ fun SettingsScreen(
     var checkingForUpdates by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-
     val uriHandler = LocalUriHandler.current
 
-    Box(modifier = modifier.fillMaxSize()) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            if (navStyle == "Bottom") {
-                item {
-                    Text(
-                        text = "Settings",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                        style = MaterialTheme.typography.headlineMediumEmphasized
-                    )
-                }
-            }
-
-            item {
-                SettingsSectionHeader(title = "Preferences")
-            }
-
-            item {
-                NavigationalSetting(
-                    title = "Default Screen",
-                    value = defaultScreen,
-                    onClick = {
-                        Logger.LogInfo(LOG_TAG, "Navigating to default screen settings")
-                        onNavigateToDefaultScreen()
-                    }
-                )
-                HorizontalDivider()
-            }
-
-            item {
-                NavigationalSetting(
-                    title = "Theme",
-                    value = appTheme,
-                    onClick = {
-                        Logger.LogInfo(LOG_TAG, "Navigating to theme settings")
-                        onNavigateToTheme()
-                    }
-                )
-                HorizontalDivider()
-            }
-
-            item {
-                NavigationalSetting(
-                    title = "Navigation Style",
-                    value = navStyle,
-                    onClick = {
-                        Logger.LogInfo(LOG_TAG, "Navigating to nav style settings")
-                        onNavigateToNavStyle()
-                    }
-                )
-                HorizontalDivider()
-            }
-
-            item {
-                NavigationalSetting(
-                    title = "Logging",
-                    value = logAmount,
-                    onClick = {
-                        Logger.LogInfo(LOG_TAG, "Navigating to log amount settings")
-                        onNavigateToLogAmount()
-                    }
-                )
-            }
-
-            item {
-                HorizontalDivider(thickness = 6.dp)
-                SettingsSectionHeader(title = "About")
-            }
-
-            item {
-                NavigationalSetting(
-                    title = "Licenses",
-                    onClick = {
-                        Logger.LogInfo(LOG_TAG, "Navigating to licenses")
-                        onNavigateToLicensesScreen()
-                    }
-                )
-                HorizontalDivider()
-            }
-
-            item {
-                InformationSetting(title = "Version", value = CURRENT_VERSION)
-                HorizontalDivider()
-            }
-
-            item {
-                if (checkingForUpdates) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    ActionSetting(
-                        title = "Check For Updates",
-                        onClick = {
-                            Logger.LogDebug(LOG_TAG, "Check for updates attempt")
-                            coroutineScope.launch {
-                                checkingForUpdates = true
-                                settingsViewModel.getLatestVersion()
-                                checkingForUpdates = false
-                                showUpdateDialog = true
-                            }
-                        }
-                    )
-                }
-                HorizontalDivider(thickness = 6.dp)
-            }
+    Scaffold(
+        topBar = {
+            HeaderBar(
+                title = "Settings",
+                onOpenDrawer = onOpenDrawer
+            )
         }
-
-        if (showUpdateDialog) {
-            if (latestVersion == null || latestVersionURL == null) {
-                AlertDialog(
-                    title = { Text(text = "Error") },
-                    text = {
-                        Text(
-                            text = "Error checking for updates. Please try again later.",
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { showUpdateDialog = false }) {
-                            Text("Close")
-                        }
-                    },
-                    onDismissRequest = { showUpdateDialog = false }
-                )
-            } else if (latestVersion != CURRENT_VERSION) {
-                AlertDialog(
-                    title = { Text(text = "Update Found") },
-                    text = {
-                        Text(
-                            text = "Current Version: $CURRENT_VERSION\nLatest Version: $latestVersion",
-                        )
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showUpdateDialog = false }) {
-                            Text("Close")
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showUpdateDialog = false
-                            val downloadUrl = if (latestVersionURL != "") latestVersionURL!! else "https://github.com/obrockmole/KMPBetterDining/releases"
-                            Logger.LogInfo(LOG_TAG, "Opening latest version download link ($downloadUrl)")
-                            uriHandler.openUri(downloadUrl)
-                        }) {
-                            Text("Download")
-                        }
-                    },
-                    onDismissRequest = { showUpdateDialog = false }
-                )
-            } else {
-                AlertDialog(
-                    title = { Text(text = "Not Updates Found") },
-                    text = {
-                        Text(
-                            text = "You are already on the latest version v$latestVersion",
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { showUpdateDialog = false }) {
-                            Text("Okay")
-                        }
-                    },
-                    onDismissRequest = { showUpdateDialog = false }
-                )
-            }
-        }
-
+    ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 8.dp)
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 26.dp)
-            ) {
-                Image(
-                    painter = painterResource(Res.drawable.app_icon),
-                    modifier = Modifier.size(64.dp),
-                    contentDescription = "App Icon"
-                )
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
+                    SettingsSectionHeader(title = "Preferences")
+                }
 
-                Spacer(modifier = Modifier.padding(4.dp))
-                Text(
-                    text = "Purdue keeps breaking things so this exists now.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                item {
+                    NavigationalSetting(
+                        title = "Default Screen",
+                        value = defaultScreen,
+                        onClick = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to default screen settings")
+                            onNavigateToDefaultScreen()
+                        }
+                    )
+                    HorizontalDivider()
+                }
+
+                item {
+                    NavigationalSetting(
+                        title = "Theme",
+                        value = appTheme,
+                        onClick = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to theme settings")
+                            onNavigateToTheme()
+                        }
+                    )
+                    HorizontalDivider()
+                }
+
+                item {
+                    NavigationalSetting(
+                        title = "Navigation Style",
+                        value = navStyle,
+                        onClick = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to nav style settings")
+                            onNavigateToNavStyle()
+                        }
+                    )
+                    HorizontalDivider()
+                }
+
+                item {
+                    NavigationalSetting(
+                        title = "Logging",
+                        value = logAmount,
+                        onClick = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to log amount settings")
+                            onNavigateToLogAmount()
+                        }
+                    )
+                }
+
+                item {
+                    HorizontalDivider(thickness = 6.dp)
+                    SettingsSectionHeader(title = "About")
+                }
+
+                item {
+                    NavigationalSetting(
+                        title = "Licenses",
+                        onClick = {
+                            Logger.LogInfo(LOG_TAG, "Navigating to licenses")
+                            onNavigateToLicensesScreen()
+                        }
+                    )
+                    HorizontalDivider()
+                }
+
+                item {
+                    InformationSetting(title = "Version", value = CURRENT_VERSION)
+                    HorizontalDivider()
+                }
+
+                item {
+                    if (checkingForUpdates) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        ActionSetting(
+                            title = "Check For Updates",
+                            onClick = {
+                                Logger.LogDebug(LOG_TAG, "Check for updates attempt")
+                                coroutineScope.launch {
+                                    checkingForUpdates = true
+                                    settingsViewModel.getLatestVersion()
+                                    checkingForUpdates = false
+                                    showUpdateDialog = true
+                                }
+                            }
+                        )
+                    }
+                    HorizontalDivider(thickness = 6.dp)
+                }
+            }
+
+            if (showUpdateDialog) {
+                if (latestVersion == null || latestVersionURL == null) {
+                    AlertDialog(
+                        title = { Text(text = "Error") },
+                        text = {
+                            Text(
+                                text = "Error checking for updates. Please try again later.",
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showUpdateDialog = false }) {
+                                Text("Close")
+                            }
+                        },
+                        onDismissRequest = { showUpdateDialog = false }
+                    )
+                } else if (latestVersion != CURRENT_VERSION) {
+                    AlertDialog(
+                        title = { Text(text = "Update Found") },
+                        text = {
+                            Text(
+                                text = "Current Version: $CURRENT_VERSION\nLatest Version: $latestVersion",
+                            )
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showUpdateDialog = false }) {
+                                Text("Close")
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showUpdateDialog = false
+                                val downloadUrl =
+                                    if (latestVersionURL != "") latestVersionURL!! else "https://github.com/obrockmole/KMPBetterDining/releases"
+                                Logger.LogInfo(LOG_TAG, "Opening latest version download link ($downloadUrl)")
+                                uriHandler.openUri(downloadUrl)
+                            }) {
+                                Text("Download")
+                            }
+                        },
+                        onDismissRequest = { showUpdateDialog = false }
+                    )
+                } else {
+                    AlertDialog(
+                        title = { Text(text = "Not Updates Found") },
+                        text = {
+                            Text(
+                                text = "You are already on the latest version v$latestVersion",
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showUpdateDialog = false }) {
+                                Text("Okay")
+                            }
+                        },
+                        onDismissRequest = { showUpdateDialog = false }
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 8.dp)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 26.dp)
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.app_icon),
+                        modifier = Modifier.size(64.dp),
+                        contentDescription = "App Icon"
+                    )
+
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    Text(
+                        text = "Purdue keeps breaking things so this exists now.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
             }
         }
     }
