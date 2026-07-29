@@ -3,12 +3,14 @@ package com.obrockmole.kmpbetterdining
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -30,6 +32,7 @@ import com.obrockmole.kmpbetterdining.viewmodel.*
 import kmpbetterdining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.exp
 
 private const val LOG_TAG = "MainActivity"
 
@@ -100,6 +103,16 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                             navController.navigate(LocationRoute(id, name, homeViewModel.selectedMealName.value, homeViewModel.selectedDate.value, homeViewModel.selectedItem.value))
                         },
                         viewModel = homeViewModel
+                    )
+                }
+
+                composable<SearchRoute>(
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
+                ) {
+                    SearchScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        homeViewModel = homeViewModel
                     )
                 }
 
@@ -256,6 +269,12 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
             }
         }
 
+        val header = when {
+            currentDestination?.hasRoute<FavoritesRoute>() == true -> "Favorites"
+            currentDestination?.hasRoute<SettingsRoute>() == true -> "Settings"
+            else -> "Better Purdue Dining"
+        }
+
         if (atRoot && navStyle == "Bottom") {
             NavigationSuiteScaffold(
                 navigationSuiteItems = {
@@ -297,7 +316,30 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     )
                 }
             ) {
-                navHost(PaddingValues(0.dp))
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text(text = header, style = MaterialTheme.typography.headlineMediumEmphasized) },
+                            actions = {
+                                if (currentDestination.hasRoute<HomeRoute>()) {
+                                    IconButton(
+                                        modifier = Modifier.padding(16.dp),
+                                        onClick = {
+                                            navController.navigate(SearchRoute)
+                                        }
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.search),
+                                            contentDescription = "Search for item."
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    navHost(innerPadding)
+                }
             }
         } else if (atRoot && navStyle == "Side") {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -356,20 +398,28 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     }
                 }
             ) {
-                val header = when {
-                    currentDestination.hasRoute<HomeRoute>() -> "Home"
-                    currentDestination.hasRoute<FavoritesRoute>() -> "Favorites"
-                    currentDestination.hasRoute<SettingsRoute>() -> "Settings"
-                    else -> "Better Purdue Dining"
-                }
-
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(header) },
+                            title = { Text(text = header, style = MaterialTheme.typography.headlineMediumEmphasized) },
                             navigationIcon = {
                                 IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                     Icon(painterResource(Res.drawable.menu), "Menu")
+                                }
+                            },
+                            actions = {
+                                if (currentDestination.hasRoute<HomeRoute>()) {
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(SearchRoute)
+                                        }
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.search),
+                                            modifier = Modifier.padding(16.dp),
+                                            contentDescription = "Search for item."
+                                        )
+                                    }
                                 }
                             }
                         )

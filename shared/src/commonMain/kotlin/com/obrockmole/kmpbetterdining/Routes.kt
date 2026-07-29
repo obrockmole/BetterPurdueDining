@@ -24,6 +24,9 @@ data class ItemRoute(
 )
 
 @Serializable
+data object SearchRoute
+
+@Serializable
 data object DefaultScreenRoute
 
 @Serializable
