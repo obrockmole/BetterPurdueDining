@@ -33,7 +33,7 @@ compose.desktop {
                 menuGroup = "Utility"
             }
 
-            targetFormats(TargetFormat.Deb, TargetFormat.AppImage, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Dmg)
+            targetFormats(TargetFormat.Deb, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Dmg)
             modules("java.sql", "jdk.unsupported")
 
             packageName = "BetterPurdueDining"
