@@ -10,13 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.ui.HeaderBar
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.FavoritesViewModel
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.UpcomingFavoritesViewModelFactory
-import betterpurduedining.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "FavoritesScreen"

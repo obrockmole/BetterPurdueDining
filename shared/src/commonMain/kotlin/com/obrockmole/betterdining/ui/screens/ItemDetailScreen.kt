@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.GetItemDetailsQuery
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.DiningCourtIdMap
@@ -17,7 +18,6 @@ import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.ItemUiState
 import com.obrockmole.betterdining.viewmodel.ItemViewModel
-import betterpurduedining.shared.generated.resources.*
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.format
 import kotlinx.datetime.plus

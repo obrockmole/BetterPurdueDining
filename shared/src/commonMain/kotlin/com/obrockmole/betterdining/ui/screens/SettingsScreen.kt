@@ -12,15 +12,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import betterpurduedining.shared.generated.resources.Res
+import betterpurduedining.shared.generated.resources.app_icon
+import betterpurduedining.shared.generated.resources.keyboard_arrow_right
 import com.obrockmole.betterdining.ui.HeaderBar
 import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
-import betterpurduedining.shared.generated.resources.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "SettingsScreen"
-private const val CURRENT_VERSION = "0.1.1"
+private const val CURRENT_VERSION = "2.0.0"
 
 @Composable
 fun SettingsScreen(

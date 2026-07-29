@@ -1,6 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
-private val currentVersion = "1.4.1"
+private val currentVersion = "2.0.0"
 
 plugins {
     alias(libs.plugins.kotlinJvm)

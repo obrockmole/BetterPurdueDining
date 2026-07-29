@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.type.MealStatus
 import com.obrockmole.betterdining.ui.HeaderBar
 import com.obrockmole.betterdining.utils.DateTime
@@ -20,7 +21,6 @@ import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.DiningCourtWithCustomName
 import com.obrockmole.betterdining.viewmodel.HomeUiState
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
-import betterpurduedining.shared.generated.resources.*
 import kotlinx.datetime.format
 import org.jetbrains.compose.resources.painterResource
 

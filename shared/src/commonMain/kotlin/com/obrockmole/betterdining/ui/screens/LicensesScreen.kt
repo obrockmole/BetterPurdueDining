@@ -9,10 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
+import betterpurduedining.shared.generated.resources.Res
+import betterpurduedining.shared.generated.resources.arrow_back
 import com.obrockmole.betterdining.utils.Logger
-import betterpurduedining.shared.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "LicensesScreen"

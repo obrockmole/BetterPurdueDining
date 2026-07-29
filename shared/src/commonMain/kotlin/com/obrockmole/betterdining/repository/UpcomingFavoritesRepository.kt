@@ -1,10 +1,10 @@
 package com.obrockmole.betterdining.repository
 
-import com.obrockmole.betterdining.network.buildMultiItemQuery
 import com.obrockmole.betterdining.database.GetAllWithCustomNames
 import com.obrockmole.betterdining.models.GraphQLRequest
 import com.obrockmole.betterdining.models.UpcomingFavorite
 import com.obrockmole.betterdining.network.DiningApi
+import com.obrockmole.betterdining.network.buildMultiItemQuery
 import com.obrockmole.betterdining.utils.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow

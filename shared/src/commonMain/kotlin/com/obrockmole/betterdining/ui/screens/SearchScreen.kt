@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.ItemSearchQuery
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.utils.BackHandler
@@ -20,7 +21,6 @@ import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.HomeViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModel
 import com.obrockmole.betterdining.viewmodel.SearchViewModelFactory
-import betterpurduedining.shared.generated.resources.*
 import kotlinx.coroutines.delay
 import kotlinx.datetime.format
 import org.jetbrains.compose.resources.painterResource

@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.database.BetterDiningDatabase
 import com.obrockmole.betterdining.database.DataStoreFactory
 import com.obrockmole.betterdining.database.DriverFactory
@@ -26,10 +27,9 @@ import com.obrockmole.betterdining.repository.*
 import com.obrockmole.betterdining.ui.screens.*
 import com.obrockmole.betterdining.ui.theme.BetterPurdueDiningTheme
 import com.obrockmole.betterdining.utils.Logger
-import com.obrockmole.betterdining.viewmodel.*
-import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.utils.Platform
 import com.obrockmole.betterdining.utils.currentPlatform
+import com.obrockmole.betterdining.viewmodel.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 

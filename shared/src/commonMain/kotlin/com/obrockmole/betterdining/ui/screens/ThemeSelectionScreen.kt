@@ -8,11 +8,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import betterpurduedining.shared.generated.resources.Res
+import betterpurduedining.shared.generated.resources.arrow_back
 import com.obrockmole.betterdining.utils.Logger
-import com.obrockmole.betterdining.viewmodel.SettingsViewModel
-import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.utils.Platform
 import com.obrockmole.betterdining.utils.currentPlatform
+import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import org.jetbrains.compose.resources.painterResource
 
 private const val LOG_TAG = "ThemeSelectionScreen"
