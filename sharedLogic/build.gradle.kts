@@ -56,9 +56,11 @@ kotlin {
         }
 
         commonMain.dependencies {
+            api(libs.androidx.lifecycle.viewmodel)
+            api(libs.datastore.preferences.core)
+            api(libs.kotlinx.datetime)
+
             implementation(libs.apollo.runtime)
-            implementation(libs.datastore.preferences.core)
-            implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlin.test)
             implementation(libs.ktor.client.content.negotiation)

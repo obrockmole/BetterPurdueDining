@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import betterpurduedining.shared.generated.resources.Res
-import betterpurduedining.shared.generated.resources.app_icon
-import betterpurduedining.shared.generated.resources.keyboard_arrow_right
+import betterpurduedining.sharedui.generated.resources.Res
+import betterpurduedining.sharedui.generated.resources.app_icon
+import betterpurduedining.sharedui.generated.resources.keyboard_arrow_right
 import com.obrockmole.betterdining.ui.HeaderBar
 import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel

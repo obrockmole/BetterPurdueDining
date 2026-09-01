@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import betterpurduedining.shared.generated.resources.*
-import com.obrockmole.betterdining.ItemSearchQuery
+import betterpurduedining.sharedui.generated.resources.*
+import com.obrockmole.betterdining.graphql.ItemSearchQuery
 import com.obrockmole.betterdining.repository.SearchRepository
 import com.obrockmole.betterdining.utils.BackHandler
 import com.obrockmole.betterdining.utils.DateTime

@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import betterpurduedining.shared.generated.resources.Res
-import betterpurduedining.shared.generated.resources.arrow_back
+import betterpurduedining.sharedui.generated.resources.Res
+import betterpurduedining.sharedui.generated.resources.arrow_back
 import com.obrockmole.betterdining.utils.Logger
 import org.jetbrains.compose.resources.painterResource
 

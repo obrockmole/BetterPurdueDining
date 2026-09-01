@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import betterpurduedining.shared.generated.resources.*
+import betterpurduedining.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.Font
 
 @Composable

@@ -1,8 +1,5 @@
 package com.obrockmole.betterdining.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -42,8 +39,8 @@ class HomeViewModel(
     private val _selectedItem = MutableStateFlow<String?>(null)
     val selectedItem: StateFlow<String?> = _selectedItem
 
-    var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
-        private set
+    private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    val homeUiState: StateFlow<HomeUiState> = _homeUiState
 
     fun navigateToMenu(
         diningCourt: String,
@@ -67,7 +64,7 @@ class HomeViewModel(
 
     fun getLocations(date: String) {
         viewModelScope.launch {
-            homeUiState = HomeUiState.Loading
+            _homeUiState.value = HomeUiState.Loading
             try {
                 val startLocations = startLocationsRepository.getStartLocations(date)
                 val result = startLocations?.map { category ->
@@ -78,9 +75,9 @@ class HomeViewModel(
                     }
                     Pair(category.name, courtsWithCustomNames)
                 }
-                homeUiState = HomeUiState.Success(result)
+                _homeUiState.value = HomeUiState.Success(result)
             } catch (e: Exception) {
-                homeUiState = HomeUiState.Error(e.message ?: "An unknown error occurred")
+                _homeUiState.value = HomeUiState.Error(e.message ?: "An unknown error occurred")
             }
         }
     }

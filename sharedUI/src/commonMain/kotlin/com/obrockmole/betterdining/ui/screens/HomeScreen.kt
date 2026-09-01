@@ -13,8 +13,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import betterpurduedining.shared.generated.resources.*
-import com.obrockmole.betterdining.type.MealStatus
+import betterpurduedining.sharedui.generated.resources.*
+import com.obrockmole.betterdining.graphql.type.MealStatus
 import com.obrockmole.betterdining.ui.HeaderBar
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.Logger
@@ -75,7 +75,7 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-        when (val uiState = viewModel.homeUiState) {
+        when (val uiState = viewModel.homeUiState.collectAsState().value) {
             is HomeUiState.Loading -> {
                 Logger.LogDebug(LOG_TAG, "UI loading")
                 Box(
@@ -109,7 +109,7 @@ fun HomeScreen(
                     contentPadding = innerPadding
                 ) {
                     val diningCourts = uiState.data!!.first { it.first == "Dining Courts" }.second
-                    val quickBites = uiState.data.first { it.first == "Quick Bites" }.second
+                    val quickBites = uiState.data!!.first { it.first == "Quick Bites" }.second
 
                     item {
                         Row(

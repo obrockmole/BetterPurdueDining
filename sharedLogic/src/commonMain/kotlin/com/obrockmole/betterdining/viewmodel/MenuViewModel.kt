@@ -1,8 +1,5 @@
 package com.obrockmole.betterdining.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -12,6 +9,8 @@ import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.repository.RenamedCourtsRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.utils.DiningCourtIdMap
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -26,18 +25,18 @@ class MenuViewModel(
     private val renamedItemsRepository: RenamedItemsRepository,
     private val renamedCourtsRepository: RenamedCourtsRepository
 ) : ViewModel() {
-    var menuUiState: MenuUiState by mutableStateOf(MenuUiState.Loading)
-        private set
+    private val _menuUiState = MutableStateFlow<MenuUiState>(MenuUiState.Loading)
+    val menuUiState: StateFlow<MenuUiState> = _menuUiState
 
-    var isRenamed by mutableStateOf(false)
-        private set
+    private val _isRenamed = MutableStateFlow(false)
+    val isRenamed: StateFlow<Boolean> = _isRenamed
 
-    var renamedName by mutableStateOf("")
-        private set
+    private val _renamedName = MutableStateFlow("")
+    val renamedName: StateFlow<String> = _renamedName
 
     fun getMenu(name: String?, courtId: String?, date: String) {
         viewModelScope.launch {
-            menuUiState = MenuUiState.Loading
+            _menuUiState.value = MenuUiState.Loading
             try {
                 val id = courtId ?: (DiningCourtIdMap.diningCourtIdMap[name] ?: "")
 
@@ -72,14 +71,14 @@ class MenuViewModel(
 
                 val renamedCourt = renamedCourtsRepository.getRenamedCourt(mappedResult.courtId)
                 if (renamedCourt != null) {
-                    isRenamed = true
-                    renamedName = renamedCourt.customName
+                    _isRenamed.value = true
+                    _renamedName.value = renamedCourt.customName
                 }
 
-                menuUiState = MenuUiState.Success(mappedResult)
+                _menuUiState.value = MenuUiState.Success(mappedResult)
 
             } catch (e: Exception) {
-                menuUiState = MenuUiState.Error(e.message ?: "An unknown error occurred")
+                _menuUiState.value = MenuUiState.Error(e.message ?: "An unknown error occurred")
             }
         }
     }
@@ -90,11 +89,11 @@ class MenuViewModel(
 
             if (customName.isEmpty()) {
                 renamedCourtsRepository.delete(renamedCourt)
-                isRenamed = false
+                _isRenamed.value = false
             } else {
                 renamedCourtsRepository.insert(renamedCourt)
-                isRenamed = true
-                renamedName = customName
+                _isRenamed.value = true
+                _renamedName.value = customName
             }
         }
     }

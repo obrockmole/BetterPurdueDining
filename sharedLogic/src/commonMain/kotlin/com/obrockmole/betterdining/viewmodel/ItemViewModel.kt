@@ -1,19 +1,18 @@
 package com.obrockmole.betterdining.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.obrockmole.betterdining.graphql.GetItemDetailsQuery
 import com.obrockmole.betterdining.database.FavoriteItem
 import com.obrockmole.betterdining.database.RenamedItem
+import com.obrockmole.betterdining.graphql.GetItemDetailsQuery
 import com.obrockmole.betterdining.repository.FavoritesRepository
 import com.obrockmole.betterdining.repository.MenuRepository
 import com.obrockmole.betterdining.repository.RenamedItemsRepository
 import com.obrockmole.betterdining.utils.DateTime
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -29,37 +28,37 @@ class ItemViewModel(
     private val renamedItemsRepository: RenamedItemsRepository
 ) : ViewModel() {
 
-    var itemUiState: ItemUiState by mutableStateOf(ItemUiState.Loading)
-        private set
+    private val _itemUiState = MutableStateFlow<ItemUiState>(ItemUiState.Loading)
+    val itemUiState: StateFlow<ItemUiState> = _itemUiState
 
-    var isFavorite by mutableStateOf(false)
-        private set
+    private val _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite
 
-    var isRenamed by mutableStateOf(false)
-        private set
+    private val _isRenamed = MutableStateFlow(false)
+    val isRenamed: StateFlow<Boolean> = _isRenamed
 
-    var renamedName by mutableStateOf("")
-        private set
+    private val _renamedName = MutableStateFlow("")
+    val renamedName: StateFlow<String> = _renamedName
 
     fun getItem(itemId: String) {
         viewModelScope.launch {
-            itemUiState = ItemUiState.Loading
+            _itemUiState.value = ItemUiState.Loading
             try {
                 val result = menuRepository.getItemDetails(itemId)
                 val renamedItem = renamedItemsRepository.getRenamedItem(itemId)
                 if (renamedItem != null) {
-                    isRenamed = true
-                    renamedName = renamedItem.customName
+                    _isRenamed.value = true
+                    _renamedName.value = renamedItem.customName
                 }
-                itemUiState = if (result != null) {
+                _itemUiState.value = if (result != null) {
                     ItemUiState.Success(result)
                 } else {
                     ItemUiState.Error("Item not found")
                 }
-                isFavorite = favoritesRepository.isFavorite(itemId)
+                _isFavorite.value = favoritesRepository.isFavorite(itemId)
 
             } catch (e: Exception) {
-                itemUiState = ItemUiState.Error(e.message ?: "An unknown error occurred")
+                _itemUiState.value = ItemUiState.Error(e.message ?: "An unknown error occurred")
             }
         }
     }
@@ -68,8 +67,8 @@ class ItemViewModel(
         viewModelScope.launch {
             val renamedItem = RenamedItem(itemId, customName)
             renamedItemsRepository.insert(renamedItem)
-            isRenamed = true
-            renamedName = customName
+            _isRenamed.value = true
+            _renamedName.value = customName
         }
     }
 
@@ -78,13 +77,13 @@ class ItemViewModel(
             val date = DateTime.getLocalDateTime()
             val favoriteItem = FavoriteItem(item.itemId, item.name, date.toString())
 
-            if (isFavorite) {
+            if (_isFavorite.value) {
                 favoritesRepository.removeFavorite(favoriteItem)
             } else {
                 favoritesRepository.addFavorite(favoriteItem)
             }
 
-            isFavorite = !isFavorite
+            _isFavorite.value = !_isFavorite.value
         }
     }
 }

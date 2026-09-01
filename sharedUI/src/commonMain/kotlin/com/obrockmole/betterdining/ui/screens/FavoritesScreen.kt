@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import betterpurduedining.shared.generated.resources.*
+import betterpurduedining.sharedui.generated.resources.*
 import com.obrockmole.betterdining.ui.HeaderBar
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.Logger

@@ -19,7 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import betterpurduedining.shared.generated.resources.*
+import betterpurduedining.sharedui.generated.resources.*
 import com.obrockmole.betterdining.database.BetterDiningDatabase
 import com.obrockmole.betterdining.database.DataStoreFactory
 import com.obrockmole.betterdining.database.DriverFactory

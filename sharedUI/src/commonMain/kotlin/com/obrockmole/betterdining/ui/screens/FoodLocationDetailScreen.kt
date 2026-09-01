@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import betterpurduedining.shared.generated.resources.*
+import betterpurduedining.sharedui.generated.resources.*
 import com.obrockmole.betterdining.utils.BackHandler
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.Logger
@@ -60,7 +60,7 @@ fun FoodLocationDetailScreen(
 
     var firstVisit = rememberSaveable { mutableStateOf(true) }
 
-    val uiState = menuViewModel.menuUiState
+    val uiState = menuViewModel.menuUiState.collectAsState().value
     var selectedMealIndex by rememberSaveable { mutableIntStateOf(0) }
     var moreMenuShown by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
@@ -79,7 +79,7 @@ fun FoodLocationDetailScreen(
                 menuViewModel.renameDiningCourt(uiState.data!!.courtId, newName)
                 showRenameDialog = false
             },
-            currentName = if (menuViewModel.isRenamed) menuViewModel.renamedName else name,
+            currentName = if (menuViewModel.isRenamed.collectAsState().value) menuViewModel.renamedName.collectAsState().value else name,
             officialName = name
         )
     }
@@ -88,8 +88,8 @@ fun FoodLocationDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (menuViewModel.isRenamed) {
-                        Text(text = menuViewModel.renamedName)
+                    if (menuViewModel.isRenamed.collectAsState().value) {
+                        Text(text = menuViewModel.renamedName.collectAsState().value)
                     } else {
                         Text(text = name)
                     }
@@ -204,8 +204,8 @@ fun FoodLocationDetailScreen(
                                         for ((index, meal) in mealList.withIndex()) {
                                             if (meal.startTime == null || meal.endTime == null) continue
 
-                                            val startTime = DateTime.parseTime(meal.startTime).hour
-                                            val endTime = DateTime.parseTime(meal.endTime).hour
+                                            val startTime = DateTime.parseTime(meal.startTime!!).hour
+                                            val endTime = DateTime.parseTime(meal.endTime!!).hour
 
                                             if (currentHour in startTime..<endTime) {
                                                 selectedMealIndex = index

@@ -8,8 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import betterpurduedining.shared.generated.resources.Res
-import betterpurduedining.shared.generated.resources.arrow_back
+import betterpurduedining.sharedui.generated.resources.Res
+import betterpurduedining.sharedui.generated.resources.arrow_back
 import com.obrockmole.betterdining.utils.Logger
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import org.jetbrains.compose.resources.painterResource

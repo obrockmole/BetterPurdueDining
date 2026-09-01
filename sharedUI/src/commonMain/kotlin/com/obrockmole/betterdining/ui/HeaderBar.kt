@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import betterpurduedining.shared.generated.resources.Res
-import betterpurduedining.shared.generated.resources.menu
+import betterpurduedining.sharedui.generated.resources.Res
+import betterpurduedining.sharedui.generated.resources.menu
 import org.jetbrains.compose.resources.painterResource
 
 @Composable

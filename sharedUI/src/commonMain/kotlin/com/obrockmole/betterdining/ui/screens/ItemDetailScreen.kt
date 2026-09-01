@@ -10,8 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import betterpurduedining.shared.generated.resources.*
-import com.obrockmole.betterdining.GetItemDetailsQuery
+import betterpurduedining.sharedui.generated.resources.*
+import com.obrockmole.betterdining.graphql.GetItemDetailsQuery
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.DiningCourtIdMap
 import com.obrockmole.betterdining.utils.Logger
@@ -43,7 +43,7 @@ fun ItemDetailScreen(
         itemViewModel.getItem(itemId)
     }
 
-    val uiState = itemViewModel.itemUiState
+    val uiState = itemViewModel.itemUiState.collectAsState().value
     var selectedDetailIndex by rememberSaveable { mutableIntStateOf(0) }
     var moreMenuShown by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
@@ -60,7 +60,7 @@ fun ItemDetailScreen(
                 itemViewModel.renameItem(uiState.item.itemId, newName)
                 showRenameDialog = false
             },
-            currentName = if (itemViewModel.isRenamed) itemViewModel.renamedName else uiState.item.name,
+            currentName = if (itemViewModel.isRenamed.collectAsState().value) itemViewModel.renamedName.collectAsState().value else uiState.item.name,
             officialName = uiState.item.name
         )
     }
@@ -70,8 +70,8 @@ fun ItemDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (itemViewModel.isRenamed) {
-                        Text(text = itemViewModel.renamedName)
+                    if (itemViewModel.isRenamed.collectAsState().value) {
+                        Text(text = itemViewModel.renamedName.collectAsState().value)
                     } else {
                         Text(text = itemName)
                     }
@@ -109,7 +109,7 @@ fun ItemDetailScreen(
                             DropdownMenuGroup(
                                 shapes = MenuDefaults.groupShape(0, 1)
                             ) {
-                                val isFavorite = itemViewModel.isFavorite
+                                val isFavorite = itemViewModel.isFavorite.collectAsState().value
                                 DropdownMenuItem(
                                     text = { Text("Favorite") },
                                     trailingIcon = {
@@ -298,7 +298,7 @@ fun NutritionDetails(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            item.nutritionFacts.forEach { fact ->
+            item.nutritionFacts!!.forEach { fact ->
                 item {
                     Column {
                         Box(
@@ -353,7 +353,7 @@ fun TraitsDetails(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            item.traits.forEach { trait ->
+            item.traits!!.forEach { trait ->
                 item {
                     Column {
                         Box(
@@ -394,7 +394,7 @@ fun ComponentsDetails(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            item.components.forEach { component ->
+            item.components!!.forEach { component ->
                 item {
                     Column {
                         Box(
