@@ -1,7 +1,7 @@
 TEAM_ID=
 
 PRODUCT_NAME=BetterPurdueDining
-PRODUCT_BUNDLE_IDENTIFIER=com.obrockmole.betterdining.BetterPurdueDining(TEAM_ID)
+PRODUCT_BUNDLE_IDENTIFIER=com.obrockmole.betterdining.BetterPurdueDining
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=2.0.0
