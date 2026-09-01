@@ -1,0 +1,101 @@
+package com.obrockmole.betterdining.viewmodel
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.obrockmole.betterdining.graphql.GetStartLocationsQuery
+import com.obrockmole.betterdining.repository.RenamedCourtsRepository
+import com.obrockmole.betterdining.repository.StartLocationsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
+
+data class DiningCourtWithCustomName(
+    val diningCourt: GetStartLocationsQuery.DiningCourt,
+    val customName: String?
+)
+
+sealed interface HomeUiState {
+    data class Success(val data: List<Pair<String, List<DiningCourtWithCustomName>>>?) : HomeUiState
+    data class Error(val message: String) : HomeUiState
+    data object Loading : HomeUiState
+}
+
+class HomeViewModel(
+    private val startLocationsRepository: StartLocationsRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
+) : ViewModel() {
+    private val _selectedDiningCourt = MutableStateFlow<Pair<String?, String?>>(Pair(null, null))
+    val selectedDiningCourt: StateFlow<Pair<String?, String?>> = _selectedDiningCourt
+
+    private val _selectedMealName = MutableStateFlow<String?>(null)
+    val selectedMealName: StateFlow<String?> = _selectedMealName
+
+    private val _selectedDate = MutableStateFlow<String?>(null)
+    val selectedDate: StateFlow<String?> = _selectedDate
+
+    private val _selectedItem = MutableStateFlow<String?>(null)
+    val selectedItem: StateFlow<String?> = _selectedItem
+
+    var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
+        private set
+
+    fun navigateToMenu(
+        diningCourt: String,
+        diningCourtId: String?,
+        mealName: String,
+        date: String,
+        item: String
+    ) {
+        _selectedDiningCourt.value = Pair(diningCourt, diningCourtId)
+        _selectedMealName.value = mealName
+        _selectedDate.value = date
+        _selectedItem.value = item
+    }
+
+    fun clearNavigation() {
+        _selectedDiningCourt.value = Pair(null, null)
+        _selectedMealName.value = null
+        _selectedDate.value = null
+        _selectedItem.value = null
+    }
+
+    fun getLocations(date: String) {
+        viewModelScope.launch {
+            homeUiState = HomeUiState.Loading
+            try {
+                val startLocations = startLocationsRepository.getStartLocations(date)
+                val result = startLocations?.map { category ->
+                    val courtsWithCustomNames = category.diningCourts.map { court ->
+                        val customName =
+                            renamedCourtsRepository.getRenamedCourt(court.id)?.customName
+                        DiningCourtWithCustomName(court, customName)
+                    }
+                    Pair(category.name, courtsWithCustomNames)
+                }
+                homeUiState = HomeUiState.Success(result)
+            } catch (e: Exception) {
+                homeUiState = HomeUiState.Error(e.message ?: "An unknown error occurred")
+            }
+        }
+    }
+}
+
+class HomeViewModelFactory(
+    private val startLocationsRepository: StartLocationsRepository,
+    private val renamedCourtsRepository: RenamedCourtsRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
+        if (modelClass == HomeViewModel::class) {
+            @Suppress("UNCHECKED_CAST")
+            return HomeViewModel(startLocationsRepository, renamedCourtsRepository) as T
+        }
+
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

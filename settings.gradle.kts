@@ -1,4 +1,3 @@
-rootProject.name = "BetterPurdueDining"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -20,6 +19,9 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+rootProject.name = "BetterPurdueDining"
+
 include(":androidApp")
 include(":desktopApp")
-include(":shared")
+include(":sharedLogic")
+include(":sharedUI")
