@@ -61,7 +61,7 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
     )
 
     val currentPlatform: Platform = getPlatform()
-    Logger.LogInfo(LOG_TAG, "Current platform: ${currentPlatform.name} (${currentPlatform.type})")
+    Logger.LogDebug(LOG_TAG, "Current platform: ${currentPlatform.name} (${currentPlatform.type})")
 
     val appTheme by settingsViewModel.appTheme.collectAsState(
         initial = if (currentPlatform.type == PlatformType.ANDROID) "Material" else "Dark"
