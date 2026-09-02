@@ -1,18 +1,23 @@
-import UIKit
 import SwiftUI
-import Shared
-
-struct ComposeView: UIViewControllerRepresentable {
-    func makeUIViewController(context: Self.Context) -> UIViewController {
-        MainViewControllerKt.MainViewController()
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewController, context: Self.Context) {}
-}
+import sharedLogic
 
 struct ContentView: View {
-    var body: some View {
-        ComposeView()
-            .ignoresSafeArea()
-    }
+	var body: some View {
+		VStack(spacing: 20) {
+			Image(systemName: "applelogo")
+				.imageScale(.large)
+				.font(.system(size: 40))
+			
+			Text("Hello World!")
+				.font(.title)
+				.fontWeight(.bold)
+		}
+		.padding()
+	}
+}
+
+struct ContentView_Previews: PreviewProvider {
+	static var previews: some View {
+		ContentView()
+	}
 }
