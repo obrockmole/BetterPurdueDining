@@ -1,10 +1,14 @@
 package com.obrockmole.betterdining.utils
 
-expect val currentPlatform: Platform
+expect fun getPlatform(): Platform
 
-enum class Platform {
+enum class PlatformType {
     ANDROID,
     IOS,
     DESKTOP
 }
 
+interface Platform {
+    val name: String
+    val type: PlatformType
+}

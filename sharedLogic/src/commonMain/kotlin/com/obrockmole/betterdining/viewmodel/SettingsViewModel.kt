@@ -8,7 +8,8 @@ import com.obrockmole.betterdining.models.GitHubRelease
 import com.obrockmole.betterdining.repository.SettingsRepository
 import com.obrockmole.betterdining.repository.UserPreferencesRepository
 import com.obrockmole.betterdining.utils.Platform
-import com.obrockmole.betterdining.utils.currentPlatform
+import com.obrockmole.betterdining.utils.PlatformType
+import com.obrockmole.betterdining.utils.getPlatform
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,7 @@ class SettingsViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = if (currentPlatform == Platform.ANDROID) "Material" else "Dark"
+            initialValue = if (getPlatform().type == PlatformType.ANDROID) "Material" else "Dark"
         )
 
     val navStyle: StateFlow<String> = userPreferencesRepository.navStyle

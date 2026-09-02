@@ -1,4 +1,10 @@
 package com.obrockmole.betterdining.utils
 
-actual val currentPlatform: Platform
-    get() = Platform.ANDROID
+import android.os.Build
+
+actual fun getPlatform(): Platform = AndroidPlatform()
+
+class AndroidPlatform : Platform {
+    override val name: String = "Android ${Build.VERSION.SDK_INT}"
+    override val type: PlatformType = PlatformType.ANDROID
+}

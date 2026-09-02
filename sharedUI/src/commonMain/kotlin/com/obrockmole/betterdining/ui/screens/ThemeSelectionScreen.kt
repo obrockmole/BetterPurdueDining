@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import betterpurduedining.sharedui.generated.resources.Res
 import betterpurduedining.sharedui.generated.resources.arrow_back
 import com.obrockmole.betterdining.utils.Logger
-import com.obrockmole.betterdining.utils.Platform
-import com.obrockmole.betterdining.utils.currentPlatform
+import com.obrockmole.betterdining.utils.PlatformType
+import com.obrockmole.betterdining.utils.getPlatform
 import com.obrockmole.betterdining.viewmodel.SettingsViewModel
 import org.jetbrains.compose.resources.painterResource
 
@@ -29,7 +29,7 @@ fun ThemeSelectionScreen(
     val appTheme by settingsViewModel.appTheme.collectAsState()
 
     val themeOptions = remember {
-        if (currentPlatform == Platform.ANDROID) {
+        if (getPlatform().type == PlatformType.ANDROID) {
             listOf("Material", "Dark", "Light", "Rainbow")
         } else {
             listOf("Dark", "Light", "Rainbow")
