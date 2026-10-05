@@ -1,23 +1,18 @@
+import UIKit
 import SwiftUI
-import sharedLogic
+import Shared
 
-struct ContentView: View {
-	var body: some View {
-		VStack(spacing: 20) {
-			Image(systemName: "applelogo")
-				.imageScale(.large)
-				.font(.system(size: 40))
-			
-			Text("Hello World!")
-				.font(.title)
-				.fontWeight(.bold)
-		}
-		.padding()
-	}
+struct ComposeView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Self.Context) -> UIViewController {
+        MainViewControllerKt.MainViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Self.Context) {}
 }
 
-struct ContentView_Previews: PreviewProvider {
-	static var previews: some View {
-		ContentView()
-	}
+struct ContentView: View {
+    var body: some View {
+        ComposeView()
+            .ignoresSafeArea()
+    }
 }
