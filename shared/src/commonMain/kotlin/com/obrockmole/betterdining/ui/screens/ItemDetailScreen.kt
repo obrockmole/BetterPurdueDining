@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import betterpurduedining.shared.generated.resources.*
 import com.obrockmole.betterdining.GetItemDetailsQuery
+import com.obrockmole.betterdining.utils.BackHandler
 import com.obrockmole.betterdining.utils.DateTime
 import com.obrockmole.betterdining.utils.DiningCourtIdMap
 import com.obrockmole.betterdining.utils.Logger
@@ -33,11 +34,16 @@ fun ItemDetailScreen(
     itemName: String,
     itemId: String,
     onNavigateBack: () -> Unit,
+    onNavigateToMenu: () -> Unit = onNavigateBack,
     homeViewModel: HomeViewModel,
     itemViewModel: ItemViewModel,
     modifier: Modifier = Modifier
 ) {
     Logger.LogDebug(LOG_TAG, "Composable loaded for $itemName ($itemId)")
+
+    BackHandler {
+        onNavigateBack()
+    }
 
     LaunchedEffect(itemId) {
         itemViewModel.getItem(itemId)
@@ -237,7 +243,7 @@ fun ItemDetailScreen(
                                     ScheduleDetails(
                                         item,
                                         homeViewModel,
-                                        onNavigateBack = onNavigateBack
+                                        onNavigateToMenu = onNavigateToMenu
                                     )
                                 }
                             }
@@ -424,7 +430,7 @@ fun ComponentsDetails(
 fun ScheduleDetails(
     item: GetItemDetailsQuery.ItemByItemId,
     homeViewModel: HomeViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateToMenu: () -> Unit
 ) {
     if (item.appearances.isEmpty()) {
         Text(
@@ -479,7 +485,7 @@ fun ScheduleDetails(
                                 date = appearance.date,
                                 item = item.name
                             )
-                            onNavigateBack()
+                            onNavigateToMenu()
                         }
                     )
 

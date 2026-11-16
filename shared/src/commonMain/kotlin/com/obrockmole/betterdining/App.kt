@@ -208,7 +208,8 @@ fun App(driverFactory: DriverFactory, dataStoreFactory: DataStoreFactory) {
                     ItemDetailScreen(
                         itemName = routeData.itemName,
                         itemId = routeData.itemId,
-                        onNavigateBack = {
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToMenu = {
                             navController.navigate(HomeRoute) {
                                 popUpTo(navController.graph.findStartDestination().id) { inclusive = false }
                             }
