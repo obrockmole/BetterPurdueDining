@@ -19,17 +19,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build
+      - name: Build Release Files
         run: |
           chmod +x gradlew
           ./gradlew :androidApp:assembleRelease :desktopApp:packageDeb
 
-      - name: Upload
+      - name: Prepare Release Files
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(grep -m 1 "currentVersion" desktopApp/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+          fi
+
+          mkdir -p release-artifacts
+          cp androidApp/build/outputs/apk/release/*.apk "release-artifacts/BetterPurdueDining-v${VERSION}-unsigned.apk"
+          cp desktopApp/build/compose/binaries/main/deb/*.deb "release-artifacts/BetterPurdueDining-v${VERSION}.deb"
+
+      - name: Upload Release Files
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            androidApp/build/outputs/apk/release/*.apk
-            desktopApp/build/compose/binaries/main/*/*.deb
+            release-artifacts/*.apk
+            release-artifacts/*.deb
 
   build-windows:
     runs-on: windows-latest
@@ -45,15 +57,28 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build
+      - name: Build Release Files
         run: .\gradlew.bat :desktopApp:packageMsi :desktopApp:packageExe
 
-      - name: Upload
+      - name: Prepare Release Files
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(grep -m 1 "currentVersion" desktopApp/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+          fi
+
+          mkdir -p release-artifacts
+          cp desktopApp/build/compose/binaries/main/msi/*.msi "release-artifacts/BetterPurdueDining-v${VERSION}.msi"
+          cp desktopApp/build/compose/binaries/main/exe/*.exe "release-artifacts/BetterPurdueDining-v${VERSION}.exe"
+
+      - name: Upload Release Files
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            desktopApp/build/compose/binaries/main/*/*.msi
-            desktopApp/build/compose/binaries/main/*/*.exe
+            release-artifacts/*.msi
+            release-artifacts/*.exe
 
   build-macos:
     runs-on: macos-latest
@@ -69,12 +94,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build
+      - name: Build Release Files
         run: |
           chmod +x gradlew
           ./gradlew :desktopApp:packageDmg
 
-      - name: Upload
+      - name: Prepare Release Files
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(grep -m 1 "currentVersion" desktopApp/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+          fi
+
+          mkdir -p release-artifacts
+          cp desktopApp/build/compose/binaries/main/dmg/*.dmg "release-artifacts/BetterPurdueDining-v${VERSION}.dmg"
+
+      - name: Upload Release Files
         uses: softprops/action-gh-release@v2
         with:
-          files: desktopApp/build/compose/binaries/main/*/*.dmg
+          files: release-artifacts/*.dmg
