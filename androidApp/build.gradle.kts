@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-private val currentVersion = "2.0.0"
+private val currentVersion = "2.1.0"
 
 plugins {
     alias(libs.plugins.androidApplication)

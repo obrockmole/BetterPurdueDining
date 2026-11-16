@@ -22,7 +22,7 @@ jobs:
       - name: Build Release Files
         run: |
           chmod +x gradlew
-          ./gradlew :androidApp:assembleRelease :desktopApp:packageDeb
+          ./gradlew :androidApp:assembleRelease :desktopApp:packageDeb :desktopApp:createDistributable
 
       - name: Prepare Release Files
         run: |
@@ -36,12 +36,32 @@ jobs:
           cp androidApp/build/outputs/apk/release/*.apk "release-artifacts/BetterPurdueDining-v${VERSION}-unsigned.apk"
           cp desktopApp/build/compose/binaries/main/deb/*.deb "release-artifacts/BetterPurdueDining-v${VERSION}.deb"
 
+          mkdir -p AppDir/usr
+          APP_DIR=$(ls -d desktopApp/build/compose/binaries/main/app/* | head -n 1)
+          cp -r "$APP_DIR"/* AppDir/usr/
+
+          EXEC_NAME=$(ls AppDir/usr/bin | head -n 1)
+          chmod +x "AppDir/usr/bin/$EXEC_NAME"
+
+          printf "[Desktop Entry]\nName=Better Purdue Dining\nExec=%s\nIcon=icon\nType=Application\nCategories=Utility;\nTerminal=false\n" "$EXEC_NAME" > AppDir/BetterPurdueDining.desktop
+
+          cp desktopApp/src/main/resources/icon.png AppDir/icon.png
+          cp desktopApp/src/main/resources/icon.png AppDir/.DirIcon
+
+          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "$0")")"\nexec "$HERE/usr/bin/%s" "$@"\n' "$EXEC_NAME" > AppDir/AppRun
+          chmod +x AppDir/AppRun
+
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+          chmod +x appimagetool
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir "release-artifacts/BetterPurdueDining-v${VERSION}.AppImage"
+
       - name: Upload Release Files
         uses: softprops/action-gh-release@v2
         with:
           files: |
             release-artifacts/*.apk
             release-artifacts/*.deb
+            release-artifacts/*.AppImage
 
   build-windows:
     runs-on: windows-latest
