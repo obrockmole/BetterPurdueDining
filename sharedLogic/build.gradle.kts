@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.apollo)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.skie)
     alias(libs.plugins.sqldelight)
 }
 
