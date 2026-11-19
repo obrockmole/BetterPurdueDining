@@ -11,50 +11,49 @@ let quickBiteOptionsFormal = [
 struct HomeScreen: View {
     let viewModel = ViewModelHelperKt.getHomeViewModel()
     @State private var uiState: HomeUiState = HomeUiStateLoading()
+    @EnvironmentObject private var navController: NavigationController
 
     var body: some View {
-        NavigationStack {
-            contentView
-                .navigationTitle("Better Purdue Dining")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-							Logger.shared.LogInfo(tag: LOG_TAG, message: "Search button clicked.")
-//							onNavigateToSearch()
-                        }) {
-                            Image(systemName: "magnifyingglass")
-                        }
+        contentView
+            .navigationTitle("Better Purdue Dining")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        Logger.shared.LogInfo(tag: LOG_TAG, message: "Search button clicked.")
+						navController.navigate(to: .search)
+                    }) {
+                        Image(systemName: "magnifyingglass")
                     }
                 }
-                .task {
-                    for await state in viewModel.homeUiState {
-                        self.uiState = state
-                        if state is HomeUiStateLoading {
-                            Logger.shared.LogDebug(tag: LOG_TAG, message: "UI loading")
-                        } else if let errorState = state as? HomeUiStateError {
-                            Logger.shared.LogError(tag: LOG_TAG, message: "Failed to load UI: \(errorState.message)")
-                        } else if state is HomeUiStateSuccess {
-                            Logger.shared.LogDebug(tag: LOG_TAG, message: "UI loaded successfully")
-                        }
+            }
+            .task {
+                for await state in viewModel.homeUiState {
+                    self.uiState = state
+                    if state is HomeUiStateLoading {
+                        Logger.shared.LogDebug(tag: LOG_TAG, message: "UI loading")
+                    } else if let errorState = state as? HomeUiStateError {
+                        Logger.shared.LogError(tag: LOG_TAG, message: "Failed to load UI: \(errorState.message)")
+                    } else if state is HomeUiStateSuccess {
+                        Logger.shared.LogDebug(tag: LOG_TAG, message: "UI loaded successfully")
                     }
                 }
-                .task {
-                    for await pair in viewModel.selectedDiningCourt {
-                        Logger.shared.LogDebug(tag: LOG_TAG, message: "selectedDiningCourtFromFav: \(pair.first ?? "nil")")
-                        if let name = pair.first as? String, pair.second != nil {
-                            Logger.shared.LogInfo(tag: LOG_TAG, message: "Navigating to dining court from favorites: \(name)")
-//							onNavigateToFoodLocation(first, second)
-                            viewModel.clearNavigation()
-                        }
+            }
+            .task {
+                for await pair in viewModel.selectedDiningCourt {
+                    Logger.shared.LogDebug(tag: LOG_TAG, message: "selectedDiningCourtFromFav: \(pair.first ?? "nil")")
+                    if let name = pair.first as? String, let id = pair.second as? String {
+                        Logger.shared.LogInfo(tag: LOG_TAG, message: "Navigating to dining court from favorites: \(name)")
+						navController.navigate(to: .location(id: id, name: name))
+                        viewModel.clearNavigation()
                     }
                 }
-                .onAppear {
-                    loadLocations()
-                }
-                .refreshable {
-                    loadLocations()
-                }
-        }
+            }
+            .onAppear {
+                loadLocations()
+            }
+            .refreshable {
+                loadLocations()
+            }
     }
 
     private func loadLocations() {
@@ -106,7 +105,10 @@ struct HomeScreen: View {
                         if let diningCourt = diningCourts.first(where: { $0.diningCourt.name == diningCourtName }) {
                             DiningCourtListItem(diningCourt: diningCourt) {
                                 Logger.shared.LogInfo(tag: LOG_TAG, message: "Navigating to dining court: \(diningCourt.diningCourt.name)")
-//								onNavigateToFoodLocation(name, id)
+								navController.navigate(to: .location(
+                                    id: diningCourt.diningCourt.id,
+                                    name: diningCourt.customName ?? diningCourt.diningCourt.name
+                                ))
                             }
                             Divider()
                         }
@@ -128,9 +130,12 @@ struct HomeScreen: View {
 									case "Sushi Boss at Meredith Hall", "Sushi Boss at South Hall": name = "Sushi Boss"
 									default: name = quickBite.diningCourt.name
                                 }
-								
+
                                 Logger.shared.LogInfo(tag: LOG_TAG, message: "Navigating to quick bite: \(name)")
-//								onNavigateToFoodLocation(name, id)
+								navController.navigate(to: .location(
+                                    id: quickBite.diningCourt.id,
+                                    name: quickBite.customName ?? name
+                                ))
                             }
                             Divider()
                         }
